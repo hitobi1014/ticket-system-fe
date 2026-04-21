@@ -5,23 +5,32 @@
 /** 좌석 */
 export interface Seat {
   id: number;
-  number: number;      // 좌석 번호 (1, 2, 3...)
-  isAisle: boolean;    // 통로 여부 (true면 통로, false면 일반 좌석)
-}
-
-/** 구역 */
-export interface Zone {
-  id: number;
-  name: string;        // 구역명 (가구역, 나구역 등)
-  seats: Seat[];       // 해당 구역의 좌석 배열
+  row: number;
+  col: number;
+  assignedMemberId: number | null;
 }
 
 /** 층 */
 export interface Floor {
   id: number;
   name: string;        // 층 이름 (1층, 2층 등)
-  zones: Zone[];       // 해당 층의 구역 배열
+  items: FloorItem[];       // 해당 층의 구역 배열,  좌>우 배치 순서
 }
+
+/** 구역 */
+export interface Section {
+  kind: 'section';
+  id: number;
+  name: string;        // 구역명 (가구역, 나구역 등)
+  cols: number;       // 한 행당 좌석 수
+  rows: number;       // 행 수
+  seats: Seat[];       // cols x rows 개
+  visible: boolean;    // 특정 좌석 안보이게할때, 기본값 true
+}
+
+type FloorItem = Section | Aisle;
+
+type Aisle = { kind: 'aisle'; id: number };
 
 /** 동호회 회원 */
 export interface Member {
@@ -31,18 +40,9 @@ export interface Member {
   color: string;            // 좌석 배정 시 구분 색상 (hex 코드)
 }
 
-/** 좌석 배정 */
-export interface Assignment {
-  seatId: number;      // 배정된 좌석 ID
-  memberId: number;    // 배정받은 회원 ID
-}
-
 // =====================
 // 추가 타입
 // =====================
-
-/** 좌석 상태 */
-export type SeatStatus = 'empty' | 'assigned' | 'aisle';
 
 /** 공연장 설정 (전체 좌석 구조) */
 export interface VenueConfig {
