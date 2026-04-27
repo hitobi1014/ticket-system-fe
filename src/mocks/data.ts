@@ -1,20 +1,4 @@
-import type {Member, Floor, Section, Seat, VenueConfig} from '@/types';
-
-// =====================
-// 회원 데이터 (10명)
-// =====================
-export const mockMembers: Member[] = [
-  {id: 1, name: '김철수', allocatedTickets: 5, color: '#FF6B6B'},
-  {id: 2, name: '이영희', allocatedTickets: 5, color: '#4ECDC4'},
-  {id: 3, name: '박민수', allocatedTickets: 5, color: '#45B7D1'},
-  {id: 4, name: '정수진', allocatedTickets: 5, color: '#96CEB4'},
-  {id: 5, name: '최동현', allocatedTickets: 5, color: '#FFEAA7'},
-  {id: 6, name: '강미영', allocatedTickets: 5, color: '#DDA0DD'},
-  {id: 7, name: '윤재호', allocatedTickets: 5, color: '#98D8C8'},
-  {id: 8, name: '한소희', allocatedTickets: 5, color: '#F7DC6F'},
-  {id: 9, name: '임태준', allocatedTickets: 5, color: '#BB8FCE'},
-  {id: 10, name: '서유나', allocatedTickets: 5, color: '#85C1E9'},
-];
+import type { Floor, Section, Seat, VenueConfig } from '@/types';
 
 // =====================
 // 좌석 생성 헬퍼 함수
@@ -24,7 +8,7 @@ let seatIdCounter = 1;
 function createSeats(
   cols: number,
   rows: number,
-  assignmentMap: Map<number, number> // row -> memberId
+  assignmentMap: Map<number, number>, // row -> memberId
 ): Seat[] {
   const seats: Seat[] = [];
   for (let row = 1; row <= rows; row++) {
@@ -46,7 +30,7 @@ function createSection(
   name: string,
   cols: number,
   rows: number,
-  assignmentMap: Map<number, number>
+  assignmentMap: Map<number, number>,
 ): Section {
   return {
     kind: 'section',
@@ -64,17 +48,42 @@ function createSection(
 // =====================
 const floor1Sections: Section[] = [
   // 가구역: 회원 1~4 배정
-  createSection(1, '가구역', 5, 4, new Map([
-    [1, 1], [2, 2], [3, 3], [4, 4],
-  ])),
+  createSection(
+    1,
+    '가구역',
+    5,
+    4,
+    new Map([
+      [1, 1],
+      [2, 2],
+      [3, 3],
+      [4, 4],
+    ]),
+  ),
   // 나구역: 회원 5~8 배정
-  createSection(2, '나구역', 5, 4, new Map([
-    [1, 5], [2, 6], [3, 7], [4, 8],
-  ])),
+  createSection(
+    2,
+    '나구역',
+    5,
+    4,
+    new Map([
+      [1, 5],
+      [2, 6],
+      [3, 7],
+      [4, 8],
+    ]),
+  ),
   // 다구역: 회원 9~10 배정, row 3~4는 빈좌석
-  createSection(3, '다구역', 5, 4, new Map([
-    [1, 9], [2, 10],
-  ])),
+  createSection(
+    3,
+    '다구역',
+    5,
+    4,
+    new Map([
+      [1, 9],
+      [2, 10],
+    ]),
+  ),
 ];
 
 // =====================
@@ -95,9 +104,9 @@ export const mockFloors: Floor[] = [
     name: '1층',
     items: [
       floor1Sections[0],
-      {kind: 'aisle', id: 101},
+      { kind: 'aisle', id: 101 },
       floor1Sections[1],
-      {kind: 'aisle', id: 102},
+      { kind: 'aisle', id: 102 },
       floor1Sections[2],
     ],
   },
@@ -106,9 +115,9 @@ export const mockFloors: Floor[] = [
     name: '2층',
     items: [
       floor2Sections[0],
-      {kind: 'aisle', id: 201},
+      { kind: 'aisle', id: 201 },
       floor2Sections[1],
-      {kind: 'aisle', id: 202},
+      { kind: 'aisle', id: 202 },
       floor2Sections[2],
     ],
   },

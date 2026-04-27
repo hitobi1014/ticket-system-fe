@@ -16,6 +16,8 @@
         "./src/*"
       ]
     },
+    "noImplicitAny": true,
+    "strictNullChecks": true,
     "skipLibCheck": true,
     /* Bundler mode */
     "moduleResolution": "bundler",
