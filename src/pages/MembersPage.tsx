@@ -26,14 +26,37 @@ export default function MembersPage() {
       />
 
       <button onClick={handleAddMember}>회원 추가</button>
-      <ul>
-        {members.map((member) => (
-          <li key={member.id}>
-            {member.name} (티켓: {member.allocatedTickets})
-            <button onClick={() => removeMember(member.id)}>삭제</button>
-          </li>
-        ))}
-      </ul>
+
+      {members.length === 0 ? (
+        <p>등록된 회원이 없습니다.</p>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>이름</th>
+              <th>배정 티켓</th>
+              <th>잔여 티켓</th>
+              <th>배정된 좌석 수</th>
+              <th>티켓색상</th>
+              <th>삭제</th>
+            </tr>
+          </thead>
+          <tbody>
+            {members.map((member) => (
+              <tr key={member.id}>
+                <td>{member.name}</td>
+                <td>{member.allocatedTickets}</td>
+                <td>{member.allocatedTickets}</td>
+                <td>{member.allocatedTickets}</td>
+                <td>{member.color}</td>
+                <td>
+                  <button onClick={() => removeMember(member.id)}>회원 삭제</button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
