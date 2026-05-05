@@ -6,6 +6,7 @@ interface MemberStore {
   members: Member[];
   addMember: (req: CreateMemberRequest) => void;
   removeMember: (id: number) => void;
+  updateTickets: (id: number, tickets: number) => void;
 }
 
 const useMemberStore = create<MemberStore>((set) => ({
@@ -21,6 +22,11 @@ const useMemberStore = create<MemberStore>((set) => ({
   removeMember: (id) =>
     set((state) => ({
       members: state.members.filter((m) => m.id !== id),
+    })),
+
+  updateTickets: (id, tickets) =>
+    set((state) => ({
+      members: state.members.map((m) => (m.id === id ? { ...m, allocatedTickets: tickets } : m)),
     })),
 }));
 

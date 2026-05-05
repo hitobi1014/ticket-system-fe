@@ -1,9 +1,10 @@
 import useMemberStore from '@/store/memberStore.ts';
 import { useState } from 'react';
+import type { Member } from '@/types/member.ts';
 
 export default function MembersPage() {
   const [isAdding, setIsAdding] = useState(false);
-  const { members, addMember, removeMember } = useMemberStore();
+  const { members, addMember, removeMember, updateTickets } = useMemberStore();
   const [name, setName] = useState('');
   const [ticket, setTicket] = useState(0);
 
@@ -16,6 +17,14 @@ export default function MembersPage() {
     setName('');
     setTicket(0);
     setIsAdding(false);
+  };
+
+  const handleRemoveMember = (member: Member) => {
+    const result = confirm(`${member.name}님을 목록에서 제거 하시겠습니까?`);
+    if (!result) {
+      return;
+    }
+    removeMember(member.id);
   };
 
   return (
@@ -47,6 +56,7 @@ export default function MembersPage() {
             </tr>
           </thead>
           <tbody>
+            {/* 신규 회원 추가시 */}
             {isAdding && (
               <tr>
                 <td>
@@ -75,15 +85,23 @@ export default function MembersPage() {
                 </td>
               </tr>
             )}
+            {/* 회원 목록 */}
             {members.map((member) => (
               <tr key={member.id}>
                 <td>{member.name}</td>
-                <td>{member.allocatedTickets}</td>
+                <td>
+                  <input
+                    type="number"
+                    min={0}
+                    value={member.allocatedTickets}
+                    onChange={(e) => updateTickets(member.id, Number(e.target.value))}
+                  />
+                </td>
                 <td>{member.allocatedTickets}</td>
                 <td>{member.allocatedTickets}</td>
                 <td>{member.color}</td>
                 <td>
-                  <button onClick={() => removeMember(member.id)}>회원 삭제</button>
+                  <button onClick={() => handleRemoveMember(member)}>회원 삭제</button>
                 </td>
               </tr>
             ))}
