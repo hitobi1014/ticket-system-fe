@@ -1,12 +1,20 @@
 import useMemberStore from '@/store/memberStore.ts';
 import { useState } from 'react';
 import type { Member } from '@/types/member.ts';
+import { VENUE } from '@/constant/venue.ts';
+
+/*
+TODO 총 좌석 수가 0일떄는 회원 티켓 추가로 늘리지 못하게 막기
+ */
 
 export default function MembersPage() {
+  const { members, addMember, removeMember, updateTickets, distributeTickets } = useMemberStore();
   const [isAdding, setIsAdding] = useState(false);
-  const { members, addMember, removeMember, updateTickets } = useMemberStore();
   const [name, setName] = useState('');
   const [ticket, setTicket] = useState(0);
+
+  const totalAllocated = members.reduce((sum, m) => sum + m.allocatedTickets, 0);
+  const remainingTickets = VENUE.totalSeats - totalAllocated;
 
   const handleAddMember = () => {
     if (!name.trim()) {
@@ -30,6 +38,13 @@ export default function MembersPage() {
   return (
     <div>
       <h1>회원관리</h1>
+      <button onClick={() => setIsAdding(true)}>회원 추가</button>
+      <button onClick={distributeTickets} disabled={members.length === 0}>
+        티켓 균등 배분
+      </button>
+      <h1>총 좌석 수 {VENUE.totalSeats} </h1>
+      <h1>잔여 좌석 수 {remainingTickets} </h1>
+      <h1>회원에게 배정된 좌석 수 {totalAllocated} </h1>
       {/*<input placeholder="회원 이름" onChange={(e) => setName(e.target.value)} value={name} />*/}
       {/*<input*/}
       {/*  type="number"*/}
@@ -38,8 +53,6 @@ export default function MembersPage() {
       {/*  value={ticket}*/}
       {/*  onChange={(e) => setTicket(Number(e.target.value))}*/}
       {/*/>*/}
-
-      <button onClick={() => setIsAdding(true)}>회원 추가</button>
 
       {members.length === 0 ? (
         <p>등록된 회원이 없습니다.</p>
@@ -91,6 +104,7 @@ export default function MembersPage() {
                 <td>{member.name}</td>
                 <td>
                   <input
+                    style={{ textAlign: 'right' }}
                     type="number"
                     min={0}
                     value={member.allocatedTickets}
