@@ -3,9 +3,19 @@ import { useState } from 'react';
 import type { Member } from '@/types/member.ts';
 import { VENUE } from '@/constant/venue.ts';
 
-/*
-TODO 총 좌석 수가 0일떄는 회원 티켓 추가로 늘리지 못하게 막기
- */
+import {
+  Table,
+  TableBody,
+  // TableCaption,
+  TableCell,
+  // TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+  // } from '@/components/ui/table';
+} from '@/components/ui/table';
+
+const TABLE_HEADS = ['이름', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제'];
 
 export default function MembersPage() {
   const { members, addMember, removeMember, updateTickets, distributeTickets } = useMemberStore();
@@ -35,6 +45,19 @@ export default function MembersPage() {
     removeMember(member.id);
   };
 
+  const handleUpdateTicket = (memberId: number, ticket: number) => {
+    const member = members.find((member) => member.id === memberId);
+    if (!member) return;
+
+    const isIncreasing = ticket > member.allocatedTickets;
+    if (isIncreasing && remainingTickets <= 0) {
+      alert('현재 남아있는 좌석 수가 없습니다.');
+      return;
+    }
+
+    updateTickets(memberId, ticket);
+  };
+
   return (
     <div>
       <h1>회원관리</h1>
@@ -45,82 +68,73 @@ export default function MembersPage() {
       <h1>총 좌석 수 {VENUE.totalSeats} </h1>
       <h1>잔여 좌석 수 {remainingTickets} </h1>
       <h1>회원에게 배정된 좌석 수 {totalAllocated} </h1>
-      {/*<input placeholder="회원 이름" onChange={(e) => setName(e.target.value)} value={name} />*/}
-      {/*<input*/}
-      {/*  type="number"*/}
-      {/*  min={0}*/}
-      {/*  placeholder="배정 티켓 수"*/}
-      {/*  value={ticket}*/}
-      {/*  onChange={(e) => setTicket(Number(e.target.value))}*/}
-      {/*/>*/}
 
       {members.length === 0 ? (
         <p>등록된 회원이 없습니다.</p>
       ) : (
-        <table>
-          <thead>
-            <tr>
-              <th>이름</th>
-              <th>배정 티켓</th>
-              <th>잔여 티켓</th>
-              <th>배정된 좌석 수</th>
-              <th>티켓색상</th>
-              <th>삭제</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader className="w-[100px]">
+            <TableRow>
+              {TABLE_HEADS.map((head) => (
+                <TableHead>{head}</TableHead>
+              ))}
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {/* 신규 회원 추가시 */}
             {isAdding && (
-              <tr>
-                <td>
+              <TableRow>
+                <TableCell>
                   <input
                     placeholder="이름"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <input
                     type="number"
                     min={0}
                     value={ticket}
                     onChange={(e) => setTicket(Number(e.target.value))}
                   />
-                </td>
-                <td>-</td>
-                <td>-</td>
-                <td>
+                </TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>
                   <input type="color" />
-                </td>
-                <td>
+                </TableCell>
+                <TableCell>
                   <button onClick={handleAddMember}>확인</button>
                   <button onClick={() => setIsAdding(false)}>취소</button>
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
             {/* 회원 목록 */}
-            {members.map((member) => (
-              <tr key={member.id}>
-                <td>{member.name}</td>
-                <td>
-                  <input
-                    style={{ textAlign: 'right' }}
-                    type="number"
-                    min={0}
-                    value={member.allocatedTickets}
-                    onChange={(e) => updateTickets(member.id, Number(e.target.value))}
-                  />
-                </td>
-                <td>{member.allocatedTickets}</td>
-                <td>{member.allocatedTickets}</td>
-                <td>{member.color}</td>
-                <td>
-                  <button onClick={() => handleRemoveMember(member)}>회원 삭제</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+            {members.map((member) => {
+              return (
+                <TableRow key={member.id}>
+                  <TableCell>{member.name}</TableCell>
+                  <TableCell>
+                    <input
+                      style={{ textAlign: 'right' }}
+                      type="number"
+                      min={0}
+                      value={member.allocatedTickets}
+                      onChange={(e) => handleUpdateTicket(member.id, Number(e.target.value))}
+                    />
+                  </TableCell>
+                  <TableCell>{member.allocatedTickets}</TableCell>
+                  <TableCell>{member.allocatedTickets}</TableCell>
+                  <TableCell>{member.color}</TableCell>
+                  <TableCell>
+                    <button onClick={() => handleRemoveMember(member)}>회원 삭제</button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
       )}
     </div>
   );
