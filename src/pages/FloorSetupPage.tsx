@@ -2,7 +2,7 @@ import useSeatStore from '@/store/seatStore.ts';
 import { useState } from 'react';
 import type { CreateFloorRequest } from '@/types';
 
-export default function SeatSetupPage() {
+export default function FloorSetupPage() {
   const { floors, addFloor, removeFloor } = useSeatStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
@@ -10,6 +10,10 @@ export default function SeatSetupPage() {
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const handleRemoveFloor = (id: number) => {
+    const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${id}`); // id말고 name 확인하며 물어보기
+
+    // TODO 추후확인 해당 층에 Section 있으면 경고 메시지
+    if (!isRemove) return;
     removeFloor(id);
 
     // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
@@ -33,25 +37,26 @@ export default function SeatSetupPage() {
 
   return (
     <div>
+      <button onClick={() => handleAddFloor()}>층 추가</button>
       <div>
         {/* 1층 탭바 */}
         {floors.map((floor) => (
-          <button
-            key={floor.id}
-            onClick={() => setSelectedFloorId(floor.id)}
-            className={selectedFloorId === floor.id ? 'bg-blue-500 text-white' : 'bg-gray-100'}
-          >
-            {floor.name}
-            <span
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveFloor(floor.id);
-              }}
-            ></span>
-          </button>
+          <>
+            <button
+              key={floor.id}
+              onClick={() => setSelectedFloorId(floor.id)}
+              className={selectedFloorId === floor.id ? 'bg-blue-500 text-white' : 'bg-gray-100'}
+            >
+              {floor.name}
+              <span
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemoveFloor(floor.id);
+                }}
+              ></span>
+            </button>
+          </>
         ))}
-        <button onClick={() => handleAddFloor()}></button>
-        {/* TODO + 층 추가 버튼*/}
       </div>
 
       {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
