@@ -8,6 +8,9 @@ export interface Floor {
   items: FloorItem[]; // 해당 층의 구역 배열,  좌>우 배치 순서
 }
 
+// 생성 요청용 id x
+export type CreateFloorRequest = Omit<Floor, 'items'>;
+
 /** 구역 */
 export interface Section {
   kind: 'section';

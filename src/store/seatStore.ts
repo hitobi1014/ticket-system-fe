@@ -1,17 +1,28 @@
-import type { Floor } from '@/types';
+import type { CreateFloorRequest, Floor } from '@/types';
 import { create } from 'zustand/react';
 
-interface SeatStore {
+interface FloorStore {
   floors: Floor[];
-  addSeat: () => void;
+  addFloor: (req: CreateFloorRequest) => void;
+  removeFloor: (id: number) => void;
 }
 
-const useSeatStore = create<SeatStore>((set) => ({
+const useSeatStore = create<FloorStore>((set) => ({
   floors: [],
-  addSeat: () =>
-    set((state) => ({
-      ...state,
-    })),
+
+  addFloor: (req) =>
+    set((state) => {
+      return {
+        floors: [...state.floors, { ...req, items: [] }],
+      };
+    }),
+
+  removeFloor: (id) =>
+    set((state) => {
+      return {
+        floors: state.floors.filter((f) => f.id !== id),
+      };
+    }),
 }));
 
 export default useSeatStore;
