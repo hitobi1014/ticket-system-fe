@@ -7,7 +7,7 @@ interface FloorStore {
   removeFloor: (id: number) => void;
 }
 
-const useSeatStore = create<FloorStore>((set) => ({
+const useFloorStore = create<FloorStore>((set) => ({
   floors: [],
 
   addFloor: (req) =>
@@ -25,4 +25,4 @@ const useSeatStore = create<FloorStore>((set) => ({
     }),
 }));
 
-export default useSeatStore;
+export default useFloorStore;

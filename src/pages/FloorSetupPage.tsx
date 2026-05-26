@@ -1,9 +1,9 @@
-import useSeatStore from '@/store/seatStore.ts';
+import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
 import type { CreateFloorRequest } from '@/types';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeFloor } = useSeatStore();
+  const { floors, addFloor, removeFloor } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
