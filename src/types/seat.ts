@@ -21,6 +21,8 @@ export interface Section {
   seats: Seat[]; // cols x rows 개
 }
 
+export type CreateSectionRequest = Omit<Section, 'kind' | 'seats'>;
+
 /** 좌석 */
 export interface Seat {
   id: number;
