@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type { CreateFloorRequest, Section } from '@/types';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeFloor, addSection } = useFloorStore();
+  const { floors, addFloor, removeFloor, addSection, removeSection } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -53,6 +53,15 @@ export default function FloorSetupPage() {
     });
   };
 
+  const handleRemoveSection = (sectionName:string, sectionId: number) => {
+    if (sectionId === null) return;
+
+    const isRemove = window.confirm(`${sectionName} 구역을 정말 삭제하시겠습니까?`);
+    if (!isRemove) return;
+
+    removeSection(sectionId);
+  }
+
   return (
     <div>
       <button onClick={() => handleAddFloor()}>층 추가</button>
@@ -90,7 +99,9 @@ export default function FloorSetupPage() {
 
               return (
                 <div key={item.id}>
-                  <h1 className='bg-amber-300'>{item.name}</h1>
+                  <h1 className="bg-amber-300">{item.name}</h1>
+                  <h1>총 좌석 수: ex)500</h1> {/*TODO 추후 Seat까지 개발완료되면 수정하기*/}
+                  <button onClick={() => handleRemoveSection(item.name, item.id)}>구역 삭제</button>
                   {item.rows.map((row) => {
                     return (
                       <div>

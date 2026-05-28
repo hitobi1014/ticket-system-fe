@@ -7,6 +7,7 @@ interface FloorStore {
   removeFloor: (id: number) => void;
 
   addSection: (floorId: number, req: CreateSectionRequest) => void;
+  removeSection: (sectionId: number) => void;
 }
 
 const useFloorStore = create<FloorStore>((set) => ({
@@ -40,6 +41,16 @@ const useFloorStore = create<FloorStore>((set) => ({
         return { ...f, items: [...f.items, newSection] };
       }),
     })),
+
+  removeSection: (sectionId) =>
+    set((state) => {
+      return {
+        floors: state.floors.map((f) => ({
+          ...f,
+          items: f.items.filter((item) => item.id !== sectionId),
+        })),
+      };
+    }),
 }));
 
 export default useFloorStore;
