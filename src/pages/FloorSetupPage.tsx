@@ -7,6 +7,7 @@ export default function FloorSetupPage() {
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
+  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const handleRemoveFloor = (id: number) => {
@@ -62,6 +63,11 @@ export default function FloorSetupPage() {
     removeSection(sectionId);
   }
 
+  const handleSelectSection = (sectionId: number) => {
+    setSelectedSectionId(null);
+    setSelectedSectionId(sectionId);
+  }
+
   return (
     <div>
       <button onClick={() => handleAddFloor()}>층 추가</button>
@@ -98,18 +104,26 @@ export default function FloorSetupPage() {
               }
 
               return (
-                <div key={item.id}>
+                /* Section */
+                <div key={item.id} onClick={() => handleSelectSection(item.id)}>
                   <h1 className="bg-amber-300">{item.name}</h1>
                   <h1>총 좌석 수: ex)500</h1> {/*TODO 추후 Seat까지 개발완료되면 수정하기*/}
                   <button onClick={() => handleRemoveSection(item.name, item.id)}>구역 삭제</button>
-                  {item.rows.map((row) => {
-                    return (
-                      <div>
-                        <h1>id: {row.id}</h1>
-                        <h1>rowNumber: {row.rowNumber}</h1>
-                      </div>
-                    );
-                  })}
+                  <br />
+                  {selectedSectionId ? (
+                    <>
+                      {/*TODO 선택했을때 기존에 선택된 구역은 해제 => 화면 x*/}
+                      <button>열 추가 선택된 구역:{item.name} </button>
+                      {item.rows.map((row) => {
+                        return (
+                          <div>
+                            <h1>id: {row.id}</h1>
+                            <h1>rowNumber: {row.rowNumber}</h1>
+                          </div>
+                        );
+                      })}
+                    </>
+                  ): ''}
                 </div>
               );
             })}
