@@ -34,7 +34,7 @@ const useFloorStore = create<FloorStore>((set) => ({
         const newSection: Section = {
           kind: 'section',
           ...req,
-          seats: [],
+          rows: [],
         };
 
         return { ...f, items: [...f.items, newSection] };

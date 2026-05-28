@@ -19,7 +19,7 @@ export interface Section {
   name: string; // 구역명 (가구역, 나구역 등)
   rows: Rows[]
 }
-export type CreateSectionRequest = Omit<Section, 'kind' | 'seats'>;
+export type CreateSectionRequest = Omit<Section, 'kind' | 'rows'>;
 
 export interface Aisle {
   id: number;

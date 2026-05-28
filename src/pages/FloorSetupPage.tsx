@@ -1,9 +1,9 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
-import type { CreateFloorRequest } from '@/types';
+import type { CreateFloorRequest, Section } from '@/types';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeFloor } = useFloorStore();
+  const { floors, addFloor, removeFloor, addSection } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -26,13 +26,31 @@ export default function FloorSetupPage() {
   const handleAddFloor = () => {
     const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
     if (!name?.trim()) return;
-    const newId = floors.reduce((max, f) => Math.max(max, f.id ?? 0), 0);
+    const newId = floors.reduce((max, f) => Math.max(max, f.id), 0) + 1;
     const req: CreateFloorRequest = {
       id: newId,
       name: name.trim(),
     };
     addFloor(req);
     setSelectedFloorId(req.id);
+  };
+
+  const handleAddSection = () => {
+    if (!selectedFloor) return;
+    const sectionName = window.prompt('구역명을 입력하세요.');
+    if (!sectionName?.trim()) {
+      alert('구역명은 빈 값으로 입력할 수 없습니다.');
+      return;
+    }
+    const maxSectionId = floors
+      .flatMap((f) => f.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .reduce((max, section) => Math.max(max, section.id), 0);
+
+    addSection(selectedFloor.id, {
+      id: maxSectionId + 1,
+      name: sectionName,
+    });
   };
 
   return (
@@ -62,9 +80,32 @@ export default function FloorSetupPage() {
       {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
       <div className="mt-4">
         {selectedFloor ? (
-          <p>
-            {selectedFloor.name} 선택됨 - 구역 {selectedFloor.items.length}개
-          </p>
+          <>
+            <button onClick={() => handleAddSection()}>구역추가</button>
+            {/* 구역인지 통로인지 구분*/}
+            {selectedFloor.items.map((item) => {
+              if (item.kind === 'aisle') {
+                return <div key={item.id}>통로</div>;
+              }
+
+              return (
+                <div key={item.id}>
+                  <h1 className='bg-amber-300'>{item.name}</h1>
+                  {item.rows.map((row) => {
+                    return (
+                      <div>
+                        <h1>id: {row.id}</h1>
+                        <h1>rowNumber: {row.rowNumber}</h1>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+            <p>
+              {selectedFloor.name} 선택됨 - 구역 {selectedFloor.items.length}개
+            </p>
+          </>
         ) : (
           <p>층을 추가해주세요.</p>
         )}
