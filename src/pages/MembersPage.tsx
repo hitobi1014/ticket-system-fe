@@ -76,7 +76,7 @@ export default function MembersPage() {
           <TableHeader className="w-[100px]">
             <TableRow>
               {TABLE_HEADS.map((head) => (
-                <TableHead>{head}</TableHead>
+                <TableHead key={head}>{head}</TableHead>
               ))}
             </TableRow>
           </TableHeader>
