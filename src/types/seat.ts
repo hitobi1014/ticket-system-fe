@@ -11,6 +11,7 @@ export interface Rows {
   rowNumber: number;
   seats: Seat[]
 }
+export type CreateRowsRequest = Omit<Rows, 'seats'>;
 
 /** 구역 */
 export interface Section {

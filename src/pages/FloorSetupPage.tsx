@@ -1,9 +1,10 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
-import type { CreateFloorRequest, Section } from '@/types';
+import type { CreateFloorRequest, CreateRowsRequest, Section } from '@/types';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeFloor, addSection, removeSection } = useFloorStore();
+  const { floors, addFloor, removeFloor, addSection, removeSection, addRow, removeRow } =
+    useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -54,20 +55,46 @@ export default function FloorSetupPage() {
     });
   };
 
-  const handleRemoveSection = (sectionName:string, sectionId: number) => {
+  const handleRemoveSection = (sectionName: string, sectionId: number) => {
     if (sectionId === null) return;
 
     const isRemove = window.confirm(`${sectionName} 구역을 정말 삭제하시겠습니까?`);
     if (!isRemove) return;
 
     removeSection(sectionId);
-  }
+  };
 
   const handleSelectSection = (sectionId: number) => {
-    setSelectedSectionId(null);
-    setSelectedSectionId(sectionId);
-  }
+    setSelectedSectionId((prev) => (prev === sectionId ? null : sectionId));
+  };
 
+  const handleAddRow = (sectionId: number) => {
+    const rowNumber = Number(window.prompt('추가 할 열 번호를 입력해주세요.'));
+    if (!Number.isInteger(rowNumber)) {
+      alert(`열 번호를 다시 확인해주세요. 숫자만 입력 가능합니다. \n 입력한 값: ${rowNumber}`);
+      return;
+    }
+    console.log(`선택된 구역: ${selectedSectionId}`);
+
+    const maxRowId = floors
+      .flatMap((f) => f.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .flatMap((s) => s.rows)
+      .reduce((max, row) => Math.max(max, row.id), 0);
+    console.log(`선택된 구역: ${selectedSectionId}`);
+    const req: CreateRowsRequest = {
+      id: maxRowId + 1,
+      rowNumber,
+    };
+    addRow(sectionId, req);
+    console.log(`선택된 구역: ${selectedSectionId}, itemID: ${sectionId}`);
+  };
+
+  const handleRemoveRow = (rowId: number) => {
+    const isRemove = window.confirm(`선택한 row:${rowId}를 삭제하시겠습니까?`);
+    if (!isRemove) return;
+    removeRow(rowId);
+  };
   return (
     <div>
       <button onClick={() => handleAddFloor()}>층 추가</button>
@@ -105,25 +132,56 @@ export default function FloorSetupPage() {
 
               return (
                 /* Section */
-                <div key={item.id} onClick={() => handleSelectSection(item.id)}>
+                <div
+                  key={item.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleSelectSection(item.id);
+                  }}
+                >
                   <h1 className="bg-amber-300">{item.name}</h1>
                   <h1>총 좌석 수: ex)500</h1> {/*TODO 추후 Seat까지 개발완료되면 수정하기*/}
-                  <button onClick={() => handleRemoveSection(item.name, item.id)}>구역 삭제</button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleRemoveSection(item.name, item.id);
+                    }}
+                  >
+                    구역 삭제
+                  </button>
                   <br />
-                  {selectedSectionId ? (
+                  {selectedSectionId === item.id ? (
                     <>
-                      {/*TODO 선택했을때 기존에 선택된 구역은 해제 => 화면 x*/}
-                      <button>열 추가 선택된 구역:{item.name} </button>
+                      <h1>선택된 구역:{item.name}</h1>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAddRow(item.id);
+                        }}
+                      >
+                        열 추가
+                      </button>
                       {item.rows.map((row) => {
                         return (
-                          <div>
-                            <h1>id: {row.id}</h1>
-                            <h1>rowNumber: {row.rowNumber}</h1>
+                          <div key={row.id}>
+                            <h1>
+                              id: {row.id} / rowNumber: {row.rowNumber}
+                            </h1>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveRow(row.id);
+                              }}
+                            >
+                              삭제
+                            </button>
                           </div>
                         );
                       })}
                     </>
-                  ): ''}
+                  ) : (
+                    ''
+                  )}
                 </div>
               );
             })}
