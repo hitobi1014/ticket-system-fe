@@ -5,11 +5,12 @@ export interface Seat {
   assignedMemberId: number | null;
   visible: boolean; // 특정 좌석 안보이게할때, 기본값 true
 }
+export type CreateSeatRequest = Omit<Seat, 'assignedMemberId' | 'visible'>;
 /** 열 */
 export interface Rows {
   id: number;
   rowNumber: number;
-  seats: Seat[]
+  seats: Seat[];
 }
 export type CreateRowsRequest = Omit<Rows, 'seats'>;
 
@@ -18,7 +19,7 @@ export interface Section {
   kind: 'section';
   id: number;
   name: string; // 구역명 (가구역, 나구역 등)
-  rows: Rows[]
+  rows: Rows[];
 }
 export type CreateSectionRequest = Omit<Section, 'kind' | 'rows'>;
 

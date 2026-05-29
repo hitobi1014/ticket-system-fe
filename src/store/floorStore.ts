@@ -1,6 +1,7 @@
 import type {
   CreateFloorRequest,
   CreateRowsRequest,
+  CreateSeatRequest,
   CreateSectionRequest,
   Floor,
   Section,
@@ -19,6 +20,9 @@ interface FloorStore {
 
   addRow: (sectionId: number, req: CreateRowsRequest) => void;
   removeRow: (rowId: number) => void;
+
+  addSeat: (rowId: number, req: CreateSeatRequest) => void;
+  removeSeat: (seatId: number) => void;
 }
 
 const useFloorStore = create<FloorStore>()(
@@ -112,6 +116,51 @@ const useFloorStore = create<FloorStore>()(
         }),
         undefined,
         'removeRow',
+      ),
+
+    addSeat: (rowId, req) =>
+      set(
+        (state) => ({
+          floors: state.floors.map((f) => ({
+            ...f,
+            items: f.items.map((item) => {
+              if (item.kind !== 'section') return item;
+              return {
+                ...item,
+                rows: item.rows.map((row) => {
+                  if (row.id !== rowId) return row;
+                  return {
+                    ...row,
+                    seats: [...row.seats, { ...req, assignedMemberId: null, visible: true }],
+                  };
+                }),
+              };
+            }),
+          })),
+        }),
+        undefined,
+        'addSeat',
+      ),
+
+    removeSeat: (seatId) =>
+      set(
+        (state) => ({
+          floors: state.floors.map((f) => ({
+            ...f,
+            items: f.items.map((item) => {
+              if (item.kind !== 'section') return item;
+              return {
+                ...item,
+                rows: item.rows.map((row) => ({
+                  ...row,
+                  seats: row.seats.filter((seat) => seat.id !== seatId),
+                })),
+              };
+            }),
+          })),
+        }),
+        undefined,
+        'removeSeat',
       ),
   })),
 );

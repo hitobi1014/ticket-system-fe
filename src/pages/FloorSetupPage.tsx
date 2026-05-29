@@ -1,14 +1,24 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
-import type { CreateFloorRequest, CreateRowsRequest, Section } from '@/types';
+import type { CreateFloorRequest, CreateRowsRequest, CreateSeatRequest, Section } from '@/types';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeFloor, addSection, removeSection, addRow, removeRow } =
-    useFloorStore();
+  const {
+    floors,
+    addFloor,
+    removeFloor,
+    addSection,
+    removeSection,
+    addRow,
+    removeRow,
+    addSeat,
+    removeSeat,
+  } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
+  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const handleRemoveFloor = (id: number) => {
@@ -74,20 +84,18 @@ export default function FloorSetupPage() {
       alert(`열 번호를 다시 확인해주세요. 숫자만 입력 가능합니다. \n 입력한 값: ${rowNumber}`);
       return;
     }
-    console.log(`선택된 구역: ${selectedSectionId}`);
 
     const maxRowId = floors
       .flatMap((f) => f.items)
       .filter((item): item is Section => item.kind === 'section')
       .flatMap((s) => s.rows)
       .reduce((max, row) => Math.max(max, row.id), 0);
-    console.log(`선택된 구역: ${selectedSectionId}`);
+
     const req: CreateRowsRequest = {
       id: maxRowId + 1,
       rowNumber,
     };
     addRow(sectionId, req);
-    console.log(`선택된 구역: ${selectedSectionId}, itemID: ${sectionId}`);
   };
 
   const handleRemoveRow = (rowId: number) => {
@@ -95,6 +103,36 @@ export default function FloorSetupPage() {
     if (!isRemove) return;
     removeRow(rowId);
   };
+
+  const handleAddSeat = () => {
+    if (selectedRowId === null) {
+      alert('선택된 row가 없습니다.');
+      return;
+    }
+    const maxSeatId = floors
+      .flatMap((f) => f.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .flatMap((s) => s.rows)
+      .filter((row) => row.id === selectedRowId)
+      .flatMap((r) => r.seats)
+      .reduce((max, seat) => Math.max(max, seat.id), 0);
+
+    const req: CreateSeatRequest = {
+      id: maxSeatId + 1,
+      seatNumber: 1,
+    };
+    addSeat(selectedRowId, req);
+  };
+
+  const handleRemoveSeat = (seatId: number) => {
+    const isRemove = window.confirm(
+      `선택된 좌석을 삭제하시겠습니까? 선택된 열-좌석: ${selectedRowId}-${seatId}`,
+    );
+    if (!isRemove) return;
+
+    removeSeat(seatId);
+  };
+
   return (
     <div>
       <button onClick={() => handleAddFloor()}>층 추가</button>
@@ -163,18 +201,58 @@ export default function FloorSetupPage() {
                       </button>
                       {item.rows.map((row) => {
                         return (
-                          <div key={row.id}>
+                          <div
+                            key={row.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedRowId(row.id);
+                            }}
+                          >
                             <h1>
-                              id: {row.id} / rowNumber: {row.rowNumber}
+                              <span>
+                                id: {row.id} / rowNumber: {row.rowNumber}
+                              </span>
+                              <button
+                                className="ml-8"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleRemoveRow(row.id);
+                                }}
+                              >
+                                삭제
+                              </button>
+                              {selectedRowId === row.id ? (
+                                <>
+                                  <h1 className="bg-amber-800">선택된 row: {row.rowNumber}</h1>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleAddSeat();
+                                    }}
+                                  >
+                                    좌석 추가
+                                  </button>
+                                  {row.seats.map((seat) => {
+                                    return (
+                                      // TODO seat 그리드 렌더링 1차는 열 별 seat flex로 렌더
+                                      <div key={seat.id}>
+                                        {seat.seatNumber}
+                                        <button
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleRemoveSeat(seat.id);
+                                          }}
+                                        >
+                                          좌석 삭제
+                                        </button>
+                                      </div>
+                                    );
+                                  })}
+                                </>
+                              ) : (
+                                ''
+                              )}
                             </h1>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveRow(row.id);
-                              }}
-                            >
-                              삭제
-                            </button>
                           </div>
                         );
                       })}
