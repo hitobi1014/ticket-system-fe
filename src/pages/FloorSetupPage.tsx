@@ -1,6 +1,7 @@
 import useFloorStore from '../store/floorStore.ts';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import type { CreateFloorRequest, CreateRowsRequest, CreateSeatRequest, Section } from '@/types';
+import { Button } from '@/components/ui/button';
 
 export default function FloorSetupPage() {
   const {
@@ -19,6 +20,7 @@ export default function FloorSetupPage() {
   );
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [isRowEditMode, setRowIsEditMode] = useState<boolean>(false);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const handleRemoveFloor = (id: number) => {
@@ -79,9 +81,9 @@ export default function FloorSetupPage() {
   };
 
   const handleAddRow = (sectionId: number) => {
-    const rowNumber = Number(window.prompt('추가 할 열 번호를 입력해주세요.'));
-    if (!Number.isInteger(rowNumber)) {
-      alert(`열 번호를 다시 확인해주세요. 숫자만 입력 가능합니다. \n 입력한 값: ${rowNumber}`);
+    const rowName = window.prompt('추가 할 열 이름을 입력해주세요.');
+    if (rowName === null || rowName === '') {
+      alert(`열 이름을 다시 확인해주세요. 빈 값은 입력할 수 없습니다. \n 입력한 값: ${rowName}`);
       return;
     }
 
@@ -93,7 +95,7 @@ export default function FloorSetupPage() {
 
     const req: CreateRowsRequest = {
       id: maxRowId + 1,
-      rowNumber,
+      rowName: rowName,
     };
     addRow(sectionId, req);
   };
@@ -104,11 +106,22 @@ export default function FloorSetupPage() {
     removeRow(rowId);
   };
 
+  /**
+   * 입력 받은 좌석 수 만큼 해당 열에 좌석 추가
+   */
   const handleAddSeat = () => {
     if (selectedRowId === null) {
       alert('선택된 row가 없습니다.');
       return;
     }
+    const addSeatCount = Number(window.prompt('추가하실 좌석 수를 입력해주세요'));
+    if (isNaN(addSeatCount) || addSeatCount === 0) {
+      alert(
+        `입력값이 올바르지 않습니다. 1개 이상의 좌석수를 입력해주세요 \n 입력값 :${addSeatCount}`,
+      );
+      return;
+    }
+
     const maxSeatId = floors
       .flatMap((f) => f.items)
       .filter((item): item is Section => item.kind === 'section')
@@ -117,11 +130,11 @@ export default function FloorSetupPage() {
       .flatMap((r) => r.seats)
       .reduce((max, seat) => Math.max(max, seat.id), 0);
 
-    const req: CreateSeatRequest = {
-      id: maxSeatId + 1,
-      seatNumber: 1,
-    };
-    addSeat(selectedRowId, req);
+    const reqs: CreateSeatRequest[] = Array.from({ length: addSeatCount }, (_, i) => ({
+      id: maxSeatId + i,
+      seatNumber: i,
+    }));
+    addSeat(selectedRowId, reqs);
   };
 
   const handleRemoveSeat = (seatId: number) => {
@@ -210,7 +223,7 @@ export default function FloorSetupPage() {
                           >
                             <h1>
                               <span>
-                                id: {row.id} / rowNumber: {row.rowNumber}
+                                id: {row.id} / rowNumber: {row.rowName}
                               </span>
                               <button
                                 className="ml-8"
@@ -223,31 +236,44 @@ export default function FloorSetupPage() {
                               </button>
                               {selectedRowId === row.id ? (
                                 <>
-                                  <h1 className="bg-amber-800">선택된 row: {row.rowNumber}</h1>
-                                  <button
+                                  <h1 className="bg-amber-800">선택된 row: {row.rowName}</h1>
+                                  <Button
                                     onClick={(e) => {
                                       e.stopPropagation();
                                       handleAddSeat();
                                     }}
                                   >
                                     좌석 추가
-                                  </button>
-                                  {row.seats.map((seat) => {
-                                    return (
-                                      // TODO seat 그리드 렌더링 1차는 열 별 seat flex로 렌더
-                                      <div key={seat.id}>
-                                        {seat.seatNumber}
-                                        <button
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleRemoveSeat(seat.id);
-                                          }}
-                                        >
-                                          좌석 삭제
-                                        </button>
-                                      </div>
-                                    );
-                                  })}
+                                  </Button>
+                                  <Button onClick={() => setRowIsEditMode(!isRowEditMode)}>
+                                    열 편집모드: {isRowEditMode ? 'O' : 'X'}
+                                  </Button>
+                                  <div className="border-2 flex">
+                                    <p className="bg-green-800">{row.rowName}</p>
+                                    {row.seats.map((seat) => {
+                                      return (
+                                        <Fragment key={seat.id}>
+                                          {/* TODO seat 그리드 렌더링 1차는 열 별 seat flex로 렌더*/}
+                                          <Button
+                                            variant="outline"
+                                            className="w-10 h-10 text-sm bg-gray-800 text-white"
+                                          >
+                                            {seat.seatNumber}
+                                          </Button>
+                                          {isRowEditMode && (
+                                            <span
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveSeat(seat.id);
+                                              }}
+                                            >
+                                              x
+                                            </span>
+                                          )}
+                                        </Fragment>
+                                      );
+                                    })}
+                                  </div>
                                 </>
                               ) : (
                                 ''

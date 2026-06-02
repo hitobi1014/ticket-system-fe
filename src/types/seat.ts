@@ -9,7 +9,7 @@ export type CreateSeatRequest = Omit<Seat, 'assignedMemberId' | 'visible'>;
 /** 열 */
 export interface Rows {
   id: number;
-  rowNumber: number;
+  rowName: string; // 숫자, 문자열 받아야함 표기방법 다양 => ex) A열 1, 01열 1, 1열 1...
   seats: Seat[];
 }
 export type CreateRowsRequest = Omit<Rows, 'seats'>;

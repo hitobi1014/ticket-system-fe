@@ -9,6 +9,7 @@ import type {
 
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
+import { mockFloors } from '@/mocks/data.ts';
 
 interface FloorStore {
   floors: Floor[];
@@ -21,13 +22,14 @@ interface FloorStore {
   addRow: (sectionId: number, req: CreateRowsRequest) => void;
   removeRow: (rowId: number) => void;
 
-  addSeat: (rowId: number, req: CreateSeatRequest) => void;
+  addSeat: (rowId: number, reqs: CreateSeatRequest[]) => void;
   removeSeat: (seatId: number) => void;
 }
 
 const useFloorStore = create<FloorStore>()(
   devtools((set) => ({
-    floors: [],
+    // floors: [],
+    floors: mockFloors,
     addFloor: (req) =>
       set(
         (state) => ({
@@ -118,7 +120,7 @@ const useFloorStore = create<FloorStore>()(
         'removeRow',
       ),
 
-    addSeat: (rowId, req) =>
+    addSeat: (rowId, reqs) =>
       set(
         (state) => ({
           floors: state.floors.map((f) => ({
@@ -131,7 +133,10 @@ const useFloorStore = create<FloorStore>()(
                   if (row.id !== rowId) return row;
                   return {
                     ...row,
-                    seats: [...row.seats, { ...req, assignedMemberId: null, visible: true }],
+                    seats: [
+                      ...row.seats,
+                      ...reqs.map((req) => ({ ...req, assignedMemberId: null, visible: true })),
+                    ],
                   };
                 }),
               };
