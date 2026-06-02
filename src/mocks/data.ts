@@ -35,7 +35,7 @@ function createSection(id: number, name: string): Section {
     kind: 'section',
     id,
     name,
-    rows: createRows(),
+    rows: createRows(3),
   };
 }
 

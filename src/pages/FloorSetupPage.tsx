@@ -1,7 +1,9 @@
 import useFloorStore from '../store/floorStore.ts';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import type { CreateFloorRequest, CreateRowsRequest, CreateSeatRequest, Section } from '@/types';
 import { Button } from '@/components/ui/button';
+import { ButtonGroup } from '@/components/ui/button-group';
+import { clsx } from 'clsx';
 
 export default function FloorSetupPage() {
   const {
@@ -212,6 +214,35 @@ export default function FloorSetupPage() {
                       >
                         열 추가
                       </button>
+                      <ButtonGroup>
+                        <Button
+                          disabled={selectedRowId === null}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddSeat();
+                          }}
+                        >
+                          좌석 추가
+                        </Button>
+                        <Button
+                          disabled={selectedRowId === null}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRowIsEditMode(!isRowEditMode);
+                          }}
+                        >
+                          열 편집모드: {isRowEditMode ? 'O' : 'X'}
+                        </Button>
+                        <Button
+                          disabled={selectedRowId === null}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveRow(selectedRowId!);
+                          }}
+                        >
+                          열 삭제
+                        </Button>
+                      </ButtonGroup>
                       {item.rows.map((row) => {
                         return (
                           <div
@@ -221,64 +252,42 @@ export default function FloorSetupPage() {
                               setSelectedRowId(row.id);
                             }}
                           >
-                            <h1>
-                              <span>
-                                id: {row.id} / rowNumber: {row.rowName}
-                              </span>
-                              <button
-                                className="ml-8"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleRemoveRow(row.id);
-                                }}
+                            <div className="border-2 flex">
+                              <span
+                                className={clsx(
+                                  'flex w-10 h-10 justify-center items-center text-lg mr-3',
+                                  {
+                                    'bg-teal-700 text-white': selectedRowId === row.id,
+                                  },
+                                )}
                               >
-                                삭제
-                              </button>
-                              {selectedRowId === row.id ? (
-                                <>
-                                  <h1 className="bg-amber-800">선택된 row: {row.rowName}</h1>
-                                  <Button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleAddSeat();
-                                    }}
-                                  >
-                                    좌석 추가
-                                  </Button>
-                                  <Button onClick={() => setRowIsEditMode(!isRowEditMode)}>
-                                    열 편집모드: {isRowEditMode ? 'O' : 'X'}
-                                  </Button>
-                                  <div className="border-2 flex">
-                                    <p className="bg-green-800">{row.rowName}</p>
-                                    {row.seats.map((seat) => {
-                                      return (
-                                        <Fragment key={seat.id}>
-                                          {/* TODO seat 그리드 렌더링 1차는 열 별 seat flex로 렌더*/}
-                                          <Button
-                                            variant="outline"
-                                            className="w-10 h-10 text-sm bg-gray-800 text-white"
-                                          >
-                                            {seat.seatNumber}
-                                          </Button>
-                                          {isRowEditMode && (
-                                            <span
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRemoveSeat(seat.id);
-                                              }}
-                                            >
-                                              x
-                                            </span>
-                                          )}
-                                        </Fragment>
-                                      );
-                                    })}
+                                {row.rowName}
+                              </span>
+                              {row.seats.map((seat) => {
+                                return (
+                                  <div key={seat.id} className="flex items-center">
+                                    <Button
+                                      variant="outline"
+                                      className="w-10 h-10 text-sm bg-gray-800 text-white"
+                                    >
+                                      {seat.seatNumber}
+                                    </Button>
+                                    {isRowEditMode && selectedRowId === row.id && (
+                                      // 좌석 삭제 버튼
+                                      <p
+                                        className="flex items-center justify-center w-6"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleRemoveSeat(seat.id);
+                                        }}
+                                      >
+                                        x
+                                      </p>
+                                    )}
                                   </div>
-                                </>
-                              ) : (
-                                ''
-                              )}
-                            </h1>
+                                );
+                              })}
+                            </div>
                           </div>
                         );
                       })}
