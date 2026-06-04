@@ -25,7 +25,7 @@ export default function Row({ row, isEditMode, isSelected, onSelect, onRemoveSea
             'bg-teal-700 text-white': isSelected,
           })}
         >
-          {row.rowName}/{row.id}
+          {row.rowName}
         </span>
         {row.seats.map((seat) => {
           return (

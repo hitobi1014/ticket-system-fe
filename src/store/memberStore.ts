@@ -1,7 +1,7 @@
 import type { CreateMemberRequest, Member } from '@/types/member.ts';
 import { create } from 'zustand/react';
 import { mockMembers } from '@/mocks/members.ts';
-import { VENUE } from '@/constant/venue.ts';
+import useFloorStore from '@/store/floorStore.ts';
 
 interface MemberStore {
   members: Member[];
@@ -36,7 +36,8 @@ const useMemberStore = create<MemberStore>((set) => ({
       const memberCount = state.members.length;
       if (memberCount === 0) return state;
 
-      const perMember = Math.floor(VENUE.totalSeats / memberCount);
+      const totalSeats = useFloorStore.getState().getTotalSeatCount();
+      const perMember = Math.floor(totalSeats / memberCount);
 
       return {
         members: state.members.map((m) => ({

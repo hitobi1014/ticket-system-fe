@@ -15,10 +15,16 @@ import {
   // } from '@/components/ui/table';
 } from '@/components/ui/table';
 
+import useFloorStore from '@/store/floorStore.ts';
+import { ButtonGroup } from '@/components/ui/button-group.tsx';
+import { Button } from '@/components/ui/button.tsx';
+
 const TABLE_HEADS = ['이름', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제'];
 
 export default function MembersPage() {
   const { members, addMember, removeMember, updateTickets, distributeTickets } = useMemberStore();
+  const { getTotalSeatCount } = useFloorStore();
+
   const [isAdding, setIsAdding] = useState(false);
   const [name, setName] = useState('');
   const [ticket, setTicket] = useState(0);
@@ -61,11 +67,16 @@ export default function MembersPage() {
   return (
     <div>
       <h1>회원관리</h1>
-      <button onClick={() => setIsAdding(true)}>회원 추가</button>
-      <button onClick={distributeTickets} disabled={members.length === 0}>
-        티켓 균등 배분
-      </button>
-      <h1>총 좌석 수 {VENUE.totalSeats} </h1>
+      <ButtonGroup>
+        <Button onClick={() => setIsAdding(true)}>회원 추가</Button>
+        <Button
+          onClick={distributeTickets}
+          disabled={members.length === 0 || getTotalSeatCount() === 0}
+        >
+          티켓 균등 배분
+        </Button>
+      </ButtonGroup>
+      <h1>총 좌석 수 {getTotalSeatCount()} </h1>
       <h1>잔여 좌석 수 {remainingTickets} </h1>
       <h1>회원에게 배정된 좌석 수 {totalAllocated} </h1>
 

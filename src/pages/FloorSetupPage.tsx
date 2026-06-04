@@ -14,6 +14,7 @@ import Row from '@/components/seat/Row.tsx';
 export default function FloorSetupPage() {
   const {
     floors,
+    getTotalSeatCount,
     addFloor,
     removeFloor,
     addSection,
@@ -216,7 +217,10 @@ export default function FloorSetupPage() {
   };
   return (
     <div>
-      <button onClick={() => handleAddFloor()}>층 추가</button>
+      <div className="flex">
+        <button onClick={() => handleAddFloor()}>층 추가</button>
+        <h1 className="ml-2 font-bold">총 좌석 수: {getTotalSeatCount()}</h1>
+      </div>
       <div>
         {/* 1층 탭바 */}
         {floors.map((floor) => (
@@ -275,7 +279,7 @@ export default function FloorSetupPage() {
                   return (
                     <div
                       key={item.id}
-                      className="border-2 bg-gray-100"
+                      className="border-2 border-dashed bg-gray-100"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSelectAisle(item.id);
@@ -294,7 +298,9 @@ export default function FloorSetupPage() {
                       handleSelectSection(item.id);
                     }}
                   >
-                    <h1 className="bg-amber-300">{item.name} / 총 좌석수: ex)500</h1>
+                    <h1 className="bg-amber-300">
+                      {item.name} (좌석수: {item.rows.flatMap((r) => r.seats).length})
+                    </h1>
                     {selectedSectionId === item.id ? (
                       <>
                         <ButtonGroup>

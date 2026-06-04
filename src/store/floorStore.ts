@@ -15,6 +15,8 @@ import { mockFloors } from '@/mocks/data.ts';
 
 interface FloorStore {
   floors: Floor[];
+  getTotalSeatCount: () => number;
+
   addFloor: (req: CreateFloorRequest) => void;
   removeFloor: (id: number) => void;
 
@@ -32,9 +34,17 @@ interface FloorStore {
 }
 
 const useFloorStore = create<FloorStore>()(
-  devtools((set) => ({
+  devtools((set, get) => ({
     // floors: [],
     floors: mockFloors,
+
+    getTotalSeatCount: () =>
+      get()
+        .floors.flatMap((f) => f.items)
+        .filter((item): item is Section => item.kind === 'section')
+        .flatMap((s) => s.rows)
+        .flatMap((r) => r.seats).length,
+
     addFloor: (req) =>
       set(
         (state) => ({
