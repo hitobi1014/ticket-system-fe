@@ -27,6 +27,7 @@ export default function FloorTabs({ floor, onSelectedFloorId, selectedFloorId }:
 
   return (
     <div>
+      {/*TODO 선택된 탭 스타일링 -> 층 flex로 분리*/}
       <button
         onClick={() => onSelectedFloorId(floor.id)}
         className={selectedFloorId === floor.id ? 'bg-blue-500 text-white' : 'bg-gray-100'}
