@@ -3,12 +3,14 @@ import type { Floor, Section, Seat, VenueConfig, Rows } from '@/types';
 // =====================
 // 좌석 생성 헬퍼 함수
 // =====================
+
+let seatIdCnt = 0;
 function createSeats(addSeatCount: number = 1, assignedMemberId?: number): Seat[] {
   const seats: Seat[] = [];
 
   Array.from({ length: addSeatCount }, (_, i) => {
     seats.push({
-      id: i,
+      id: seatIdCnt++,
       seatNumber: i,
       assignedMemberId: assignedMemberId ?? 0,
       visible: true,
@@ -17,12 +19,13 @@ function createSeats(addSeatCount: number = 1, assignedMemberId?: number): Seat[
   return seats;
 }
 
+let rowIdCnt = 0;
 function createRows(addRowCount: number = 1): Rows[] {
   const rows: Rows[] = [];
 
   Array.from({ length: addRowCount }, (_, i) =>
     rows.push({
-      id: i,
+      id: rowIdCnt++,
       rowName: i.toString(),
       seats: createSeats(5, 1),
     }),

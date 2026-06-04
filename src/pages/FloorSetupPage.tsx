@@ -1,5 +1,5 @@
 import useFloorStore from '../store/floorStore.ts';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import type {
   Aisle,
   CreateFloorRequest,
@@ -19,6 +19,7 @@ export default function FloorSetupPage() {
     addSection,
     removeSection,
     addAisle,
+    removeAisle,
     addRow,
     removeRow,
     addSeat,
@@ -28,6 +29,7 @@ export default function FloorSetupPage() {
     floors.length > 0 ? floors[0].id : null,
   );
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
+  const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [isRowEditMode, setRowIsEditMode] = useState<boolean>(false);
 
@@ -80,17 +82,26 @@ export default function FloorSetupPage() {
     });
   };
 
-  const handleRemoveSection = (sectionName: string, sectionId: number) => {
-    if (sectionId === null) return;
+  const handleRemoveSection = () => {
+    if (selectedSectionId === null) return;
 
-    const isRemove = window.confirm(`${sectionName} 구역을 정말 삭제하시겠습니까?`);
+    const findItem = selectedFloor?.items.find(
+      (item): item is Section => item.kind === 'section' && item.id === selectedSectionId,
+    );
+    if (!findItem) return;
+
+    const isRemove = window.confirm(`${findItem.name} 구역을 정말 삭제하시겠습니까?`);
     if (!isRemove) return;
 
-    removeSection(sectionId);
+    removeSection(findItem.id);
   };
 
   const handleSelectSection = (sectionId: number) => {
     setSelectedSectionId((prev) => (prev === sectionId ? null : sectionId));
+  };
+
+  const handleSelectAisle = (id: number) => {
+    setSelectedAisleId((prev) => (prev === id ? null : id));
   };
 
   const handleAddRow = (sectionId: number) => {
@@ -143,16 +154,31 @@ export default function FloorSetupPage() {
       .flatMap((r) => r.seats)
       .reduce((max, seat) => Math.max(max, seat.id), 0);
 
+    const maxSeatNumber = floors
+      .flatMap((f) => f.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .flatMap((s) => s.rows)
+      .filter((row) => row.id === selectedRowId)
+      .flatMap((r) => r.seats)
+      .reduce((max, seat) => Math.max(max, seat.seatNumber), 0);
+
     const reqs: CreateSeatRequest[] = Array.from({ length: addSeatCount }, (_, i) => ({
-      id: maxSeatId + i,
-      seatNumber: i,
+      id: maxSeatId + i + 1,
+      seatNumber: maxSeatNumber + i + 1,
     }));
     addSeat(selectedRowId, reqs);
   };
 
   const handleRemoveSeat = (seatId: number) => {
+    const findRow = floors
+      .flatMap((f) => f.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .flatMap((s) => s.rows)
+      .find((row) => row.id === selectedRowId);
+
+    // TODO 삭제할때 중앙 좌석 삭제할 필요?
     const isRemove = window.confirm(
-      `선택된 좌석을 삭제하시겠습니까? 선택된 열-좌석: ${selectedRowId}-${seatId}`,
+      `선택된 좌석을 삭제하시겠습니까? 선택된 열-좌석: ${findRow?.rowName}-${seatId}`,
     );
     if (!isRemove) return;
 
@@ -174,15 +200,28 @@ export default function FloorSetupPage() {
       label: aisleLabel ?? '',
     });
   };
+
+  const handleRemoveAisle = () => {
+    if (selectedAisleId === null) return;
+
+    const findItem = selectedFloor?.items.find(
+      (item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId,
+    );
+    if (!findItem) return;
+
+    const isRemove = window.confirm(`${findItem.label} 통로 정말 삭제하시겠습니까?`);
+    if (!isRemove) return;
+
+    removeAisle(findItem.id);
+  };
   return (
     <div>
       <button onClick={() => handleAddFloor()}>층 추가</button>
       <div>
         {/* 1층 탭바 */}
         {floors.map((floor) => (
-          <>
+          <Fragment key={floor.id}>
             <button
-              key={floor.id}
               onClick={() => setSelectedFloorId(floor.id)}
               className={selectedFloorId === floor.id ? 'bg-blue-500 text-white' : 'bg-gray-100'}
             >
@@ -194,7 +233,7 @@ export default function FloorSetupPage() {
                 }}
               ></span>
             </button>
-          </>
+          </Fragment>
         ))}
       </div>
 
@@ -205,10 +244,28 @@ export default function FloorSetupPage() {
             <div className="flex items-center">
               <ButtonGroup>
                 <Button onClick={() => handleAddSection()}>구역추가</Button>
+                <Button
+                  disabled={selectedSectionId === null}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveSection();
+                  }}
+                >
+                  구역 삭제
+                </Button>
                 <Button onClick={() => handleAddAisle()}>통로추가</Button>
+                <Button
+                  disabled={selectedAisleId === null}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRemoveAisle();
+                  }}
+                >
+                  통로삭제
+                </Button>
               </ButtonGroup>
               <span className="ml-2 bg-gray-400 text-white">
-                선택된 구역: {selectedSection?.name}
+                선택된 구역: {selectedSection?.name}/{selectedRowId}
               </span>
             </div>
             {/* 구역인지 통로인지 구분*/}
@@ -216,7 +273,14 @@ export default function FloorSetupPage() {
               {selectedFloor.items.map((item) => {
                 if (item.kind === 'aisle') {
                   return (
-                    <div key={item.id} className="border-2 bg-gray-100">
+                    <div
+                      key={item.id}
+                      className="border-2 bg-gray-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectAisle(item.id);
+                      }}
+                    >
                       통로: {item.label}
                     </div>
                   );
@@ -226,32 +290,22 @@ export default function FloorSetupPage() {
                   /* Section */
                   <div
                     key={item.id}
-                    onClick={(e) => {
-                      e.stopPropagation();
+                    onClick={() => {
                       handleSelectSection(item.id);
                     }}
                   >
                     <h1 className="bg-amber-300">{item.name} / 총 좌석수: ex)500</h1>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleRemoveSection(item.name, item.id);
-                      }}
-                    >
-                      구역 삭제
-                    </button>
-                    <br />
                     {selectedSectionId === item.id ? (
                       <>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAddRow(item.id);
-                          }}
-                        >
-                          열 추가
-                        </button>
                         <ButtonGroup>
+                          <Button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAddRow(item.id);
+                            }}
+                          >
+                            열 추가
+                          </Button>
                           <Button
                             disabled={selectedRowId === null}
                             onClick={(e) => {
@@ -280,19 +334,20 @@ export default function FloorSetupPage() {
                             열 삭제
                           </Button>
                         </ButtonGroup>
-                        {item.rows.map((row) => (
-                          <Row
-                            row={row}
-                            isEditMode={isRowEditMode}
-                            isSelected={selectedRowId === row.id}
-                            onSelect={setSelectedRowId}
-                            onRemoveSeat={handleRemoveSeat}
-                          />
-                        ))}
                       </>
                     ) : (
                       ''
                     )}
+                    {item.rows.map((row) => (
+                      <Row
+                        key={row.id}
+                        row={row}
+                        isEditMode={isRowEditMode}
+                        isSelected={selectedRowId === row.id}
+                        onSelect={setSelectedRowId}
+                        onRemoveSeat={handleRemoveSeat}
+                      />
+                    ))}
                   </div>
                 );
               })}
