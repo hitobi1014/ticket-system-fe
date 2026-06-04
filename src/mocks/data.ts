@@ -69,9 +69,9 @@ export const mockFloors: Floor[] = [
     name: '1층',
     items: [
       floor1Sections[0],
-      { kind: 'aisle', id: 101 },
+      { kind: 'aisle', id: 101, label: '101통로' },
       floor1Sections[1],
-      { kind: 'aisle', id: 102 },
+      { kind: 'aisle', id: 102, label: '102통로' },
       floor1Sections[2],
     ],
   },

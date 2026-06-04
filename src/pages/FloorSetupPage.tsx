@@ -1,9 +1,15 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
-import type { CreateFloorRequest, CreateRowsRequest, CreateSeatRequest, Section } from '@/types';
+import type {
+  Aisle,
+  CreateFloorRequest,
+  CreateRowsRequest,
+  CreateSeatRequest,
+  Section,
+} from '@/types';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
-import { clsx } from 'clsx';
+import Row from '@/components/seat/Row.tsx';
 
 export default function FloorSetupPage() {
   const {
@@ -12,6 +18,7 @@ export default function FloorSetupPage() {
     removeFloor,
     addSection,
     removeSection,
+    addAisle,
     addRow,
     removeRow,
     addSeat,
@@ -25,6 +32,10 @@ export default function FloorSetupPage() {
   const [isRowEditMode, setRowIsEditMode] = useState<boolean>(false);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
+  const selectedSection = selectedFloor?.items.find(
+    (item): item is Section => item.kind === 'section' && item.id === selectedSectionId,
+  );
+
   const handleRemoveFloor = (id: number) => {
     const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${id}`); // id말고 name 확인하며 물어보기
 
@@ -148,6 +159,21 @@ export default function FloorSetupPage() {
     removeSeat(seatId);
   };
 
+  const handleAddAisle = () => {
+    if (!selectedFloor) return;
+    const aisleLabel = window.prompt('통로명 입력(선택)');
+
+    const maxAisleId = floors
+      .flatMap((f) => f.items)
+      .filter((item): item is Aisle => item.kind === 'aisle')
+      .reduce((max, aisle) => Math.max(max, aisle.id), 0);
+
+    addAisle(selectedFloor.id, {
+      id: maxAisleId + 1,
+      kind: 'aisle',
+      label: aisleLabel ?? '',
+    });
+  };
   return (
     <div>
       <button onClick={() => handleAddFloor()}>층 추가</button>
@@ -176,128 +202,101 @@ export default function FloorSetupPage() {
       <div className="mt-4">
         {selectedFloor ? (
           <>
-            <button onClick={() => handleAddSection()}>구역추가</button>
+            <div className="flex items-center">
+              <ButtonGroup>
+                <Button onClick={() => handleAddSection()}>구역추가</Button>
+                <Button onClick={() => handleAddAisle()}>통로추가</Button>
+              </ButtonGroup>
+              <span className="ml-2 bg-gray-400 text-white">
+                선택된 구역: {selectedSection?.name}
+              </span>
+            </div>
             {/* 구역인지 통로인지 구분*/}
-            {selectedFloor.items.map((item) => {
-              if (item.kind === 'aisle') {
-                return <div key={item.id}>통로</div>;
-              }
+            <div className="flex">
+              {selectedFloor.items.map((item) => {
+                if (item.kind === 'aisle') {
+                  return (
+                    <div key={item.id} className="border-2 bg-gray-100">
+                      통로: {item.label}
+                    </div>
+                  );
+                }
 
-              return (
-                /* Section */
-                <div
-                  key={item.id}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleSelectSection(item.id);
-                  }}
-                >
-                  <h1 className="bg-amber-300">{item.name}</h1>
-                  <h1>총 좌석 수: ex)500</h1> {/*TODO 추후 Seat까지 개발완료되면 수정하기*/}
-                  <button
+                return (
+                  /* Section */
+                  <div
+                    key={item.id}
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleRemoveSection(item.name, item.id);
+                      handleSelectSection(item.id);
                     }}
                   >
-                    구역 삭제
-                  </button>
-                  <br />
-                  {selectedSectionId === item.id ? (
-                    <>
-                      <h1>선택된 구역:{item.name}</h1>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddRow(item.id);
-                        }}
-                      >
-                        열 추가
-                      </button>
-                      <ButtonGroup>
-                        <Button
-                          disabled={selectedRowId === null}
+                    <h1 className="bg-amber-300">{item.name} / 총 좌석수: ex)500</h1>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveSection(item.name, item.id);
+                      }}
+                    >
+                      구역 삭제
+                    </button>
+                    <br />
+                    {selectedSectionId === item.id ? (
+                      <>
+                        <button
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleAddSeat();
+                            handleAddRow(item.id);
                           }}
                         >
-                          좌석 추가
-                        </Button>
-                        <Button
-                          disabled={selectedRowId === null}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setRowIsEditMode(!isRowEditMode);
-                          }}
-                        >
-                          열 편집모드: {isRowEditMode ? 'O' : 'X'}
-                        </Button>
-                        <Button
-                          disabled={selectedRowId === null}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveRow(selectedRowId!);
-                          }}
-                        >
-                          열 삭제
-                        </Button>
-                      </ButtonGroup>
-                      {item.rows.map((row) => {
-                        return (
-                          <div
-                            key={row.id}
+                          열 추가
+                        </button>
+                        <ButtonGroup>
+                          <Button
+                            disabled={selectedRowId === null}
                             onClick={(e) => {
                               e.stopPropagation();
-                              setSelectedRowId(row.id);
+                              handleAddSeat();
                             }}
                           >
-                            <div className="border-2 flex">
-                              <span
-                                className={clsx(
-                                  'flex w-10 h-10 justify-center items-center text-lg mr-3',
-                                  {
-                                    'bg-teal-700 text-white': selectedRowId === row.id,
-                                  },
-                                )}
-                              >
-                                {row.rowName}
-                              </span>
-                              {row.seats.map((seat) => {
-                                return (
-                                  <div key={seat.id} className="flex items-center">
-                                    <Button
-                                      variant="outline"
-                                      className="w-10 h-10 text-sm bg-gray-800 text-white"
-                                    >
-                                      {seat.seatNumber}
-                                    </Button>
-                                    {isRowEditMode && selectedRowId === row.id && (
-                                      // 좌석 삭제 버튼
-                                      <p
-                                        className="flex items-center justify-center w-6"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleRemoveSeat(seat.id);
-                                        }}
-                                      >
-                                        x
-                                      </p>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </>
-                  ) : (
-                    ''
-                  )}
-                </div>
-              );
-            })}
+                            좌석 추가
+                          </Button>
+                          <Button
+                            disabled={selectedRowId === null}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setRowIsEditMode(!isRowEditMode);
+                            }}
+                          >
+                            열 편집모드: {isRowEditMode ? 'O' : 'X'}
+                          </Button>
+                          <Button
+                            disabled={selectedRowId === null}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveRow(selectedRowId!);
+                            }}
+                          >
+                            열 삭제
+                          </Button>
+                        </ButtonGroup>
+                        {item.rows.map((row) => (
+                          <Row
+                            row={row}
+                            isEditMode={isRowEditMode}
+                            isSelected={selectedRowId === row.id}
+                            onSelect={setSelectedRowId}
+                            onRemoveSeat={handleRemoveSeat}
+                          />
+                        ))}
+                      </>
+                    ) : (
+                      ''
+                    )}
+                  </div>
+                );
+              })}
+            </div>
             <p>
               {selectedFloor.name} 선택됨 - 구역 {selectedFloor.items.length}개
             </p>

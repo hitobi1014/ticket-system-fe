@@ -1,4 +1,6 @@
 import type {
+  Aisle,
+  CreateAisleRequest,
   CreateFloorRequest,
   CreateRowsRequest,
   CreateSeatRequest,
@@ -18,6 +20,9 @@ interface FloorStore {
 
   addSection: (floorId: number, req: CreateSectionRequest) => void;
   removeSection: (sectionId: number) => void;
+
+  addAisle: (floorId: number, req: CreateAisleRequest) => void;
+  removeAisle: (aisleId: number) => void;
 
   addRow: (sectionId: number, req: CreateRowsRequest) => void;
   removeRow: (rowId: number) => void;
@@ -81,6 +86,37 @@ const useFloorStore = create<FloorStore>()(
         },
         undefined,
         'removeSection',
+      ),
+
+    addAisle: (floorId, req) =>
+      set(
+        (state) => ({
+          floors: state.floors.map((f) => {
+            if (f.id !== floorId) return f;
+
+            const newAisle: Aisle = {
+              ...req,
+            };
+
+            return { ...f, items: [...f.items, newAisle] };
+          }),
+        }),
+        undefined,
+        'addAisle',
+      ),
+
+    removeAisle: (aisleId: number) =>
+      set(
+        (state) => {
+          return {
+            floors: state.floors.map((f) => ({
+              ...f,
+              items: f.items.filter((item) => item.id !== aisleId),
+            })),
+          };
+        },
+        undefined,
+        'removeAisle',
       ),
 
     addRow: (sectionId, req) =>

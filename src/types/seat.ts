@@ -28,6 +28,8 @@ export interface Aisle {
   kind: 'aisle';
   label?: string;
 }
+export type CreateAisleRequest = Aisle;
+
 export type FloorItem = Section | Aisle;
 
 /** 층 */
