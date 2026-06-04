@@ -1,21 +1,14 @@
 import useFloorStore from '../store/floorStore.ts';
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import type { Aisle, CreateFloorRequest, Section } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
+import FloorTabs from '@/components/seat/FloorTabs.tsx';
 
 export default function FloorSetupPage() {
-  const {
-    floors,
-    getTotalSeatCount,
-    addFloor,
-    removeFloor,
-    addSection,
-    removeSection,
-    addAisle,
-    removeAisle,
-  } = useFloorStore();
+  const { floors, getTotalSeatCount, addFloor, addSection, removeSection, addAisle, removeAisle } =
+    useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -27,20 +20,6 @@ export default function FloorSetupPage() {
   const selectedSection = selectedFloor?.items.find(
     (item): item is Section => item.kind === 'section' && item.id === selectedSectionId,
   );
-
-  const handleRemoveFloor = (id: number) => {
-    const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${id}`); // id말고 name 확인하며 물어보기
-
-    // TODO 추후확인 해당 층에 Section 있으면 경고 메시지
-    if (!isRemove) return;
-    removeFloor(id);
-
-    // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
-    if (selectedFloorId === id) {
-      const remaining = floors.filter((f) => f.id !== id);
-      setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
-    }
-  };
 
   const handleAddFloor = () => {
     const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
@@ -124,20 +103,12 @@ export default function FloorSetupPage() {
       <div>
         {/* 1층 탭바 */}
         {floors.map((floor) => (
-          <Fragment key={floor.id}>
-            <button
-              onClick={() => setSelectedFloorId(floor.id)}
-              className={selectedFloorId === floor.id ? 'bg-blue-500 text-white' : 'bg-gray-100'}
-            >
-              {floor.name}
-              <span
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleRemoveFloor(floor.id);
-                }}
-              ></span>
-            </button>
-          </Fragment>
+          <FloorTabs
+            key={floor.id}
+            floor={floor}
+            selectedFloorId={selectedFloorId}
+            onSelectedFloorId={setSelectedFloorId}
+          />
         ))}
       </div>
 
