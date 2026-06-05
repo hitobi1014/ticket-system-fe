@@ -32,6 +32,7 @@ export default function SeatAssignPage() {
         return next;
       });
     } else {
+      setSelectedSeatIds(new Set([seatId]));
       setIsModalOpen(true);
     }
   };
@@ -58,7 +59,13 @@ export default function SeatAssignPage() {
 
               {floors.map((floor) => (
                 <TabsContent key={floor.id} value={String(floor.id)}>
-                  <Toggle pressed={isBulkEditMode} onPressedChange={setIsBulkEditMode}>
+                  <Toggle
+                    pressed={isBulkEditMode}
+                    onPressedChange={(pressed) => {
+                      setIsBulkEditMode(pressed);
+                      if (!pressed) setSelectedSeatIds(new Set());
+                    }}
+                  >
                     <SquareIcon className="group-data-[state=on]/toggle:fill-foreground" />
                     일괄편집모드
                   </Toggle>
@@ -95,7 +102,7 @@ export default function SeatAssignPage() {
 
       {/* 회원 좌석 배정 모달 => 모달은 페이지(최상위)레벨에 배치 */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <AssignMemberModal seatIds={selectedSeatIds} />
+        <AssignMemberModal seatIds={selectedSeatIds} onClose={() => setIsModalOpen(false)} />
       </Dialog>
     </div>
   );
