@@ -4,11 +4,19 @@ import type { Aisle, CreateFloorRequest, Section } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
-import FloorTabs from '@/components/seat/FloorTabs.tsx';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function FloorSetupPage() {
-  const { floors, getTotalSeatCount, addFloor, addSection, removeSection, addAisle, removeAisle } =
-    useFloorStore();
+  const {
+    floors,
+    getTotalSeatCount,
+    addFloor,
+    removeFloor,
+    addSection,
+    removeSection,
+    addAisle,
+    removeAisle,
+  } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -31,6 +39,20 @@ export default function FloorSetupPage() {
     };
     addFloor(req);
     setSelectedFloorId(req.id);
+  };
+
+  const handleRemoveFloor = (id: number) => {
+    const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${id}`); // id말고 name 확인하며 물어보기
+
+    // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
+    if (!isRemove) return;
+    removeFloor(id);
+
+    // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
+    if (selectedFloorId === id) {
+      const remaining = floors.filter((f) => f.id !== id);
+      setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
+    }
   };
 
   const handleAddSection = () => {
@@ -100,22 +122,21 @@ export default function FloorSetupPage() {
         <button onClick={() => handleAddFloor()}>층 추가</button>
         <h1 className="ml-2 font-bold">총 좌석 수: {getTotalSeatCount()}</h1>
       </div>
-      <div>
+      <Tabs value={String(selectedFloorId)} onValueChange={(v) => setSelectedFloorId(Number(v))}>
         {/* 1층 탭바 */}
-        {floors.map((floor) => (
-          <FloorTabs
-            key={floor.id}
-            floor={floor}
-            selectedFloorId={selectedFloorId}
-            onSelectedFloorId={setSelectedFloorId}
-          />
-        ))}
-      </div>
+        <TabsList>
+          {floors.map((floor) => (
+            <TabsTrigger key={floor.id} value={String(floor.id)}>
+              {floor.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-      {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
-      <div className="mt-4">
-        {selectedFloor ? (
-          <>
+        {/*  나머지 렌더링*/}
+        {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
+        {/*여기가 TabContent 표현부분 */}
+        {floors.map((floor) => (
+          <TabsContent key={floor.id} value={String(floor.id)}>
             <div className="flex items-center">
               <ButtonGroup>
                 <Button onClick={() => handleAddSection()}>구역추가</Button>
@@ -144,8 +165,8 @@ export default function FloorSetupPage() {
               </span>
             </div>
             {/* 구역인지 통로인지 구분*/}
-            <div className="flex">
-              {selectedFloor.items.map((item) => (
+            <div className="flex mt-4">
+              {floor.items.map((item) => (
                 <SectionCard
                   key={item.id}
                   item={item}
@@ -158,14 +179,9 @@ export default function FloorSetupPage() {
                 />
               ))}
             </div>
-            <p>
-              {selectedFloor.name} 선택됨 - 구역 {selectedFloor.items.length}개
-            </p>
-          </>
-        ) : (
-          <p>층을 추가해주세요.</p>
-        )}
-      </div>
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   );
 }
