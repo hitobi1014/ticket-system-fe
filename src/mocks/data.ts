@@ -27,7 +27,7 @@ function createRows(addRowCount: number = 1): Rows[] {
     rows.push({
       id: rowIdCnt++,
       rowName: i.toString(),
-      seats: createSeats(5, 1),
+      seats: createSeats(5, i),
     }),
   );
   return rows;
