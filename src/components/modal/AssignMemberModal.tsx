@@ -134,7 +134,10 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
               setIsAssignMemberSelected(mem.id);
             }}
           >
-            <p>{mem.name}</p>
+            <div className="flex items-center gap-2">
+              <p className={'px-2 rounded text-white bg-gray-700'}>{mem.instrument.abbr}</p>
+              <p>{mem.name}</p>
+            </div>
             <p className={clsx('text-sm bg-gray-700 text-white rounded-lg py-1 px-2.5')}>
               잔여 {mem.allocatedTickets}
             </p>
