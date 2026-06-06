@@ -8,12 +8,15 @@ import {
 } from '@/components/ui/dialog';
 import { ButtonGroup } from '@/components/ui/button-group.tsx';
 import { Separator } from '@/components/ui/separator';
+import { toast } from 'sonner';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
 import { findSeatContext, getAssignableMember } from '@/lib/seatUtils.ts';
-import type { Floor, Seat, Section } from '@/types';
+import type { Floor, Member, Rows, Seat, Section } from '@/types';
 import { clsx } from 'clsx';
 import { TriangleAlert } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Toaster } from '@/components/ui/sonner.tsx';
 
 // 모달에서 일괄/단건 회원 좌석 할당 가능하도록
 
@@ -25,6 +28,9 @@ interface AssignMemberModalProps {
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
   const { floors } = useFloorStore();
   const { members } = useMemberStore();
+  const memberListRef = useRef<HTMLDivElement>(null);
+  const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
+  const [isAssignMemberSelected, setIsAssignMemberSelected] = useState<number | null>(null);
 
   // TODO 상태 분기 어떻게 할지?
   const modalTitle = {
@@ -34,10 +40,10 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   };
 
   const formatSeatLabel = (
-    ctx: { floor: Floor; section: Section; seat: Seat },
+    ctx: { floor: Floor; section: Section; row: Rows; seat: Seat },
     memberName?: string | null,
   ): string => {
-    const base = `${ctx.floor.name}﹒${ctx.section.name}﹒${ctx.seat.seatNumber}번`;
+    const base = `${ctx.floor.name}﹒${ctx.section.name}﹒${ctx.row.rowName}열﹒${ctx.seat.seatNumber}번`;
     return memberName ? `${base} (${memberName})` : base;
   };
 
@@ -47,8 +53,31 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     return ctx?.seat.assignedMemberId != null;
   }).length;
 
+  // 확인버튼 클릭시 선택한 좌석에 선택한 회원 배정
+  const handleConfirm = () => {
+    if (!isAssignMemberSelected) {
+      toast('선택된 회원이 없습니다. 회원을 선택해주세요');
+      setHasMemberEmpty(true);
+      memberListRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(() => setHasMemberEmpty(false), 2000); // 2초 후 ring 제거
+      return;
+    }
+
+    // 선택한 좌석수가 회원 잔여석보다 많을때
+    // 선택한 좌석수보다 회원 좌석수가 많으면 비활성화 거는게 좋을듯
+    const allocatedTickets = members.find((m) => m.id === isAssignMemberSelected)?.allocatedTickets;
+    if (allocatedTickets !== undefined && seatIds.size > allocatedTickets) {
+      toast(`선택된 좌석(${seatIds.size}개)이 회원 잔여석(${allocatedTickets}개)보다 많습니다.`);
+      return;
+    }
+  };
+
+  const hasEnoughRemainingTickets = (member: Member): boolean => {
+    return member.allocatedTickets > seatIds.size;
+  };
   return (
     <DialogContent>
+      <Toaster />
       <DialogHeader>
         <DialogTitle className="font-bold text-gray-600 text-lg">좌석배정</DialogTitle>
         <DialogDescription>{modalTitle['N']}</DialogDescription>
@@ -82,21 +111,37 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           );
         })}
         {overwriteCount > 0 && (
-          <div className="flex items-center gap-2 text-xs text-amber-800 bg-amber-100 rounded px-3 py-2">
+          <div className="flex items-center gap-2 text-xs font-bold text-amber-800 bg-amber-100 rounded px-3 py-2">
             <TriangleAlert size={14} />
             배정된 좌석 {overwriteCount}개가 포함되어 있습니다. 덮어씁니다.
           </div>
         )}
       </div>
-      {/* 회원 목록 => 잔여 좌석이 남은 회원만 표기 */}
+      {/* ✅ 회원 목록: 잔여 좌석이 남은 회원만 표기 */}
       <Separator />
-      <div className="-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4">
+      <div
+        className={clsx('-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4', {
+          'ring-2 ring-red-400': hasMemberEmpty,
+        })}
+      >
         {/*검색 기능?*/}
         <h5 className="text-sm mb-2 font-bold text-gray-600">회원 목록</h5>
         {getAssignableMember(members).map((mem) => (
-          <div className="flex justify-between mb-1" key={mem.id}>
+          // 선택된 좌석보다 회원 잔여석이 적으면 클릭 비활성화
+          <div
+            className={clsx('flex justify-between items-center px-2 py-0.5 mb-1', {
+              'bg-gray-600 text-white rounded-md ': isAssignMemberSelected === mem.id,
+              'cursor-pointer hover:bg-gray-100': hasEnoughRemainingTickets(mem),
+              'opacity-40 cursor-not-allowed': !hasEnoughRemainingTickets(mem),
+            })}
+            key={mem.id}
+            onClick={() => {
+              if (!hasEnoughRemainingTickets(mem)) return;
+              setIsAssignMemberSelected(mem.id);
+            }}
+          >
             <p>{mem.name}</p>
-            <p className="bg-gray-800 text-sm text-white rounded-lg py-1 px-2 ">
+            <p className={clsx('text-sm bg-gray-700 text-white rounded-lg py-1 px-2.5')}>
               잔여 {mem.allocatedTickets}
             </p>
           </div>
@@ -104,7 +149,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       </div>
       <DialogFooter>
         <ButtonGroup>
-          <Button>확인</Button>
+          <Button onClick={() => handleConfirm()}>확인</Button>
           <Button onClick={onClose}>닫기</Button>
         </ButtonGroup>
       </DialogFooter>

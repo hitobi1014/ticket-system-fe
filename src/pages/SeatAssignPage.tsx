@@ -86,6 +86,7 @@ export default function SeatAssignPage() {
                           <AssignRow
                             section={item}
                             isBulkEditMode={isBulkEditMode}
+                            selectedSeatIds={selectedSeatIds}
                             onSeatClick={handleSeatClick}
                           />
                         )}
