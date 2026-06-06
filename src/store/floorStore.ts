@@ -33,6 +33,7 @@ interface FloorStore {
   removeSeat: (seatId: number) => void;
 
   assignSeat: (seatIds: Set<number>, memberId: number) => void;
+  unAssignSeat: (seatId: number) => void;
 }
 
 const useFloorStore = create<FloorStore>()(
@@ -238,6 +239,25 @@ const useFloorStore = create<FloorStore>()(
         false,
         'assignSeat',
       ),
+
+    unAssignSeat: (seatId) =>
+      set((state) => ({
+        floors: state.floors.map((f) => ({
+          ...f,
+          items: f.items.map((item) => {
+            if (item.kind !== 'section') return item;
+            return {
+              ...item,
+              rows: item.rows.map((row) => ({
+                ...row,
+                seats: row.seats.map((seat) =>
+                  seat.id === seatId ? { ...seat, assignedMemberId: null } : seat,
+                ),
+              })),
+            };
+          }),
+        })),
+      })),
   })),
 );
 

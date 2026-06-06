@@ -6,7 +6,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { ButtonGroup } from '@/components/ui/button-group.tsx';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import useFloorStore from '@/store/floorStore.ts';
@@ -16,7 +15,6 @@ import type { Floor, Member, Rows, Seat, Section } from '@/types';
 import { clsx } from 'clsx';
 import { TriangleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
-import { Toaster } from '@/components/ui/sonner.tsx';
 
 // 모달에서 일괄/단건 회원 좌석 할당 가능하도록
 
@@ -26,7 +24,7 @@ interface AssignMemberModalProps {
 }
 
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
-  const { floors, assignSeat } = useFloorStore();
+  const { floors, assignSeat, unAssignSeat } = useFloorStore();
   const { members } = useMemberStore();
   const memberListRef = useRef<HTMLDivElement>(null);
   const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
@@ -63,15 +61,21 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     }
 
     assignSeat(seatIds, isAssignMemberSelected);
+    const findMember = members.find((m) => m.id === isAssignMemberSelected);
+    toast(`${findMember?.name} > ${seatIds.size}석 배정 완료`);
     onClose();
   };
 
   const hasEnoughRemainingTickets = (member: Member): boolean => {
     return member.allocatedTickets >= seatIds.size;
   };
+  const handleCancel = (seatId: number) => {
+    unAssignSeat(seatId);
+    toast('배정이 취소되었습니다.');
+    onClose();
+  };
   return (
     <DialogContent>
-      <Toaster />
       <DialogHeader>
         <DialogTitle className="font-bold text-gray-600 text-lg">좌석배정</DialogTitle>
         <DialogDescription>{modalTitle['N']}</DialogDescription>
@@ -145,10 +149,25 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
         ))}
       </div>
       <DialogFooter>
-        <ButtonGroup>
-          <Button onClick={() => handleConfirm()}>확인</Button>
-          <Button onClick={onClose}>닫기</Button>
-        </ButtonGroup>
+        <div className="flex justify-between gap-2 w-full">
+          {seatIds.size === 1 &&
+            findSeatContext(floors, [...seatIds][0])?.seat.assignedMemberId != null && (
+              <Button
+                className="bg-red-600 rounded-md"
+                onClick={() => handleCancel([...seatIds][0])}
+              >
+                배정취소
+              </Button>
+            )}
+          <div className="flex gap-2">
+            <Button className="rounded-md px-4" onClick={onClose}>
+              닫기
+            </Button>
+            <Button className="bg-sky-800 px-4 rounded-md" onClick={() => handleConfirm()}>
+              배정
+            </Button>
+          </div>
+        </div>
       </DialogFooter>
     </DialogContent>
   );

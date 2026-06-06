@@ -5,14 +5,14 @@ import type { Floor, Section, Seat, VenueConfig, Rows } from '@/types';
 // =====================
 
 let seatIdCnt = 0;
-function createSeats(addSeatCount: number = 1, assignedMemberId?: number): Seat[] {
+function createSeats(addSeatCount: number = 1, assignedMemberId: number): Seat[] {
   const seats: Seat[] = [];
 
   Array.from({ length: addSeatCount }, (_, i) => {
     seats.push({
       id: seatIdCnt++,
       seatNumber: i,
-      assignedMemberId: assignedMemberId ?? 0,
+      assignedMemberId: assignedMemberId === 0 ? null : assignedMemberId,
       visible: true,
     });
   });
