@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button.tsx';
 export default function SeatAssignPage() {
   const { floors } = useFloorStore();
 
-  const [isModalOpen, setIsModalOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
