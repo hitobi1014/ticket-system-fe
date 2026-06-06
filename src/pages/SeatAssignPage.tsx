@@ -102,8 +102,23 @@ export default function SeatAssignPage() {
       </div>
 
       {/* 회원 좌석 배정 모달 => 모달은 페이지(최상위)레벨에 배치 */}
-      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <AssignMemberModal seatIds={selectedSeatIds} onClose={() => setIsModalOpen(false)} />
+      <Dialog
+        open={isModalOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            setIsModalOpen(false);
+            setSelectedSeatIds(new Set());
+          }
+        }}
+      >
+        <AssignMemberModal
+          key={[...selectedSeatIds].join(',')}
+          seatIds={selectedSeatIds}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedSeatIds(new Set());
+          }}
+        />
       </Dialog>
     </div>
   );

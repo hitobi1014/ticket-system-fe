@@ -26,7 +26,7 @@ interface AssignMemberModalProps {
 }
 
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
-  const { floors } = useFloorStore();
+  const { floors, assignSeat } = useFloorStore();
   const { members } = useMemberStore();
   const memberListRef = useRef<HTMLDivElement>(null);
   const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
@@ -49,7 +49,6 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
 
   const overwriteCount = [...seatIds].filter((seatId) => {
     const ctx = findSeatContext(floors, seatId);
-    console.log(`배정된회원 : ${ctx?.seat.assignedMemberId}`);
     return ctx?.seat.assignedMemberId != null;
   }).length;
 
@@ -63,17 +62,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       return;
     }
 
-    // 선택한 좌석수가 회원 잔여석보다 많을때
-    // 선택한 좌석수보다 회원 좌석수가 많으면 비활성화 거는게 좋을듯
-    const allocatedTickets = members.find((m) => m.id === isAssignMemberSelected)?.allocatedTickets;
-    if (allocatedTickets !== undefined && seatIds.size > allocatedTickets) {
-      toast(`선택된 좌석(${seatIds.size}개)이 회원 잔여석(${allocatedTickets}개)보다 많습니다.`);
-      return;
-    }
+    assignSeat(seatIds, isAssignMemberSelected);
+    onClose();
   };
 
   const hasEnoughRemainingTickets = (member: Member): boolean => {
-    return member.allocatedTickets > seatIds.size;
+    return member.allocatedTickets >= seatIds.size;
   };
   return (
     <DialogContent>

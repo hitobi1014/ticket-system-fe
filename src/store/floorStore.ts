@@ -31,6 +31,8 @@ interface FloorStore {
 
   addSeat: (rowId: number, reqs: CreateSeatRequest[]) => void;
   removeSeat: (seatId: number) => void;
+
+  assignSeat: (seatIds: Set<number>, memberId: number) => void;
 }
 
 const useFloorStore = create<FloorStore>()(
@@ -212,6 +214,29 @@ const useFloorStore = create<FloorStore>()(
         }),
         undefined,
         'removeSeat',
+      ),
+
+    assignSeat: (seatIds, memberId) =>
+      set(
+        (state) => ({
+          floors: state.floors.map((f) => ({
+            ...f,
+            items: f.items.map((item) => {
+              if (item.kind !== 'section') return item;
+              return {
+                ...item,
+                rows: item.rows.map((row) => ({
+                  ...row,
+                  seats: row.seats.map((seat) =>
+                    seatIds.has(seat.id) ? { ...seat, assignedMemberId: memberId } : seat,
+                  ),
+                })),
+              };
+            }),
+          })),
+        }),
+        false,
+        'assignSeat',
       ),
   })),
 );
