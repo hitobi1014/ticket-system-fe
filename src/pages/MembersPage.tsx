@@ -1,6 +1,6 @@
 import useMemberStore from '@/store/memberStore.ts';
 import { useState } from 'react';
-import type { Member } from '@/types/member.ts';
+import { INSTRUMENTS, type Member } from '@/types/member.ts';
 import { VENUE } from '@/constant/venue.ts';
 
 import {
@@ -37,7 +37,8 @@ export default function MembersPage() {
       alert('이름을 입력해주세요.');
       return;
     }
-    addMember({ name: name.trim(), allocatedTickets: ticket });
+    // TODO 악기 임시 추가
+    addMember({ name: name.trim(), allocatedTickets: ticket, instrument: INSTRUMENTS[0] });
     setName('');
     setTicket(0);
     setIsAdding(false);

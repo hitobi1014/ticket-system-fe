@@ -28,7 +28,7 @@ export interface Member {
 }
 
 // 생성 요청용 (id 없음)
-export type CreateMemberRequest = Omit<Member, 'id'>;
+export type CreateMemberRequest = Omit<Member, 'id' | 'point'>;
 
 /** 티켓 현황 요약 (파생 데이터) */
 export interface TicketSummary {
