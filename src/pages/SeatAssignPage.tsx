@@ -37,22 +37,24 @@ export default function SeatAssignPage() {
                 </TabsList>
               </div>
 
-              {/* 좌측 메인 */}
-              {floors.map((floor) => (
-                <SeatAssignGrid
-                  key={floor.id}
-                  floor={floor}
-                  isBulkEditMode={isBulkEditMode}
-                  setIsBulkEditMode={setIsBulkEditMode}
-                  selectedSeatIds={selectedSeatIds}
-                  setSelectedSeatIds={setSelectedSeatIds}
-                  setIsModalOpen={setIsModalOpen}
-                />
-              ))}
+              <div className="flex gap-x-4">
+                {/* 좌측 메인 */}
+                {floors.map((floor) => (
+                  <SeatAssignGrid
+                    key={floor.id}
+                    floor={floor}
+                    isBulkEditMode={isBulkEditMode}
+                    setIsBulkEditMode={setIsBulkEditMode}
+                    selectedSeatIds={selectedSeatIds}
+                    setSelectedSeatIds={setSelectedSeatIds}
+                    setIsModalOpen={setIsModalOpen}
+                  />
+                ))}
+                <SeatAssignSidebar />
+              </div>
             </Tabs>
           </div>
         </div>
-        <SeatAssignSidebar />
       </div>
 
       {/* 회원 좌석 배정 모달 => 모달은 페이지(최상위)레벨에 배치 */}

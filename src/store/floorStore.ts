@@ -13,29 +13,6 @@ import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
 import { mockFloors } from '@/mocks/data.ts';
 
-interface FloorStore {
-  floors: Floor[];
-  getTotalSeatCount: () => number;
-
-  addFloor: (req: CreateFloorRequest) => void;
-  removeFloor: (id: number) => void;
-
-  addSection: (floorId: number, req: CreateSectionRequest) => void;
-  removeSection: (sectionId: number) => void;
-
-  addAisle: (floorId: number, req: CreateAisleRequest) => void;
-  removeAisle: (aisleId: number) => void;
-
-  addRow: (sectionId: number, req: CreateRowsRequest) => void;
-  removeRow: (rowId: number) => void;
-
-  addSeat: (rowId: number, reqs: CreateSeatRequest[]) => void;
-  removeSeat: (seatId: number) => void;
-
-  assignSeat: (seatIds: Set<number>, memberId: number) => void;
-  unAssignSeat: (seatId: number) => void;
-}
-
 const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
     // floors: [],
@@ -47,6 +24,19 @@ const useFloorStore = create<FloorStore>()(
         .filter((item): item is Section => item.kind === 'section')
         .flatMap((s) => s.rows)
         .flatMap((r) => r.seats).length,
+
+    // 총 좌석 - 회원 할당된 좌석
+    getRemainSeatCount: () => {
+      const totalSeatCount = get().getTotalSeatCount();
+      const assignSeatCount = get()
+        .floors.flatMap((f) => f.items)
+        .filter((item): item is Section => item.kind === 'section')
+        .flatMap((s) => s.rows)
+        .flatMap((r) => r.seats)
+        .filter((seat) => seat.assignedMemberId !== null).length;
+
+      return totalSeatCount - assignSeatCount;
+    },
 
     addFloor: (req) =>
       set(
@@ -260,5 +250,29 @@ const useFloorStore = create<FloorStore>()(
       })),
   })),
 );
+
+interface FloorStore {
+  floors: Floor[];
+  getTotalSeatCount: () => number;
+  getRemainSeatCount: () => number;
+
+  addFloor: (req: CreateFloorRequest) => void;
+  removeFloor: (id: number) => void;
+
+  addSection: (floorId: number, req: CreateSectionRequest) => void;
+  removeSection: (sectionId: number) => void;
+
+  addAisle: (floorId: number, req: CreateAisleRequest) => void;
+  removeAisle: (aisleId: number) => void;
+
+  addRow: (sectionId: number, req: CreateRowsRequest) => void;
+  removeRow: (rowId: number) => void;
+
+  addSeat: (rowId: number, reqs: CreateSeatRequest[]) => void;
+  removeSeat: (seatId: number) => void;
+
+  assignSeat: (seatIds: Set<number>, memberId: number) => void;
+  unAssignSeat: (seatId: number) => void;
+}
 
 export default useFloorStore;

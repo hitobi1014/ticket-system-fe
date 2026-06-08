@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button.tsx';
 import useMemberStore from '@/store/memberStore.ts';
 import { useRef } from 'react';
 import { clsx } from 'clsx';
+import { getContrastTextColor } from '@/lib/uiUtils.ts';
 
 interface AssignRowProps {
   section: Section;
@@ -41,7 +42,10 @@ export default function AssignRow({
                 'ring-2 ring-blue-500 ring-offset-1': selectedSeatIds.has(seat.id),
               })}
               variant="outline"
-              style={{ backgroundColor: assignedSeatColor(seat.assignedMemberId) }}
+              style={{
+                backgroundColor: assignedSeatColor(seat.assignedMemberId),
+                color: getContrastTextColor(assignedSeatColor(seat.assignedMemberId)),
+              }}
               onClick={() => onSeatClick(seat.id)}
             >
               <div>

@@ -9,6 +9,6 @@ export const mockMembers: Member[] = Array.from({ length: 15 }, (_, i) => ({
   name: faker.person.fullName(),
   instrument: faker.helpers.arrayElement(INSTRUMENTS),
   point: faker.number.int({ min: 5, max: 20 }),
-  allocatedTickets: 5,
+  allocatedTickets: faker.number.int({ min: 0, max: 5 }),
   color: faker.color.rgb({ format: 'hex' }),
 }));
