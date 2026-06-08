@@ -25,7 +25,7 @@ interface AssignMemberModalProps {
 
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
   const { floors, assignSeat, unAssignSeat } = useFloorStore();
-  const { members } = useMemberStore();
+  const { members, updateTickets } = useMemberStore();
   const memberListRef = useRef<HTMLDivElement>(null);
   const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
   const [isAssignMemberSelected, setIsAssignMemberSelected] = useState<number | null>(null);
@@ -62,6 +62,9 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
 
     assignSeat(seatIds, isAssignMemberSelected);
     const findMember = members.find((m) => m.id === isAssignMemberSelected);
+    if (findMember) {
+      updateTickets(findMember.id, findMember.allocatedTickets - seatIds.size);
+    }
     toast(`${findMember?.name} > ${seatIds.size}석 배정 완료`);
     onClose();
   };
@@ -71,6 +74,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   };
   const handleCancel = (seatId: number) => {
     unAssignSeat(seatId);
+
+    const ctx = findSeatContext(floors, seatId);
+    const findMember = members.find((m) => m.id === ctx?.seat.assignedMemberId);
+    if (findMember) {
+      updateTickets(findMember.id, findMember.allocatedTickets + seatIds.size);
+    }
     toast('배정이 취소되었습니다.');
     onClose();
   };
