@@ -45,6 +45,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     return memberName ? `${base} (${memberName})` : base;
   };
 
+  const assignedCount = [...seatIds].filter(
+    (id) => findSeatContext(floors, id)?.seat.assignedMemberId != null,
+  ).length;
+
+  const isVisibleCancelButton = assignedCount > 0;
+
   const overwriteCount = [...seatIds].filter((seatId) => {
     const ctx = findSeatContext(floors, seatId);
     return ctx?.seat.assignedMemberId != null;
@@ -72,14 +78,16 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const hasEnoughRemainingTickets = (member: Member): boolean => {
     return member.allocatedTickets >= seatIds.size;
   };
-  const handleCancel = (seatId: number) => {
-    unAssignSeat(seatId);
+  const handleCancel = () => {
+    [...seatIds].forEach((seatId) => {
+      unAssignSeat(seatId);
 
-    const ctx = findSeatContext(floors, seatId);
-    const findMember = members.find((m) => m.id === ctx?.seat.assignedMemberId);
-    if (findMember) {
-      updateTickets(findMember.id, findMember.allocatedTickets + seatIds.size);
-    }
+      const ctx = findSeatContext(floors, seatId);
+      const findMember = members.find((m) => m.id === ctx?.seat.assignedMemberId);
+      if (findMember) {
+        updateTickets(findMember.id, findMember.allocatedTickets + seatIds.size);
+      }
+    });
     toast('배정이 취소되었습니다.');
     onClose();
   };
@@ -160,16 +168,17 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
         ))}
       </div>
       <DialogFooter>
-        <div className="flex justify-between gap-2 w-full">
-          {seatIds.size === 1 &&
-            findSeatContext(floors, [...seatIds][0])?.seat.assignedMemberId != null && (
-              <Button
-                className="bg-red-600 rounded-md"
-                onClick={() => handleCancel([...seatIds][0])}
-              >
-                배정취소
-              </Button>
-            )}
+        <div
+          className={clsx('flex gap-2 w-full', {
+            'justify-between': isVisibleCancelButton,
+            'justify-end': !isVisibleCancelButton,
+          })}
+        >
+          {isVisibleCancelButton && (
+            <Button className="bg-red-600 rounded-md" onClick={() => handleCancel()}>
+              배정취소 {assignedCount > 1 && `(${assignedCount}석)`}
+            </Button>
+          )}
           <div className="flex gap-2">
             <Button className="rounded-md px-4" onClick={onClose}>
               닫기
