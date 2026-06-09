@@ -19,22 +19,13 @@ import { Button } from '@/components/ui/button.tsx';
 import MemberInfoModal from '@/components/modal/MemberInfoModal.tsx';
 import { Dialog } from '@/components/ui/dialog.tsx';
 
-const TABLE_HEADS = [
-  '이름',
-  '악기',
-  '배정 티켓',
-  '잔여 티켓',
-  '배정된 좌석 수',
-  '회원 색상',
-  '삭제',
-];
+const TABLE_HEADS = ['이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '회원 색상'];
 
 export default function MembersPage() {
   const {
     members,
     getMemberAssignedTickets,
     getMemberRemainTickets,
-    removeMember,
     distributeTickets,
     updateMemberColor,
   } = useMemberStore();
@@ -45,14 +36,6 @@ export default function MembersPage() {
 
   const totalAllocated = members.reduce((sum, m) => sum + m.allocatedTickets, 0);
   const remainingTickets = VENUE.totalSeats - totalAllocated;
-
-  const handleRemoveMember = (member: Member) => {
-    const result = confirm(`${member.name}님을 목록에서 제거 하시겠습니까?`);
-    if (!result) {
-      return;
-    }
-    removeMember(member.id);
-  };
 
   return (
     <div>
@@ -90,9 +73,10 @@ export default function MembersPage() {
               return (
                 <TableRow
                   key={member.id}
-                  className="divide-x"
+                  className="divide-x cursor-pointer"
                   onClick={() => {
                     setSelectedMember(member);
+                    setIsModalOpen(true);
                   }}
                 >
                   <TableCell className="text-center">{member.name}</TableCell>
@@ -121,11 +105,6 @@ export default function MembersPage() {
                       </PopoverContent>
                     </Popover>
                   </TableCell>
-                  <TableCell className="text-center">
-                    <Button variant="close" onClick={() => handleRemoveMember(member)}>
-                      회원 삭제
-                    </Button>
-                  </TableCell>
                 </TableRow>
               );
             })}
@@ -134,6 +113,7 @@ export default function MembersPage() {
       )}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <MemberInfoModal
+          key={selectedMember?.id ?? 'new'}
           member={selectedMember}
           onClose={() => {
             setIsModalOpen(false);

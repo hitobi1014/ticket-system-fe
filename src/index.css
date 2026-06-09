@@ -132,3 +132,9 @@
     @apply font-sans;
     }
 }
+
+@layer utilities {
+    .popup-title {
+        @apply text-lg font-bold text-gray-600;
+    }
+}

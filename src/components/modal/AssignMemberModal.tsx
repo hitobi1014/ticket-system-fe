@@ -94,7 +94,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   return (
     <DialogContent>
       <DialogHeader>
-        <DialogTitle className="font-bold text-gray-600 text-lg">좌석배정</DialogTitle>
+        <DialogTitle className="popup-title">좌석배정</DialogTitle>
         <DialogDescription>{modalTitle['N']}</DialogDescription>
       </DialogHeader>
       <Separator />

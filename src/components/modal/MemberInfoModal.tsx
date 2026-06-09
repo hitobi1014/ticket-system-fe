@@ -1,10 +1,8 @@
 import { type CreateMemberRequest, INSTRUMENTS, type Member } from '@/types';
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
-
 import { InputGroup, InputGroupInput } from '@/components/ui/input-group';
 import { Field, FieldLabel } from '@/components/ui/field.tsx';
-import { Separator } from '@/components/ui/separator.tsx';
 import {
   Select,
   SelectContent,
@@ -18,6 +16,7 @@ import { HexColorPicker } from 'react-colorful';
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
+import AlertDialogCustom from '@/components/modal/AlertDialogCustom.tsx';
 
 interface MemberInfoModalProps {
   member?: Member; // 수정시 사용
@@ -25,7 +24,7 @@ interface MemberInfoModalProps {
 }
 
 export default function MemberInfoModal({ member, onClose }: MemberInfoModalProps) {
-  const { addMember, updateMember } = useMemberStore();
+  const { addMember, updateMember, removeMember } = useMemberStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     point: member?.point ?? 0,
@@ -33,6 +32,7 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color,
   });
+
   const isEditMode = member !== undefined;
 
   const handleChange = <K extends keyof typeof form>(field: K, value: (typeof form)[K]) => {
@@ -52,11 +52,16 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
     onClose();
   };
 
+  const handleRemoveMember = () => {
+    if (member === undefined) return;
+    removeMember(member.id);
+  };
+
   return (
-    <DialogContent className="sm:max-w-[425px]" onInteractOutside={onClose}>
+    <DialogContent className="sm:max-w-106.25" onInteractOutside={onClose}>
       <DialogHeader>
         {/* 회원 등록/수정 */}
-        <DialogTitle>회원 등록</DialogTitle>
+        <DialogTitle className="popup-title">회원 등록</DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
@@ -91,7 +96,9 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
             <SelectContent>
               <SelectGroup>
                 {INSTRUMENTS.map((i) => (
-                  <SelectItem value={i.abbr}>{i.abbr}</SelectItem>
+                  <SelectItem key={i.abbr} value={i.abbr}>
+                    {i.abbr}
+                  </SelectItem>
                 ))}
               </SelectGroup>
             </SelectContent>
@@ -145,12 +152,21 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
           </Popover>
         </Field>
       </div>
-      <Separator />
-      <DialogFooter>
-        <Button onClick={() => onClose()}>닫기</Button>
-        <Button variant={isEditMode ? 'modify' : 'confirm'} onClick={() => handleSave()}>
-          {isEditMode ? '수정' : '등록'}
-        </Button>
+      <DialogFooter className="flex justify-between!">
+        <AlertDialogCustom
+          buttonText={'회원삭제'}
+          title={'확인'}
+          description={`[${form.name}]님을 목록에서 제거 하시겠습니까?`}
+          onConfirm={() => handleRemoveMember()}
+        />
+        <div className="flex gap-2">
+          <Button variant="close" onClick={() => onClose()}>
+            닫기
+          </Button>
+          <Button variant={isEditMode ? 'modify' : 'confirm'} onClick={() => handleSave()}>
+            {isEditMode ? '수정' : '등록'}
+          </Button>
+        </div>
       </DialogFooter>
     </DialogContent>
   );
