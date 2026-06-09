@@ -61,7 +61,7 @@ export default function MembersPage() {
           티켓 균등 배분
         </Button>
       </ButtonGroup>
-      <div className="flex gap-x-4 mt-4">
+      <div className="flex gap-3 mt-4">
         {memberInfoCards.map((card) => (
           <MemberInfoCard
             key={card.title}
