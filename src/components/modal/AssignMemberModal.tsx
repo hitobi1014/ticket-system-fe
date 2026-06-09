@@ -175,15 +175,15 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           })}
         >
           {isVisibleCancelButton && (
-            <Button className="bg-red-600 rounded-md" onClick={() => handleCancel()}>
+            <Button variant="cancel" size="base" onClick={() => handleCancel()}>
               배정취소 {assignedCount > 1 && `(${assignedCount}석)`}
             </Button>
           )}
           <div className="flex gap-2">
-            <Button className="rounded-md px-4" onClick={onClose}>
+            <Button variant="close" size="base" onClick={onClose}>
               닫기
             </Button>
-            <Button className="bg-sky-800 px-4 rounded-md" onClick={() => handleConfirm()}>
+            <Button variant="confirm" size="base" onClick={() => handleConfirm()}>
               배정
             </Button>
           </div>

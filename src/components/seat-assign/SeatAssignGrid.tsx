@@ -41,23 +41,25 @@ export default function SeatAssignGrid({
   };
 
   return (
-    <TabsContent value={String(floor.id)}>
-      <Toggle
-        pressed={isBulkEditMode}
-        onPressedChange={(pressed) => {
-          setIsBulkEditMode(pressed);
-          if (!pressed) setSelectedSeatIds(new Set());
-        }}
-      >
-        <SquareIcon className="group-data-[state=on]/toggle:fill-foreground" />
-        일괄편집모드
-      </Toggle>
-      {isBulkEditMode && (
-        <>
-          <Button onClick={() => setIsModalOpen(true)}>모달열기</Button>
-          <span>선택된seat: {selectedSeatIds.size}</span>
-        </>
-      )}
+    <TabsContent value={String(floor.id)} className="flex flex-col gap-y-4">
+      <div className="flex gap-x-4 items-center">
+        <Toggle
+          pressed={isBulkEditMode}
+          onPressedChange={(pressed) => {
+            setIsBulkEditMode(pressed);
+            if (!pressed) setSelectedSeatIds(new Set());
+          }}
+        >
+          <SquareIcon className="group-data-[state=on]/toggle:fill-foreground" />
+          일괄편집모드
+        </Toggle>
+        {isBulkEditMode && (
+          <>
+            <Button onClick={() => setIsModalOpen(true)}>수정하기</Button>
+            <span>선택된seat: {selectedSeatIds.size}</span>
+          </>
+        )}
+      </div>
       <div className="flex">
         {floor.items.map((item) => (
           <div key={item.id} className="flex">
