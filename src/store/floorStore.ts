@@ -12,11 +12,13 @@ import type {
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
 import { mockFloors } from '@/mocks/seatData.ts';
+import { VENUE } from '@/constant/venue.ts';
 
 interface FloorStore {
   floors: Floor[];
   getTotalSeatCount: () => number; // 총 좌석
   getRemainSeatCount: () => number; // 전체 남은 좌석
+  getAssignedSeatCount: () => number; // 배정된 좌석
 
   addFloor: (req: CreateFloorRequest) => void;
   removeFloor: (id: number) => void;
@@ -42,12 +44,12 @@ const useFloorStore = create<FloorStore>()(
     // floors: [],
     floors: mockFloors,
 
-    getTotalSeatCount: () =>
-      get()
-        .floors.flatMap((f) => f.items)
-        .filter((item): item is Section => item.kind === 'section')
-        .flatMap((s) => s.rows)
-        .flatMap((r) => r.seats).length,
+    getTotalSeatCount: () => VENUE.totalSeats,
+    // get()
+    //   .floors.flatMap((f) => f.items)
+    //   .filter((item): item is Section => item.kind === 'section')
+    //   .flatMap((s) => s.rows)
+    //   .flatMap((r) => r.seats).length,
 
     // 총 좌석 - 회원 할당된 좌석
     getRemainSeatCount: () => {
@@ -61,6 +63,14 @@ const useFloorStore = create<FloorStore>()(
 
       return totalSeatCount - assignSeatCount;
     },
+
+    getAssignedSeatCount: () =>
+      get()
+        .floors.flatMap((f) => f.items)
+        .filter((item): item is Section => item.kind === 'section')
+        .flatMap((s) => s.rows)
+        .flatMap((r) => r.seats)
+        .filter((seat) => seat.assignedMemberId !== undefined).length,
 
     addFloor: (req) =>
       set(
@@ -196,10 +206,7 @@ const useFloorStore = create<FloorStore>()(
                   if (row.id !== rowId) return row;
                   return {
                     ...row,
-                    seats: [
-                      ...row.seats,
-                      ...reqs.map((req) => ({ ...req, assignedMemberId: null, visible: true })),
-                    ],
+                    seats: [...row.seats, ...reqs.map((req) => ({ ...req, visible: true }))],
                   };
                 }),
               };
@@ -264,9 +271,7 @@ const useFloorStore = create<FloorStore>()(
               ...item,
               rows: item.rows.map((row) => ({
                 ...row,
-                seats: row.seats.map((seat) =>
-                  seat.id === seatId ? { ...seat, assignedMemberId: null } : seat,
-                ),
+                seats: row.seats.map((seat) => (seat.id === seatId ? { ...seat } : seat)),
               })),
             };
           }),

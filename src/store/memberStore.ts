@@ -6,8 +6,8 @@ import type { Section } from '@/types';
 
 interface MemberStore {
   members: Member[];
-  getMemberAssignedTickets: (id: number) => number;
-  getMemberRemainTickets: (id: number) => number;
+  getMemberAssignedTicketsByMemberId: (id: number) => number;
+  getMemberRemainTicketsByMemberId: (id: number) => number;
 
   addMember: (req: CreateMemberRequest) => void;
   updateMember: (id: number, req: CreateMemberRequest) => void;
@@ -23,7 +23,7 @@ const useMemberStore = create<MemberStore>((set, get) => ({
   members: mockMembers,
 
   // 배정된 좌석수: seat에 배정된 회원수 id length
-  getMemberAssignedTickets: (memberId) =>
+  getMemberAssignedTicketsByMemberId: (memberId) =>
     useFloorStore
       .getState()
       .floors.flatMap((f) => f.items)
@@ -33,9 +33,9 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       .filter((seat) => seat.assignedMemberId === memberId).length,
 
   // 잔여티켓: 배정티켓 - 배정된 좌석수
-  getMemberRemainTickets: (memberId) => {
+  getMemberRemainTicketsByMemberId: (memberId) => {
     const allowTickets = get().members.find((m) => m.id === memberId)?.allocatedTickets ?? 0;
-    const assignedTickets = get().getMemberAssignedTickets(memberId);
+    const assignedTickets = get().getMemberAssignedTicketsByMemberId(memberId);
     return allowTickets - assignedTickets;
   },
 
