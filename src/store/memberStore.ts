@@ -6,9 +6,13 @@ import useFloorStore from '@/store/floorStore.ts';
 interface MemberStore {
   members: Member[];
   addMember: (req: CreateMemberRequest) => void;
+  updateMember: (id: number, req: CreateMemberRequest) => void;
   removeMember: (id: number) => void;
+
   updateTickets: (id: number, tickets: number) => void;
   distributeTickets: () => void;
+
+  updateMemberColor: (id: number, color: string) => void;
 }
 
 const useMemberStore = create<MemberStore>((set) => ({
@@ -21,6 +25,12 @@ const useMemberStore = create<MemberStore>((set) => ({
         members: [...state.members, { ...req, id: maxId + 1 }],
       };
     }),
+
+  updateMember: (id, req) =>
+    set((state) => ({
+      members: state.members.map((m) => (m.id === id ? { ...m, ...req } : m)),
+    })),
+
   removeMember: (id) =>
     set((state) => ({
       members: state.members.filter((m) => m.id !== id),
@@ -46,6 +56,11 @@ const useMemberStore = create<MemberStore>((set) => ({
         })),
       };
     }),
+
+  updateMemberColor: (id, color) =>
+    set((state) => ({
+      members: state.members.map((m) => (m.id === id ? { ...m, color } : m)),
+    })),
 }));
 
 export default useMemberStore;
