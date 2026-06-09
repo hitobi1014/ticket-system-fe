@@ -15,8 +15,8 @@ import { mockFloors } from '@/mocks/data.ts';
 
 interface FloorStore {
   floors: Floor[];
-  getTotalSeatCount: () => number;
-  getRemainSeatCount: () => number;
+  getTotalSeatCount: () => number; // 총 좌석
+  getRemainSeatCount: () => number; // 전체 남은 좌석
 
   addFloor: (req: CreateFloorRequest) => void;
   removeFloor: (id: number) => void;
