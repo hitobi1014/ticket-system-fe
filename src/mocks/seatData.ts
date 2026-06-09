@@ -1,22 +1,35 @@
 import type { Floor, Section, Seat, VenueConfig, Rows } from '@/types';
+import { mockMembers } from '@/mocks/members.ts';
 
 // =====================
 // 좌석 생성 헬퍼 함수
 // =====================
 
-let seatIdCnt = 0;
-function createSeats(addSeatCount: number = 1, assignedMemberId: number): Seat[] {
-  const seats: Seat[] = [];
+// 회원별 배정 좌석 ID 풀 생성
+// ex) member 1 → allocatedTickets: 3 → seatId 0,1,2 배정
+function buildMemberSeatMap(): Map<number, number> {
+  // seatId -> memberId
+  const map = new Map<number, number>();
+  let seatId = 0;
 
-  Array.from({ length: addSeatCount }, (_, i) => {
-    seats.push({
-      id: seatIdCnt++,
-      seatNumber: i,
-      assignedMemberId: assignedMemberId === 0 ? null : assignedMemberId,
-      visible: true,
-    });
-  });
-  return seats;
+  for (const member of mockMembers) {
+    for (let i = 0; i < member.allocatedTickets; i++) {
+      map.set(seatId++, member.id);
+    }
+  }
+  return map;
+}
+
+const memberSeatMap = buildMemberSeatMap();
+let seatIdCnt = 0;
+
+function createSeats(count: number = 1): Seat[] {
+  return Array.from({ length: count }, (_, i) => ({
+    id: seatIdCnt,
+    seatNumber: i,
+    assignedMemberId: memberSeatMap.get(seatIdCnt++) ?? null,
+    visible: true,
+  }));
 }
 
 let rowIdCnt = 0;
@@ -27,7 +40,7 @@ function createRows(addRowCount: number = 1): Rows[] {
     rows.push({
       id: rowIdCnt++,
       rowName: i.toString(),
-      seats: createSeats(5, i),
+      seats: createSeats(5),
     }),
   );
   return rows;

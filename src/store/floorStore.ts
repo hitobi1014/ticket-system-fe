@@ -11,7 +11,7 @@ import type {
 
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
-import { mockFloors } from '@/mocks/data.ts';
+import { mockFloors } from '@/mocks/seatData.ts';
 
 interface FloorStore {
   floors: Floor[];
