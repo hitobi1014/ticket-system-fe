@@ -1,0 +1,25 @@
+@import 'tailwindcss';
+
+/* 회원 페이지 공용 스타일*/
+/*:root {*/
+/*    --mp-main-color: var(--color-gray-700);*/
+/*}*/
+
+
+/*.mp-main-bg {*/
+/*    background-color: var(mainb);*/
+/*}*/
+
+.mp-table {
+    background-color: var(--sub-bg);
+    @apply rounded-2xl text-white;
+}
+
+.mp-table-border {
+    @apply divide-y divide-mist-300
+}
+
+.mp-button {
+    background-color: var(--sub-bg);
+    @apply border;
+}

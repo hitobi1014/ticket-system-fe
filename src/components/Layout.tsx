@@ -3,7 +3,7 @@ import { Toaster } from '@/components/ui/sonner.tsx';
 
 export default function Layout() {
   return (
-    <div>
+    <div className="main-bg-color">
       <Toaster
         toastOptions={{
           style: {
