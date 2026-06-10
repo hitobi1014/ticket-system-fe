@@ -13,10 +13,11 @@ import {
 import { Button } from '@/components/ui/button.tsx';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
-import { IconUserPlus, IconTicket } from '@tabler/icons-react';
+import { IconUserPlus, IconTicket, IconUsers } from '@tabler/icons-react';
 import '@/pages/MemberPage.css';
 import MemberInfoModal from '@/components/modal/MemberInfoModal.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
+import PageHeader from '@/components/common/PageHeader.tsx';
 
 const TABLE_HEADS = ['이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '회원 색상'];
 
@@ -52,8 +53,8 @@ export default function MembersPage() {
 
   return (
     <div className="flex flex-col gap-y-4">
-      <h1 className="popup-title">회원관리</h1>
-      <div className="flex gap-x-2 mt-4">
+      <PageHeader title={'회원관리'} icon={<IconUsers stroke={1.5} />} />
+      <div className="flex gap-x-2">
         <Button className="mp-button" onClick={() => setIsModalOpen(true)}>
           <IconUserPlus stroke={2} />
           회원 추가
@@ -67,7 +68,7 @@ export default function MembersPage() {
           티켓 균등 배분
         </Button>
       </div>
-      <div className="flex gap-3 mt-4">
+      <div className="flex gap-3">
         {memberInfoCards.map((card) => (
           <MemberInfoCard
             key={card.title}

@@ -5,6 +5,8 @@ import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import PageHeader from '@/components/common/PageHeader.tsx';
+import { IconArmchair2 } from '@tabler/icons-react';
 
 export default function FloorSetupPage() {
   const {
@@ -118,6 +120,7 @@ export default function FloorSetupPage() {
   };
   return (
     <div>
+      <PageHeader title={'좌석 설정'} icon={<IconArmchair2 stroke={1.5} />} />
       <div className="flex">
         <button onClick={() => handleAddFloor()}>층 추가</button>
         <h1 className="ml-2 font-bold">총 좌석 수: {getTotalSeatCount()}</h1>
