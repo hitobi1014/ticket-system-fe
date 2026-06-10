@@ -5,10 +5,13 @@ import { AppSidebar } from '@/components/app-sidebar';
 
 export default function Layout() {
   return (
-    <SidebarProvider className="main-bg-color">
+    <SidebarProvider className="primary-bg h-screen overflow-hidden">
       <AppSidebar />
-      <main className="px-8 py-4">
-        <Outlet />
+      <main className="flex-1 flex justify-center px-10 overflow-hidden">
+        {/* max-w-350 => 1400px */}
+        <div className="w-full max-w-350 py-6 overflow-hidden">
+          <Outlet />
+        </div>
       </main>
       {/*</div>*/}
       <Toaster

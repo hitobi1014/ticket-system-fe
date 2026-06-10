@@ -8,8 +8,8 @@ interface PageHeaderProps {
 export default function PageHeader({ title, icon }: PageHeaderProps) {
   return (
     <div className="flex items-center gap-x-2 border-b border-mist-500 pb-4 mb-4">
-      <div className="text-main-color">{icon}</div>
-      <h2 className="text-main-color text-lg font-medium">{title}</h2>
+      <div className="primary-color">{icon}</div>
+      <h2 className="primary-color text-lg font-medium">{title}</h2>
     </div>
   );
 }

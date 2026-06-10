@@ -11,8 +11,8 @@
 /*}*/
 
 .mp-table {
-    background-color: var(--sub-bg);
-    @apply rounded-2xl text-white;
+    background-color: var(--color-secondary);
+    @apply text-white;
 }
 
 .mp-table-border {
@@ -20,6 +20,11 @@
 }
 
 .mp-button {
-    background-color: var(--sub-bg);
+    background-color: var(--color-secondary);
     @apply border;
+}
+
+.function-button {
+    border-color: var(--color-secondary);
+    @apply py-4 px-5;
 }

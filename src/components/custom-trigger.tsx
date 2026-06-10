@@ -5,11 +5,11 @@ export function CustomTrigger() {
   const { toggleSidebar, open } = useSidebar();
 
   return (
-    <button className="absolute -right-7 top-4 z-10" onClick={toggleSidebar}>
+    <button className="absolute -right-7 top-3 z-10 cursor-pointer" onClick={toggleSidebar}>
       {open ? (
-        <IconLayoutSidebarLeftCollapse className="size-8 text-main-color" stroke={2} />
+        <IconLayoutSidebarLeftCollapse className="size-8 primary-color" stroke={1.25} />
       ) : (
-        <IconLayoutSidebarRightCollapse className="size-8 text-main-color" stroke={2} />
+        <IconLayoutSidebarRightCollapse className="size-8 primary-color" stroke={1.25} />
       )}
     </button>
   );
