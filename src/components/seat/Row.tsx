@@ -4,13 +4,11 @@ import { clsx } from 'clsx';
 
 interface RowProps {
   row: Rows;
-  isEditMode: boolean;
   isSelected: boolean;
-  onSelect: (rowId: number) => void;
-  onRemoveSeat: (seatId: number) => void;
+  onClick: (rowId: number) => void;
 }
 
-export default function Row({ row, isEditMode, isSelected, onSelect, onRemoveSeat }: RowProps) {
+export default function Row({ row, isSelected, onClick }: RowProps) {
   return (
     <div
       key={row.id}
@@ -19,34 +17,22 @@ export default function Row({ row, isEditMode, isSelected, onSelect, onRemoveSea
       })}
       onClick={(e) => {
         e.stopPropagation();
-        onSelect(row.id);
+        onClick(row.id);
       }}
     >
       <div className="flex">
         <span className={clsx('flex justify-center items-center w-6 text-sm', {})}>
           {row.rowName}
         </span>
-        <div className="flex gap-x-1" onClick={(e) => e.stopPropagation()}>
+        {/*<div className="flex gap-x-1" onClick={(e) => e.stopPropagation()}>*/}
+        <div className="flex gap-x-1">
           {row.seats.map((seat) => {
             return (
               // 분리
               <div key={seat.id} className="flex items-center">
-                <Button className="secondary-bg primary-color border-0 w-8 h-8 text-sm">
+                <Button className="primary-bg primary-color border-0 w-8 h-8 text-sm">
                   {seat.seatNumber}
                 </Button>
-                {/* TODO 좌석 삭제는 끝에서부터 삭제 => 입력받기 */}
-                {/*{isEditMode && isSelected && (*/}
-                {/*  // 좌석 삭제 버튼*/}
-                {/*  <p*/}
-                {/*    className="flex items-center justify-center w-6"*/}
-                {/*    onClick={(e) => {*/}
-                {/*      e.stopPropagation();*/}
-                {/*      onRemoveSeat(seat.id);*/}
-                {/*    }}*/}
-                {/*  >*/}
-                {/*    x*/}
-                {/*  </p>*/}
-                {/*)}*/}
               </div>
             );
           })}

@@ -5,13 +5,13 @@ import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-reac
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import './SectionCard.css';
 import { clsx } from 'clsx';
+import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
 
 interface SectionCardProps {
   item: FloorItem;
   selectedRowId: number | null;
   selectedSectionId: number | null;
   selectedAisleId: number | null;
-  isRowEditMode: boolean;
 
   onSelectedSectionId: (id: number | null) => void;
   onSelectedAisleId: (id: number | null) => void;
@@ -23,18 +23,22 @@ export default function SectionCard({
   selectedRowId,
   selectedSectionId,
   selectedAisleId,
-  isRowEditMode,
   onSelectedSectionId,
   onSelectedAisleId,
   onSelectedRowId,
 }: SectionCardProps) {
   const { floors, addRow, removeRow, addSeat, removeSeat } = useFloorStore();
+
   const handleSelectSection = (sectionId: number) => {
-    onSelectedSectionId(selectedSectionId === sectionId ? null : sectionId);
+    if (selectedSectionId === sectionId) return;
+    onSelectedSectionId(sectionId);
+    onSelectedAisleId(null);
   };
 
   const handleSelectAisle = (id: number) => {
-    onSelectedAisleId(selectedAisleId === id ? null : id);
+    if (selectedAisleId === id) return;
+    onSelectedAisleId(id);
+    onSelectedSectionId(null);
   };
 
   const handleAddRow = (sectionId: number) => {
@@ -103,17 +107,6 @@ export default function SectionCard({
   };
 
   const handleRemoveSeat = (removeSeatCnt: number) => {
-    // const findRow = floors
-    //   .flatMap((f) => f.items)
-    //   .filter((item): item is Section => item.kind === 'section')
-    //   .flatMap((s) => s.rows)
-    //   .find((row) => row.id === selectedRowId);
-
-    // const isRemove = window.confirm(
-    //   `선택된 좌석을 삭제하시겠습니까? 선택된 열-좌석: ${findRow?.rowName}-${seatId}`,
-    // );
-    // if (!isRemove) return;
-
     if (selectedRowId == null) {
       alert('값 없음');
       return;
@@ -124,6 +117,7 @@ export default function SectionCard({
   // 열 편집 버튼
   const sectionEditButtons: ButtonItem[] = [
     {
+      variant: 'secondary',
       text: '열 추가',
       size: 'xs',
       icon: <IconPlus stroke={2} />,
@@ -132,6 +126,7 @@ export default function SectionCard({
       },
     },
     {
+      variant: 'secondary',
       text: '열 삭제',
       size: 'xs',
       icon: <IconMinus stroke={2} />,
@@ -141,6 +136,7 @@ export default function SectionCard({
       },
     },
     {
+      variant: 'secondary',
       text: '좌석 추가',
       size: 'xs',
       icon: <IconArmchair stroke={2} />,
@@ -150,6 +146,7 @@ export default function SectionCard({
       },
     },
     {
+      variant: 'secondary',
       text: '좌석 삭제',
       size: 'xs',
       icon: <IconTrash stroke={2} />,
@@ -161,70 +158,67 @@ export default function SectionCard({
         dialogTitle: '좌석 삭제',
         type: 'removeSeat',
         rowId: selectedRowId ?? undefined,
-        rowName: '테스트22',
+        rowName: findSeatContextByRowId(floors, selectedRowId!)?.row.rowName ?? '열 설정x',
         currentSeatCount: 10,
-        sectionName: '테스트',
+        sectionName: findSeatContextByRowId(floors, selectedRowId!)?.section.name ?? '구역 설정x',
         onClick: handleRemoveSeat,
       },
     },
   ];
 
-  /* 화면 렌더링 구역 */
   if (item.kind === 'aisle') {
     return (
       <div
-        key={item.id}
-        /* TODO 통로 선택시 ring 색상?
-        구역 선택과 통로선택 별도로 나누지않고 하나의 selected Item 비교 해서 선택된거 통일
-        */
-        className={clsx(
-          'card text-sky-800 flex items-center justify-center self-stretch px-3 cursor-pointer',
-          {
-            '': selectedAisleId !== item.id,
-            'ring-2 ring-primary-color': selectedAisleId === item.id,
-          },
-        )}
         onClick={(e) => {
           e.stopPropagation();
           handleSelectAisle(item.id);
         }}
+        className={clsx(
+          'primary-color card flex items-center justify-center self-stretch px-3 cursor-pointer',
+          {
+            'ring-2 ring-primary-color': selectedAisleId === item.id,
+          },
+        )}
       >
         <div className="w-px h-2/4 bg-mist-500" />
       </div>
     );
   }
 
+  /* Section */
   return (
-    /* Section */
-    /* TODO 열 클릭시 ring */
     <div
       key={item.id}
-      className={clsx('card primary-color flex flex-col gap-y-2 p-4', {
-        '': selectedSectionId !== item.id,
-        'ring-2 ring-primary-color': selectedSectionId === item.id,
-      })}
-      onClick={() => {
+      onClick={(e) => {
+        e.stopPropagation();
         handleSelectSection(item.id);
       }}
+      className={clsx('card primary-color flex flex-col gap-y-2 p-4', {
+        'ring-2 ring-primary-color': selectedSectionId === item.id,
+      })}
     >
-      <div className="flex justify-between items-center">
+      <div
+        className="flex justify-between items-center"
+        onClick={(e) => {
+          e.stopPropagation();
+          handleSelectSection(item.id);
+          onSelectedRowId(null); // row 선택 해제
+        }}
+      >
         <p>{item.name}</p>
         <p>{item.rows.flatMap((r) => r.seats).length}석</p>
       </div>
-      {selectedSectionId === item.id && isRowEditMode ? (
-        <FunctionButtons buttons={sectionEditButtons} />
-      ) : (
-        ''
-      )}
+      {selectedSectionId === item.id && <FunctionButtons buttons={sectionEditButtons} />}
       <div className="flex flex-col gap-y-2">
         {item.rows.map((row) => (
           <Row
             key={row.id}
             row={row}
-            isEditMode={isRowEditMode}
             isSelected={selectedRowId === row.id}
-            onSelect={onSelectedRowId}
-            onRemoveSeat={handleRemoveSeat}
+            onClick={(rowId) => {
+              handleSelectSection(item.id);
+              onSelectedRowId(rowId);
+            }}
           />
         ))}
       </div>

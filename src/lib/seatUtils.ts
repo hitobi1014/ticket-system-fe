@@ -15,6 +15,19 @@ export function findSeatContext(floors: Floor[], seatId: number) {
   return null;
 }
 
+export function findSeatContextByRowId(floors: Floor[], rowId: number) {
+  for (const floor of floors) {
+    for (const item of floor.items) {
+      if (item.kind !== 'section') continue;
+      const row = item.rows.find((r) => r.id === rowId);
+      if (row) {
+        return { floor, section: item, row };
+      }
+    }
+  }
+  return null;
+}
+
 export function getAssignableMember(members: Member[]): Member[] {
   return members.filter((m) => m.allocatedTickets > 0);
 }

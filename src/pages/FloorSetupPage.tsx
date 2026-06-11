@@ -3,24 +3,19 @@ import { useState } from 'react';
 import type { Aisle, ButtonItem, CreateFloorRequest, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { IconEdit, IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeFloor, addSection, removeSection, addAisle, removeAisle } =
-    useFloorStore();
+  const { floors, addFloor, addSection, removeSection, addAisle, removeAisle } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
-  const [isRowEditMode, setIsRowEditMode] = useState<boolean>(false);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
-  const selectedSection = selectedFloor?.items.find(
-    (item): item is Section => item.kind === 'section' && item.id === selectedSectionId,
-  );
 
   const handleAddFloor = () => {
     const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
@@ -34,18 +29,18 @@ export default function FloorSetupPage() {
     setSelectedFloorId(req.id);
   };
 
-  const handleRemoveFloor = (id: number) => {
-    const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${id}`); // id말고 name 확인하며 물어보기
+  const handleRemoveFloor = () => {
+    const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${selectedFloorId}`); // id말고 name 확인하며 물어보기
 
     // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
     if (!isRemove) return;
-    removeFloor(id);
-
-    // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
-    if (selectedFloorId === id) {
-      const remaining = floors.filter((f) => f.id !== id);
-      setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
-    }
+    // removeFloor(selectedFloorId);
+    //
+    // // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
+    // if (selectedFloorId === selectedFloorId) {
+    //   const remaining = floors.filter((f) => f.selectedFloorId !== selectedFloorId);
+    //   setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
+    // }
   };
 
   const handleAddSection = () => {
@@ -119,7 +114,7 @@ export default function FloorSetupPage() {
     {
       text: '층 삭제',
       icon: <IconMinus stroke={2} />,
-      // TODO: 층 삭제 추가하기
+      onClick: handleRemoveFloor,
     },
   ];
 
@@ -155,31 +150,26 @@ export default function FloorSetupPage() {
     },
   ];
 
-  const editModeButton: ButtonItem[] = [
-    {
-      text: isRowEditMode ? '편집 완료' : '열 편집 모드',
-      variant: 'secondary',
-      icon: <IconEdit stroke={2} />,
-      onClick: () => setIsRowEditMode((prev) => !prev),
-    },
-  ];
-
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="primary-bg h-full flex flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />;
       <Tabs
-        className="secondary-bg flex flex-col flex-1 overflow-hidden"
+        className="flex flex-col flex-1 overflow-hidden"
         value={String(selectedFloorId)}
         onValueChange={(v) => setSelectedFloorId(Number(v))}
+        onClick={() => {
+          setSelectedSectionId(null);
+          setSelectedRowId(null);
+        }}
       >
         {/* 1층 탭바 */}
-        <TabsList className="secondary-bg">
+        <TabsList className="bg-transparent flex gap-x-2">
           {floors.map((floor) => (
             <TabsTrigger
               key={floor.id}
               value={String(floor.id)}
-              className="bg-transparent p-0 gap-x-1 flex flex-col flex-1 overflow-hidden
+              className="cursor-pointer
               primary-color text-base rounded-none border-b-2 border-transparent
               data-[state=active]:bg-transparent
               data-[state=active]:shadow-none
@@ -191,35 +181,26 @@ export default function FloorSetupPage() {
           ))}
         </TabsList>
 
-        {/*  나머지 렌더링*/}
         {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
-        {/*여기가 TabContent 표현부분 */}
         {floors.map((floor) => (
           <TabsContent
             key={floor.id}
             value={String(floor.id)}
-            className="bg-transparent p-0 gap-x-1 overflow-x-auto"
+            className="p-0 gap-x-1 overflow-x-auto"
           >
             {/* 구역 기능 버튼 그룹 */}
             <div className="flex gap-x-2">
               <FunctionButtons buttons={sectionButtons} />
               <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
               <FunctionButtons buttons={aisleButtons} />
-              <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
-              <FunctionButtons buttons={editModeButton} />
-              {/* TODO 삭제 예정 선택된 구역은 ring으로 표시 */}
-              <span className="ml-2 bg-gray-400 text-white">
-                선택된 구역: {selectedSection?.name}/{selectedRowId}
-              </span>
             </div>
 
             {/* 구역인지 통로인지 구분*/}
-            <div className="flex mt-4 gap-x-4 flex-1">
+            <div className="flex mt-4 gap-x-4 flex-1 px-2">
               {floor.items.map((item) => (
                 <SectionCard
                   key={item.id}
                   item={item}
-                  isRowEditMode={isRowEditMode}
                   selectedSectionId={selectedSectionId}
                   selectedAisleId={selectedAisleId}
                   selectedRowId={selectedRowId}
