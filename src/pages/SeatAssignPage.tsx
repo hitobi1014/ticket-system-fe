@@ -5,8 +5,6 @@ import { Dialog } from '@/components/ui/dialog.tsx';
 import { AssignMemberModal } from '@/components/modal/AssignMemberModal.tsx';
 import SeatAssignSidebar from '@/components/seat-assign/SeatAssignSidebar.tsx';
 import SeatAssignGrid from '@/components/seat-assign/SeatAssignGrid.tsx';
-import PageHeader from '@/components/common/PageHeader.tsx';
-import { IconLayoutDashboard } from '@tabler/icons-react';
 
 export default function SeatAssignPage() {
   const { floors } = useFloorStore();
@@ -24,7 +22,6 @@ export default function SeatAssignPage() {
       <div>
         <div>
           <div>
-            <PageHeader title={'좌석배정'} icon={<IconLayoutDashboard stroke={1.5} />} />
             <Tabs
               value={String(selectedFloorId)}
               onValueChange={(v) => setSelectedFloorId(Number(v))}

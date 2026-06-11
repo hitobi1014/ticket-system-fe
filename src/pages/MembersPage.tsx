@@ -13,11 +13,10 @@ import {
 import { Button } from '@/components/ui/button.tsx';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
-import { IconUserPlus, IconTicket, IconUsers } from '@tabler/icons-react';
+import { IconTicket, IconUserPlus } from '@tabler/icons-react';
 import '@/pages/MemberPage.css';
 import MemberInfoModal from '@/components/modal/MemberInfoModal.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
-import PageHeader from '@/components/common/PageHeader.tsx';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -61,13 +60,14 @@ export default function MembersPage() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden gap-y-4">
-      <PageHeader title={'회원관리'} icon={<IconUsers stroke={1.5} />} />
       <div className="flex gap-x-2 justify-end">
-        <Button className="function-button" onClick={() => setIsModalOpen(true)}>
+        <Button variant="primary" size={'base'} onClick={() => setIsModalOpen(true)}>
           <IconUserPlus stroke={2} />
           회원 추가
         </Button>
         <Button
+          variant="primary"
+          size={'base'}
           className="function-button"
           onClick={distributeTickets}
           disabled={members.length === 0 || getTotalSeatCount() === 0}

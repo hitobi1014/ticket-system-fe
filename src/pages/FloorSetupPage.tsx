@@ -5,8 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import PageHeader from '@/components/common/PageHeader.tsx';
-import { IconArmchair2 } from '@tabler/icons-react';
+import { IconMinus, IconPlus } from '@tabler/icons-react';
 
 export default function FloorSetupPage() {
   const {
@@ -120,14 +119,30 @@ export default function FloorSetupPage() {
   };
   return (
     <div>
-      <PageHeader title={'좌석 설정'} icon={<IconArmchair2 stroke={1.5} />} />
-      <div className="flex">
-        <button onClick={() => handleAddFloor()}>층 추가</button>
-        <h1 className="ml-2 font-bold">총 좌석 수: {getTotalSeatCount()}</h1>
+      {/*상단 버튼 그룹*/}
+      <div className="flex justify-end gap-x-2">
+        <Button
+          variant={'primary'}
+          size={'base'}
+          className="flex gap-x-1"
+          onClick={() => handleAddFloor()}
+        >
+          <IconPlus stroke={2} />
+          <p>층 추가</p>
+        </Button>
+        <Button variant={'primary'} size={'base'} className="flex gap-x-1">
+          {/*TODO 층 삭제 추가하기*/}
+          <IconMinus stroke={2} />
+          <p>층 삭제</p>
+        </Button>
       </div>
-      <Tabs value={String(selectedFloorId)} onValueChange={(v) => setSelectedFloorId(Number(v))}>
+      <Tabs
+        className="secondary-bg"
+        value={String(selectedFloorId)}
+        onValueChange={(v) => setSelectedFloorId(Number(v))}
+      >
         {/* 1층 탭바 */}
-        <TabsList>
+        <TabsList className="secondary-bg">
           {floors.map((floor) => (
             <TabsTrigger key={floor.id} value={String(floor.id)}>
               {floor.name}

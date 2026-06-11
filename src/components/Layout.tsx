@@ -1,19 +1,31 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useMatches } from 'react-router-dom';
 import { Toaster } from '@/components/ui/sonner.tsx';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
+import * as React from 'react';
+import PageHeader from '@/components/common/PageHeader.tsx';
 
 export default function Layout() {
+  const matches = useMatches();
+  const currentHandle = matches[matches.length - 1]?.handle as
+    | {
+        title: string;
+        icon: React.ReactNode;
+      }
+    | undefined;
+
   return (
     <SidebarProvider className="primary-bg h-screen overflow-hidden">
       <AppSidebar />
-      <main className="flex-1 flex justify-center px-10 overflow-hidden">
+      <main className="flex-1 flex overflow-hidden">
         {/* max-w-350 => 1400px */}
-        <div className="w-full max-w-350 py-6 overflow-hidden">
-          <Outlet />
+        <div className="w-full mx-auto flex flex-col flex-1 overflow-hidden">
+          {currentHandle && <PageHeader title={currentHandle.title} icon={currentHandle.icon} />}
+          <div className="flex-1 overflow-hidden">
+            <Outlet /> {/* Outlet 감싸는 div 추가 */}
+          </div>
         </div>
       </main>
-      {/*</div>*/}
       <Toaster
         toastOptions={{
           style: {
