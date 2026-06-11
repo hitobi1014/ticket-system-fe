@@ -5,7 +5,16 @@ import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { IconMinus, IconPlus, IconTicket, IconUserPlus } from '@tabler/icons-react';
+import {
+  IconEdit,
+  IconLayoutColumns,
+  IconMinus,
+  IconMinusVertical,
+  IconPlus,
+  IconTicket,
+  IconTrash,
+  IconUserPlus,
+} from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 export default function FloorSetupPage() {
@@ -25,6 +34,7 @@ export default function FloorSetupPage() {
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [isRowEditMode, setIsRowEditMode] = useState<boolean>(false);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const selectedSection = selectedFloor?.items.find(
@@ -132,6 +142,47 @@ export default function FloorSetupPage() {
     },
   ];
 
+  const sectionButtons: ButtonItem[] = [
+    {
+      text: '구역 추가',
+      variant: 'secondary',
+      icon: <IconPlus stroke={2} />,
+      onClick: handleAddSection,
+    },
+    {
+      text: '구역 삭제',
+      variant: 'secondary',
+      icon: <IconTrash stroke={2} />,
+      disabled: selectedSectionId === null,
+      onClick: handleRemoveSection,
+    },
+  ];
+
+  const aisleButtons: ButtonItem[] = [
+    {
+      text: '통로 추가',
+      variant: 'secondary',
+      icon: <IconLayoutColumns stroke={2} />,
+      onClick: handleAddAisle,
+    },
+    {
+      text: '통로 삭제',
+      variant: 'secondary',
+      icon: <IconTrash stroke={2} />,
+      disabled: selectedAisleId === null,
+      onClick: handleRemoveAisle,
+    },
+  ];
+
+  const editModeButton: ButtonItem[] = [
+    {
+      text: isRowEditMode ? '편집 완료' : '열 편집 모드',
+      variant: 'secondary',
+      icon: <IconEdit stroke={2} />,
+      onClick: () => setIsRowEditMode((prev) => !prev),
+    },
+  ];
+
   return (
     <div>
       {/*상단 버튼 그룹*/}
@@ -144,7 +195,15 @@ export default function FloorSetupPage() {
         {/* 1층 탭바 */}
         <TabsList className="secondary-bg">
           {floors.map((floor) => (
-            <TabsTrigger key={floor.id} value={String(floor.id)}>
+            <TabsTrigger
+              key={floor.id}
+              value={String(floor.id)}
+              className="primary-color text-base bg-transparent rounded-none border-b-2 border-transparent
+              data-[state=active]:bg-transparent
+              data-[state=active]:shadow-none
+              data-[state=active]:border-b-white
+              "
+            >
               {floor.name}
             </TabsTrigger>
           ))}
@@ -154,34 +213,22 @@ export default function FloorSetupPage() {
         {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
         {/*여기가 TabContent 표현부분 */}
         {floors.map((floor) => (
-          <TabsContent key={floor.id} value={String(floor.id)}>
-            <div className="flex items-center">
-              <ButtonGroup>
-                <Button onClick={() => handleAddSection()}>구역추가</Button>
-                <Button
-                  disabled={selectedSectionId === null}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveSection();
-                  }}
-                >
-                  구역 삭제
-                </Button>
-                <Button onClick={() => handleAddAisle()}>통로추가</Button>
-                <Button
-                  disabled={selectedAisleId === null}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleRemoveAisle();
-                  }}
-                >
-                  통로삭제
-                </Button>
-              </ButtonGroup>
-              <span className="ml-2 bg-gray-400 text-white">
-                선택된 구역: {selectedSection?.name}/{selectedRowId}
-              </span>
+          <TabsContent
+            key={floor.id}
+            value={String(floor.id)}
+            className="bg-transparent p-0 gap-x-1"
+          >
+            {/* 구역 기능 버튼 그룹 */}
+            <div className="flex gap-x-2">
+              <FunctionButtons buttons={sectionButtons} />
+              <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
+              <FunctionButtons buttons={aisleButtons} />
+              <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
+              <FunctionButtons buttons={editModeButton} />
             </div>
+            <span className="ml-2 bg-gray-400 text-white">
+              선택된 구역: {selectedSection?.name}/{selectedRowId}
+            </span>
             {/* 구역인지 통로인지 구분*/}
             <div className="flex mt-4">
               {floor.items.map((item) => (
