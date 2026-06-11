@@ -66,7 +66,7 @@ export function RemoveSeatDialog({
       <DialogContent className="secondary-bg">
         <DialogHeader>
           <DialogTitle className="primary-color flex items-center gap-x-2">
-            <IconTrash className="text-red-500" stroke={1.5} />
+            <IconTrash className="danger-color" stroke={1.5} />
             <p>{title}</p>
           </DialogTitle>
           <DialogDescription className="secondary-color">
@@ -75,7 +75,7 @@ export function RemoveSeatDialog({
         </DialogHeader>
 
         {/* 구역/열 정보 */}
-        <div className="primary-bg  flex justify-between px-4 py-2 rounded-md">
+        <div className="primary-bg flex justify-between px-4 py-2 rounded-md">
           <div>
             <p className="text-mist-400">구역</p>
             <p className="primary-color">
@@ -89,31 +89,44 @@ export function RemoveSeatDialog({
         </div>
 
         {/* 입력*/}
-        <div className="flex items-center justify-center gap-x-2 py-4">
-          <Button className="w-8 h-8 border border-mist-500">
-            <IconPlus stroke={2} />
-          </Button>
-          <input
-            type="number"
-            className="w-full h-full bg-mist-400 text-center text-mist-50"
-            min={1}
-            max={currentSeatCount}
-            value={deleteCount}
-            onChange={(e) => setDeleteCount(Number(e.target.value))}
-          />
-          <Button className="w-8 h-8 border border-mist-500">
-            <IconMinus stroke={2} />
-          </Button>
+
+        <div className="flex flex-col gap-y-2">
+          <div className="flex items-center justify-center gap-x-2">
+            <Button
+              variant="dialog"
+              className="w-8 h-8"
+              onClick={() => setDeleteCount(deleteCount - 1)}
+            >
+              <IconMinus stroke={2} />
+            </Button>
+            <input
+              type="number"
+              className="primary-bg w-full h-8 rounded-lg text-center text-mist-50
+            [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+            "
+              min={1}
+              max={currentSeatCount}
+              value={deleteCount}
+              onChange={(e) => setDeleteCount(Number(e.target.value))}
+            />
+            <Button
+              variant="dialog"
+              className="w-8 h-8"
+              onClick={() => setDeleteCount(deleteCount + 1)}
+            >
+              <IconPlus stroke={2} />
+            </Button>
+          </div>
+          <p className="danger-color">삭제 후 {remaining}석이 남습니다.</p>
         </div>
-        <p>{remaining}석 남음</p>
 
         {/* 미리 보기 */}
-        <DialogFooter className="secondary-bg">
+        <DialogFooter className="secondary-bg border-0 pb-2.5">
           <DialogClose asChild>
-            <Button variant="cancel">취소</Button>
+            <Button variant="dialog">취소</Button>
           </DialogClose>
           <Button
-            variant="confirm"
+            className="border border-mist-500"
             disabled={remaining < 0}
             onClick={() => {
               onConfirm(deleteCount);
