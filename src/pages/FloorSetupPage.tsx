@@ -51,7 +51,7 @@ export default function FloorSetupPage() {
       return;
     }
     const maxSectionId = floors
-      .flatMap((f) => f.items)
+      .flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Section => item.kind === 'section')
       .reduce((max, section) => Math.max(max, section.id), 0);
 
@@ -64,9 +64,9 @@ export default function FloorSetupPage() {
   const handleRemoveSection = () => {
     if (selectedSectionId === null) return;
 
-    const findItem = selectedFloor?.items.find(
-      (item): item is Section => item.kind === 'section' && item.id === selectedSectionId,
-    );
+    const findItem = selectedFloor?.rows
+      .flatMap((r) => r.items)
+      .find((item): item is Section => item.kind === 'section' && item.id === selectedSectionId);
     if (!findItem) return;
 
     const isRemove = window.confirm(`${findItem.name} 구역을 정말 삭제하시겠습니까?`);
@@ -80,7 +80,7 @@ export default function FloorSetupPage() {
     const aisleLabel = window.prompt('통로명 입력(선택)');
 
     const maxAisleId = floors
-      .flatMap((f) => f.items)
+      .flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Aisle => item.kind === 'aisle')
       .reduce((max, aisle) => Math.max(max, aisle.id), 0);
 
@@ -94,9 +94,9 @@ export default function FloorSetupPage() {
   const handleRemoveAisle = () => {
     if (selectedAisleId === null) return;
 
-    const findItem = selectedFloor?.items.find(
-      (item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId,
-    );
+    const findItem = selectedFloor?.rows
+      .flatMap((r) => r.items)
+      .find((item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId);
     if (!findItem) return;
 
     const isRemove = window.confirm(`${findItem.label} 통로 정말 삭제하시겠습니까?`);
@@ -196,18 +196,22 @@ export default function FloorSetupPage() {
             </div>
 
             {/* 구역인지 통로인지 구분*/}
-            <div className="flex mt-4 gap-x-4 flex-1 px-2">
-              {floor.items.map((item) => (
-                <SectionCard
-                  key={item.id}
-                  item={item}
-                  selectedSectionId={selectedSectionId}
-                  selectedAisleId={selectedAisleId}
-                  selectedRowId={selectedRowId}
-                  onSelectedSectionId={setSelectedSectionId}
-                  onSelectedAisleId={setSelectedAisleId}
-                  onSelectedRowId={setSelectedRowId}
-                />
+            <div className="flex flex-col mt-4 gap-y-4 flex-1 px-2">
+              {floor.rows.map((floorRow) => (
+                <div key={floorRow.id} className="flex gap-x-4">
+                  {floorRow.items.map((item) => (
+                    <SectionCard
+                      key={item.id}
+                      item={item}
+                      selectedSectionId={selectedSectionId}
+                      selectedAisleId={selectedAisleId}
+                      selectedRowId={selectedRowId}
+                      onSelectedSectionId={setSelectedSectionId}
+                      onSelectedAisleId={setSelectedAisleId}
+                      onSelectedRowId={setSelectedRowId}
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           </TabsContent>

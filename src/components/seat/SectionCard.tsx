@@ -49,7 +49,7 @@ export default function SectionCard({
     }
 
     const maxRowId = floors
-      .flatMap((f) => f.items)
+      .flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Section => item.kind === 'section')
       .flatMap((s) => s.rows)
       .reduce((max, row) => Math.max(max, row.id), 0);
@@ -84,7 +84,7 @@ export default function SectionCard({
     }
 
     const maxSeatId = floors
-      .flatMap((f) => f.items)
+      .flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Section => item.kind === 'section')
       .flatMap((s) => s.rows)
       .filter((row) => row.id === selectedRowId)
@@ -92,7 +92,7 @@ export default function SectionCard({
       .reduce((max, seat) => Math.max(max, seat.id), 0);
 
     const maxSeatNumber = floors
-      .flatMap((f) => f.items)
+      .flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Section => item.kind === 'section')
       .flatMap((s) => s.rows)
       .filter((row) => row.id === selectedRowId)

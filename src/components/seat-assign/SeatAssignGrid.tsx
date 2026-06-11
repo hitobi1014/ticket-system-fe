@@ -63,21 +63,25 @@ export default function SeatAssignGrid({
           </>
         )}
       </div>
-      <div className="flex">
-        {floor.items.map((item) => (
-          <div key={item.id} className="flex">
-            {item.kind === 'aisle' ? (
-              <div key={item.id} className="border-2 border-dashed bg-gray-100">
-                통로: {item.label}
+      <div className="flex flex-col gap-y-4">
+        {floor.rows.map((floorRow) => (
+          <div key={floorRow.id} className="flex">
+            {floorRow.items.map((item) => (
+              <div key={item.id} className="flex">
+                {item.kind === 'aisle' ? (
+                  <div className="border-2 border-dashed bg-gray-100">
+                    통로: {item.label}
+                  </div>
+                ) : (
+                  <AssignRow
+                    section={item}
+                    isBulkEditMode={isBulkEditMode}
+                    selectedSeatIds={selectedSeatIds}
+                    onSeatClick={handleSeatClick}
+                  />
+                )}
               </div>
-            ) : (
-              <AssignRow
-                section={item}
-                isBulkEditMode={isBulkEditMode}
-                selectedSeatIds={selectedSeatIds}
-                onSeatClick={handleSeatClick}
-              />
-            )}
+            ))}
           </div>
         ))}
       </div>

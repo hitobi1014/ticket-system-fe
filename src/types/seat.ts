@@ -32,15 +32,20 @@ export type CreateAisleRequest = Aisle;
 
 export type FloorItem = Section | Aisle;
 
+export interface FloorRow {
+  id: number;
+  items: FloorItem[];
+}
+
 /** 층 */
 export interface Floor {
   id: number;
   name: string; // 층 이름 (1층, 2층 등)
-  items: FloorItem[]; // 해당 층의 구역 배열,  좌>우 배치 순서
+  rows: FloorRow[]; // 해당 층의 구역 배열,  좌>우 배치 순서
 }
 
 // 생성 요청용 id x
-export type CreateFloorRequest = Omit<Floor, 'items'>;
+export type CreateFloorRequest = Omit<Floor, 'rows'>;
 
 // =====================
 // 추가 타입

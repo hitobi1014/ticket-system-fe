@@ -55,7 +55,7 @@ const useFloorStore = create<FloorStore>()(
     getRemainSeatCount: () => {
       const totalSeatCount = get().getTotalSeatCount();
       const assignSeatCount = get()
-        .floors.flatMap((f) => f.items)
+        .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
         .filter((item): item is Section => item.kind === 'section')
         .flatMap((s) => s.rows)
         .flatMap((r) => r.seats)
@@ -66,7 +66,7 @@ const useFloorStore = create<FloorStore>()(
 
     getAssignedSeatCount: () =>
       get()
-        .floors.flatMap((f) => f.items)
+        .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
         .filter((item): item is Section => item.kind === 'section')
         .flatMap((s) => s.rows)
         .flatMap((r) => r.seats)
@@ -75,7 +75,7 @@ const useFloorStore = create<FloorStore>()(
     addFloor: (req) =>
       set(
         (state) => ({
-          floors: [...state.floors, { ...req, items: [] }],
+          floors: [...state.floors, { ...req, rows: [] }],
         }),
         undefined,
         'addFloor',
@@ -104,7 +104,16 @@ const useFloorStore = create<FloorStore>()(
               rows: [],
             };
 
-            return { ...f, items: [...f.items, newSection] };
+            // 첫 번째 FloorRow에 추가 (없으면 새로 생성)
+            if (f.rows.length === 0) {
+              return { ...f, rows: [{ id: 1, items: [newSection] }] };
+            }
+            return {
+              ...f,
+              rows: f.rows.map((floorRow, idx) =>
+                idx === 0 ? { ...floorRow, items: [...floorRow.items, newSection] } : floorRow,
+              ),
+            };
           }),
         }),
         undefined,
@@ -117,7 +126,10 @@ const useFloorStore = create<FloorStore>()(
           return {
             floors: state.floors.map((f) => ({
               ...f,
-              items: f.items.filter((item) => item.id !== sectionId),
+              rows: f.rows.map((floorRow) => ({
+                ...floorRow,
+                items: floorRow.items.filter((item) => item.id !== sectionId),
+              })),
             })),
           };
         },
@@ -135,7 +147,16 @@ const useFloorStore = create<FloorStore>()(
               ...req,
             };
 
-            return { ...f, items: [...f.items, newAisle] };
+            // 첫 번째 FloorRow에 추가 (없으면 새로 생성)
+            if (f.rows.length === 0) {
+              return { ...f, rows: [{ id: 1, items: [newAisle] }] };
+            }
+            return {
+              ...f,
+              rows: f.rows.map((floorRow, idx) =>
+                idx === 0 ? { ...floorRow, items: [...floorRow.items, newAisle] } : floorRow,
+              ),
+            };
           }),
         }),
         undefined,
@@ -148,7 +169,10 @@ const useFloorStore = create<FloorStore>()(
           return {
             floors: state.floors.map((f) => ({
               ...f,
-              items: f.items.filter((item) => item.id !== aisleId),
+              rows: f.rows.map((floorRow) => ({
+                ...floorRow,
+                items: floorRow.items.filter((item) => item.id !== aisleId),
+              })),
             })),
           };
         },
@@ -161,14 +185,16 @@ const useFloorStore = create<FloorStore>()(
         (state) => ({
           floors: state.floors.map((f) => ({
             ...f,
-            // TODO 개선 필요 => filter로 section과 id 비교?, id만 비교 후 section타입으로 가져오는 방법?
-            items: f.items.map((item) => {
-              if (item.kind !== 'section' || item.id !== sectionId) return item;
-              return {
-                ...item,
-                rows: [...item.rows, { ...req, seats: [] }],
-              };
-            }),
+            rows: f.rows.map((floorRow) => ({
+              ...floorRow,
+              items: floorRow.items.map((item) => {
+                if (item.kind !== 'section' || item.id !== sectionId) return item;
+                return {
+                  ...item,
+                  rows: [...item.rows, { ...req, seats: [] }],
+                };
+              }),
+            })),
           })),
         }),
         undefined,
@@ -180,13 +206,16 @@ const useFloorStore = create<FloorStore>()(
         (state) => ({
           floors: state.floors.map((f) => ({
             ...f,
-            items: f.items.map((item) => {
-              if (item.kind !== 'section') return item;
-              return {
-                ...item,
-                rows: item.rows.filter((row) => row.id !== rowId),
-              };
-            }),
+            rows: f.rows.map((floorRow) => ({
+              ...floorRow,
+              items: floorRow.items.map((item) => {
+                if (item.kind !== 'section') return item;
+                return {
+                  ...item,
+                  rows: item.rows.filter((row) => row.id !== rowId),
+                };
+              }),
+            })),
           })),
         }),
         undefined,
@@ -198,19 +227,22 @@ const useFloorStore = create<FloorStore>()(
         (state) => ({
           floors: state.floors.map((f) => ({
             ...f,
-            items: f.items.map((item) => {
-              if (item.kind !== 'section') return item;
-              return {
-                ...item,
-                rows: item.rows.map((row) => {
-                  if (row.id !== rowId) return row;
-                  return {
-                    ...row,
-                    seats: [...row.seats, ...reqs.map((req) => ({ ...req, visible: true }))],
-                  };
-                }),
-              };
-            }),
+            rows: f.rows.map((floorRow) => ({
+              ...floorRow,
+              items: floorRow.items.map((item) => {
+                if (item.kind !== 'section') return item;
+                return {
+                  ...item,
+                  rows: item.rows.map((row) => {
+                    if (row.id !== rowId) return row;
+                    return {
+                      ...row,
+                      seats: [...row.seats, ...reqs.map((req) => ({ ...req, visible: true }))],
+                    };
+                  }),
+                };
+              }),
+            })),
           })),
         }),
         undefined,
@@ -222,19 +254,22 @@ const useFloorStore = create<FloorStore>()(
         (state) => ({
           floors: state.floors.map((f) => ({
             ...f,
-            items: f.items.map((item) => {
-              if (item.kind !== 'section') return item;
-              return {
-                ...item,
-                rows: item.rows.map((row) => {
-                  if (row.id !== rowId) return row;
-                  return {
-                    ...row,
-                    seats: row.seats.slice(0, row.seats.length - removeCount),
-                  };
-                }),
-              };
-            }),
+            rows: f.rows.map((floorRow) => ({
+              ...floorRow,
+              items: floorRow.items.map((item) => {
+                if (item.kind !== 'section') return item;
+                return {
+                  ...item,
+                  rows: item.rows.map((row) => {
+                    if (row.id !== rowId) return row;
+                    return {
+                      ...row,
+                      seats: row.seats.slice(0, row.seats.length - removeCount),
+                    };
+                  }),
+                };
+              }),
+            })),
           })),
         }),
         undefined,
@@ -246,18 +281,21 @@ const useFloorStore = create<FloorStore>()(
         (state) => ({
           floors: state.floors.map((f) => ({
             ...f,
-            items: f.items.map((item) => {
-              if (item.kind !== 'section') return item;
-              return {
-                ...item,
-                rows: item.rows.map((row) => ({
-                  ...row,
-                  seats: row.seats.map((seat) =>
-                    seatIds.has(seat.id) ? { ...seat, assignedMemberId: memberId } : seat,
-                  ),
-                })),
-              };
-            }),
+            rows: f.rows.map((floorRow) => ({
+              ...floorRow,
+              items: floorRow.items.map((item) => {
+                if (item.kind !== 'section') return item;
+                return {
+                  ...item,
+                  rows: item.rows.map((row) => ({
+                    ...row,
+                    seats: row.seats.map((seat) =>
+                      seatIds.has(seat.id) ? { ...seat, assignedMemberId: memberId } : seat,
+                    ),
+                  })),
+                };
+              }),
+            })),
           })),
         }),
         false,
@@ -268,16 +306,21 @@ const useFloorStore = create<FloorStore>()(
       set((state) => ({
         floors: state.floors.map((f) => ({
           ...f,
-          items: f.items.map((item) => {
-            if (item.kind !== 'section') return item;
-            return {
-              ...item,
-              rows: item.rows.map((row) => ({
-                ...row,
-                seats: row.seats.map((seat) => (seat.id === seatId ? { ...seat } : seat)),
-              })),
-            };
-          }),
+          rows: f.rows.map((floorRow) => ({
+            ...floorRow,
+            items: floorRow.items.map((item) => {
+              if (item.kind !== 'section') return item;
+              return {
+                ...item,
+                rows: item.rows.map((row) => ({
+                  ...row,
+                  seats: row.seats.map((seat) =>
+                    seat.id === seatId ? { ...seat, assignedMemberId: undefined } : seat,
+                  ),
+                })),
+              };
+            }),
+          })),
         })),
       })),
   })),

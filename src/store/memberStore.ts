@@ -26,7 +26,7 @@ const useMemberStore = create<MemberStore>((set, get) => ({
   getMemberAssignedTicketsByMemberId: (memberId) =>
     useFloorStore
       .getState()
-      .floors.flatMap((f) => f.items)
+      .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Section => item.kind === 'section')
       .flatMap((s) => s.rows)
       .flatMap((r) => r.seats)
