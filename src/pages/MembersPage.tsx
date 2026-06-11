@@ -62,7 +62,7 @@ export default function MembersPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden gap-y-4">
       <PageHeader title={'회원관리'} icon={<IconUsers stroke={1.5} />} />
-      <div className="flex gap-x-2">
+      <div className="flex gap-x-2 justify-end">
         <Button className="function-button" onClick={() => setIsModalOpen(true)}>
           <IconUserPlus stroke={2} />
           회원 추가
