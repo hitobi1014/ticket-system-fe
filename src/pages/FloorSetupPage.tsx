@@ -1,11 +1,12 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
-import type { Aisle, CreateFloorRequest, Section } from '@/types';
+import type { Aisle, ButtonItem, CreateFloorRequest, Section } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { IconMinus, IconPlus } from '@tabler/icons-react';
+import { IconMinus, IconPlus, IconTicket, IconUserPlus } from '@tabler/icons-react';
+import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 export default function FloorSetupPage() {
   const {
@@ -117,25 +118,24 @@ export default function FloorSetupPage() {
 
     removeAisle(findItem.id);
   };
+
+  const floorButtons: ButtonItem[] = [
+    {
+      text: '층 추가',
+      icon: <IconPlus stroke={2} />,
+      onClick: handleAddFloor,
+    },
+    {
+      text: '층 삭제',
+      icon: <IconMinus stroke={2} />,
+      // TODO: 층 삭제 추가하기
+    },
+  ];
+
   return (
     <div>
       {/*상단 버튼 그룹*/}
-      <div className="flex justify-end gap-x-2">
-        <Button
-          variant={'primary'}
-          size={'base'}
-          className="flex gap-x-1"
-          onClick={() => handleAddFloor()}
-        >
-          <IconPlus stroke={2} />
-          <p>층 추가</p>
-        </Button>
-        <Button variant={'primary'} size={'base'} className="flex gap-x-1">
-          {/*TODO 층 삭제 추가하기*/}
-          <IconMinus stroke={2} />
-          <p>층 삭제</p>
-        </Button>
-      </div>
+      <FunctionButtons buttons={floorButtons} />;
       <Tabs
         className="secondary-bg"
         value={String(selectedFloorId)}

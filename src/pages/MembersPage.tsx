@@ -10,13 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Button } from '@/components/ui/button.tsx';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
 import { IconTicket, IconUserPlus } from '@tabler/icons-react';
 import '@/pages/MemberPage.css';
 import MemberInfoModal from '@/components/modal/MemberInfoModal.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
+import FunctionButtons from '@/components/common/FunctionButtons.tsx';
+
+import type { ButtonItem } from '@/types/index';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -58,24 +60,20 @@ export default function MembersPage() {
     { title: '등록 회원', boldText: members.length, textPostFix: '명' },
   ];
 
+  const functionButtons: ButtonItem[] = [
+    { onClick: () => setIsModalOpen(true), text: '회원 추가', icon: <IconUserPlus stroke={2} /> },
+    {
+      className: 'function-button',
+      text: '티켓 균등 배분',
+      icon: <IconTicket stroke={2} />,
+      onClick: distributeTickets,
+      disabled: members.length === 0 || getTotalSeatCount() === 0,
+    },
+  ];
+
   return (
     <div className="flex flex-col h-full overflow-hidden gap-y-4">
-      <div className="flex gap-x-2 justify-end">
-        <Button variant="primary" size={'base'} onClick={() => setIsModalOpen(true)}>
-          <IconUserPlus stroke={2} />
-          회원 추가
-        </Button>
-        <Button
-          variant="primary"
-          size={'base'}
-          className="function-button"
-          onClick={distributeTickets}
-          disabled={members.length === 0 || getTotalSeatCount() === 0}
-        >
-          <IconTicket stroke={2} />
-          티켓 균등 배분
-        </Button>
-      </div>
+      <FunctionButtons buttons={functionButtons} />
       <div className="flex gap-3">
         {memberInfoCards.map((card) => (
           <MemberInfoCard
