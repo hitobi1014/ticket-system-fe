@@ -165,11 +165,11 @@ export default function FloorSetupPage() {
   ];
 
   return (
-    <div>
+    <div className="h-full flex flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />;
       <Tabs
-        className="secondary-bg"
+        className="secondary-bg flex flex-col flex-1 overflow-hidden"
         value={String(selectedFloorId)}
         onValueChange={(v) => setSelectedFloorId(Number(v))}
       >
@@ -179,7 +179,8 @@ export default function FloorSetupPage() {
             <TabsTrigger
               key={floor.id}
               value={String(floor.id)}
-              className="primary-color text-base bg-transparent rounded-none border-b-2 border-transparent
+              className="bg-transparent p-0 gap-x-1 flex flex-col flex-1 overflow-hidden
+              primary-color text-base rounded-none border-b-2 border-transparent
               data-[state=active]:bg-transparent
               data-[state=active]:shadow-none
               data-[state=active]:border-b-white
@@ -197,7 +198,7 @@ export default function FloorSetupPage() {
           <TabsContent
             key={floor.id}
             value={String(floor.id)}
-            className="bg-transparent p-0 gap-x-1"
+            className="bg-transparent p-0 gap-x-1 overflow-x-auto"
           >
             {/* 구역 기능 버튼 그룹 */}
             <div className="flex gap-x-2">
@@ -213,7 +214,7 @@ export default function FloorSetupPage() {
             </div>
 
             {/* 구역인지 통로인지 구분*/}
-            <div className="flex mt-4 gap-x-4">
+            <div className="flex mt-4 gap-x-4 flex-1">
               {floor.items.map((item) => (
                 <SectionCard
                   key={item.id}

@@ -4,6 +4,7 @@ import useFloorStore from '@/store/floorStore.ts';
 import { IconArmchair, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import './SectionCard.css';
+import { clsx } from 'clsx';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -152,7 +153,16 @@ export default function SectionCard({
     return (
       <div
         key={item.id}
-        className="card flex items-center justify-center self-stretch px-3 cursor-pointer"
+        /* TODO 통로 선택시 ring 색상?
+        구역 선택과 통로선택 별도로 나누지않고 하나의 selected Item 비교 해서 선택된거 통일
+        */
+        className={clsx(
+          'card text-sky-800 flex items-center justify-center self-stretch px-3 cursor-pointer',
+          {
+            '': selectedAisleId !== item.id,
+            'ring-2 ring-primary-color': selectedAisleId === item.id,
+          },
+        )}
         onClick={(e) => {
           e.stopPropagation();
           handleSelectAisle(item.id);
@@ -168,7 +178,10 @@ export default function SectionCard({
     /* TODO 열 클릭시 ring */
     <div
       key={item.id}
-      className="card primary-color flex flex-col gap-y-2 p-4"
+      className={clsx('card primary-color flex flex-col gap-y-2 p-4', {
+        '': selectedSectionId !== item.id,
+        'ring-2 ring-primary-color': selectedSectionId === item.id,
+      })}
       onClick={() => {
         handleSelectSection(item.id);
       }}
