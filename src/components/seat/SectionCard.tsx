@@ -1,15 +1,16 @@
-import type { CreateRowsRequest, CreateSeatRequest, FloorItem, Section } from '@/types';
-import { ButtonGroup } from '@/components/ui/button-group.tsx';
-import { Button } from '@/components/ui/button.tsx';
+import type { ButtonItem, CreateRowsRequest, CreateSeatRequest, FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
-import { useState } from 'react';
 import useFloorStore from '@/store/floorStore.ts';
+import { IconArmchair, IconPlus, IconTrash } from '@tabler/icons-react';
+import FunctionButtons from '@/components/common/FunctionButtons.tsx';
+import './SectionCard.css';
 
 interface SectionCardProps {
   item: FloorItem;
   selectedRowId: number | null;
   selectedSectionId: number | null;
   selectedAisleId: number | null;
+  isRowEditMode: boolean;
 
   onSelectedSectionId: (id: number | null) => void;
   onSelectedAisleId: (id: number | null) => void;
@@ -21,14 +22,12 @@ export default function SectionCard({
   selectedRowId,
   selectedSectionId,
   selectedAisleId,
-
+  isRowEditMode,
   onSelectedSectionId,
   onSelectedAisleId,
   onSelectedRowId,
 }: SectionCardProps) {
   const { floors, addRow, removeRow, addSeat, removeSeat } = useFloorStore();
-  const [isRowEditMode, setRowIsEditMode] = useState<boolean>(false);
-
   const handleSelectSection = (sectionId: number) => {
     onSelectedSectionId(selectedSectionId === sectionId ? null : sectionId);
   };
@@ -118,85 +117,83 @@ export default function SectionCard({
     removeSeat(seatId);
   };
 
+  // 열 편집 버튼
+  const sectionEditButtons: ButtonItem[] = [
+    {
+      text: '열 추가',
+      size: 'xs',
+      icon: <IconPlus stroke={2} />,
+      onClick: () => {
+        handleAddRow(item.id);
+      },
+    },
+    {
+      text: '좌석 추가',
+      size: 'xs',
+      icon: <IconArmchair stroke={2} />,
+      disabled: selectedRowId === null,
+      onClick: () => {
+        handleAddSeat();
+      },
+    },
+    {
+      text: '열 삭제',
+      size: 'xs',
+      icon: <IconTrash stroke={2} />,
+      disabled: selectedRowId === null,
+      onClick: () => {
+        handleRemoveRow(selectedRowId!);
+      },
+    },
+  ];
+
+  /* 화면 렌더링 구역 */
   if (item.kind === 'aisle') {
     return (
       <div
         key={item.id}
-        className="border-2 border-dashed bg-gray-100"
+        className="card flex items-center justify-center self-stretch px-3 cursor-pointer"
         onClick={(e) => {
           e.stopPropagation();
           handleSelectAisle(item.id);
         }}
       >
-        통로: {item.label}
+        <div className="w-px h-2/4 bg-mist-500" />
       </div>
     );
   }
 
   return (
     /* Section */
+    /* TODO 열 클릭시 ring */
     <div
       key={item.id}
+      className="card primary-color flex flex-col gap-y-2 p-4"
       onClick={() => {
         handleSelectSection(item.id);
       }}
     >
-      <h1 className="bg-amber-300">
-        {item.name} (좌석수: {item.rows.flatMap((r) => r.seats).length})
-      </h1>
-      {selectedSectionId === item.id ? (
-        <>
-          <ButtonGroup>
-            <Button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddRow(item.id);
-              }}
-            >
-              열 추가
-            </Button>
-            <Button
-              disabled={selectedRowId === null}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleAddSeat();
-              }}
-            >
-              좌석 추가
-            </Button>
-            <Button
-              disabled={selectedRowId === null}
-              onClick={(e) => {
-                e.stopPropagation();
-                setRowIsEditMode(!isRowEditMode);
-              }}
-            >
-              열 편집모드: {isRowEditMode ? 'O' : 'X'}
-            </Button>
-            <Button
-              disabled={selectedRowId === null}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleRemoveRow(selectedRowId!);
-              }}
-            >
-              열 삭제
-            </Button>
-          </ButtonGroup>
-        </>
+      <div className="flex justify-between items-center">
+        <p>{item.name}</p>
+        <p>{item.rows.flatMap((r) => r.seats).length}석</p>
+      </div>
+      {selectedSectionId === item.id && isRowEditMode ? (
+        <FunctionButtons buttons={sectionEditButtons} />
       ) : (
         ''
       )}
-      {item.rows.map((row) => (
-        <Row
-          key={row.id}
-          row={row}
-          isEditMode={isRowEditMode}
-          isSelected={selectedRowId === row.id}
-          onSelect={onSelectedRowId}
-          onRemoveSeat={handleRemoveSeat}
-        />
-      ))}
+      <div className="flex flex-col gap-y-2">
+        {item.rows.map((row) => (
+          <Row
+            key={row.id}
+            row={row}
+            isEditMode={isRowEditMode}
+            isSelected={selectedRowId === row.id}
+            onSelect={onSelectedRowId}
+            onRemoveSeat={handleRemoveSeat}
+          />
+        ))}
+      </div>
     </div>
   );
 }

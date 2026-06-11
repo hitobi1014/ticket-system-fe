@@ -1,33 +1,14 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
 import type { Aisle, ButtonItem, CreateFloorRequest, Section } from '@/types';
-import { Button } from '@/components/ui/button';
-import { ButtonGroup } from '@/components/ui/button-group';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  IconEdit,
-  IconLayoutColumns,
-  IconMinus,
-  IconMinusVertical,
-  IconPlus,
-  IconTicket,
-  IconTrash,
-  IconUserPlus,
-} from '@tabler/icons-react';
+import { IconEdit, IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 export default function FloorSetupPage() {
-  const {
-    floors,
-    getTotalSeatCount,
-    addFloor,
-    removeFloor,
-    addSection,
-    removeSection,
-    addAisle,
-    removeAisle,
-  } = useFloorStore();
+  const { floors, addFloor, removeFloor, addSection, removeSection, addAisle, removeAisle } =
+    useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -225,16 +206,19 @@ export default function FloorSetupPage() {
               <FunctionButtons buttons={aisleButtons} />
               <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
               <FunctionButtons buttons={editModeButton} />
+              {/* TODO 삭제 예정 선택된 구역은 ring으로 표시 */}
+              <span className="ml-2 bg-gray-400 text-white">
+                선택된 구역: {selectedSection?.name}/{selectedRowId}
+              </span>
             </div>
-            <span className="ml-2 bg-gray-400 text-white">
-              선택된 구역: {selectedSection?.name}/{selectedRowId}
-            </span>
+
             {/* 구역인지 통로인지 구분*/}
-            <div className="flex mt-4">
+            <div className="flex mt-4 gap-x-4">
               {floor.items.map((item) => (
                 <SectionCard
                   key={item.id}
                   item={item}
+                  isRowEditMode={isRowEditMode}
                   selectedSectionId={selectedSectionId}
                   selectedAisleId={selectedAisleId}
                   selectedRowId={selectedRowId}
