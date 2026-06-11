@@ -158,7 +158,7 @@ export default function SectionCard({
         handleAddSeat();
       },
       dialog: {
-        dialogTitle: '삭제할 좌석 수를 입력해주세요',
+        dialogTitle: '좌석 삭제',
         type: 'removeSeat',
         rowId: selectedRowId ?? undefined,
         rowName: '테스트22',

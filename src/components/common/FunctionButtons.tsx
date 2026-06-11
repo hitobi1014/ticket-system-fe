@@ -37,6 +37,12 @@ export interface ButtonItem {
 }
 
 export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
+  const getVariant = (variant: VariantProps<typeof buttonVariants>['variant']) => {
+    return variant ?? 'primary';
+  };
+  const getSize = (size: VariantProps<typeof buttonVariants>['size']) => {
+    return size ?? 'base';
+  };
   return (
     <div className="flex gap-x-2 justify-end" onClick={(e) => e.stopPropagation()}>
       {buttons.map((btn, i) =>
@@ -44,9 +50,11 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
           <RemoveSeatDialog
             key={i}
             title={btn.dialog.dialogTitle}
+            rowId={btn.dialog.rowId}
             buttonText={btn.text!}
             icon={btn.icon}
-            size={btn.size}
+            variant={getVariant(btn.variant)}
+            size={getSize(btn.size)}
             disabled={btn.disabled}
             onConfirm={btn.dialog.onClick}
             {...btn.dialog}
@@ -54,8 +62,8 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
         ) : btn.confirm ? (
           <AlertDialogCustom
             key={i}
-            variant={btn.variant ?? 'primary'}
-            size={btn.size}
+            variant={getVariant(btn.variant)}
+            size={getSize(btn.size)}
             buttonText={btn.text!}
             title={btn.confirm.title}
             description={btn.confirm.description}
@@ -66,8 +74,8 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
         ) : (
           <Button
             key={i}
-            variant={btn.variant ?? 'primary'}
-            size={btn.size ?? 'base'}
+            variant={getVariant(btn.variant)}
+            size={getSize(btn.size)}
             onClick={btn.onClick}
             disabled={btn.disabled}
             className={btn.className}
