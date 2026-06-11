@@ -2,6 +2,7 @@ import { Button, buttonVariants } from '@/components/ui/button.tsx';
 import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 
 export interface FunctionButtonsProps {
   buttons: ButtonItem[];
@@ -25,19 +26,32 @@ export interface ButtonItem {
   };
 
   dialog?: {
+    dialogTitle: string;
     type: 'removeSeat'; // 추후 추가시 type 변경
-    rowId: number;
+    rowId?: number;
     currentSeatCount: number;
     sectionName: string;
     rowName: string;
+    onClick: (removeCnt: number) => void;
   };
 }
 
 export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
   return (
-    <div className="flex gap-x-2 justify-end">
+    <div className="flex gap-x-2 justify-end" onClick={(e) => e.stopPropagation()}>
       {buttons.map((btn, i) =>
-        btn.confirm ? (
+        btn.dialog?.type === 'removeSeat' ? (
+          <RemoveSeatDialog
+            key={i}
+            title={btn.dialog.dialogTitle}
+            buttonText={btn.text!}
+            icon={btn.icon}
+            size={btn.size}
+            disabled={btn.disabled}
+            onConfirm={btn.dialog.onClick}
+            {...btn.dialog}
+          />
+        ) : btn.confirm ? (
           <AlertDialogCustom
             key={i}
             variant={btn.variant ?? 'primary'}

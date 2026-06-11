@@ -16,8 +16,8 @@ import type { VariantProps } from 'class-variance-authority';
 interface Props {
   variant: VariantProps<typeof buttonVariants>['variant'];
   size: VariantProps<typeof buttonVariants>['size'];
-  buttonText: string;
   title: string;
+  buttonText: string;
   description: string;
   onConfirm?: () => void;
   disabled?: boolean;

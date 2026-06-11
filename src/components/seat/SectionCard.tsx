@@ -102,20 +102,23 @@ export default function SectionCard({
     addSeat(selectedRowId, reqs);
   };
 
-  const handleRemoveSeat = (seatId: number) => {
-    const findRow = floors
-      .flatMap((f) => f.items)
-      .filter((item): item is Section => item.kind === 'section')
-      .flatMap((s) => s.rows)
-      .find((row) => row.id === selectedRowId);
+  const handleRemoveSeat = (removeSeatCnt: number) => {
+    // const findRow = floors
+    //   .flatMap((f) => f.items)
+    //   .filter((item): item is Section => item.kind === 'section')
+    //   .flatMap((s) => s.rows)
+    //   .find((row) => row.id === selectedRowId);
 
-    // TODO 삭제할때 중앙 좌석 삭제할 필요?
-    const isRemove = window.confirm(
-      `선택된 좌석을 삭제하시겠습니까? 선택된 열-좌석: ${findRow?.rowName}-${seatId}`,
-    );
-    if (!isRemove) return;
+    // const isRemove = window.confirm(
+    //   `선택된 좌석을 삭제하시겠습니까? 선택된 열-좌석: ${findRow?.rowName}-${seatId}`,
+    // );
+    // if (!isRemove) return;
 
-    removeSeat(seatId);
+    if (selectedRowId == null) {
+      alert('값 없음');
+      return;
+    }
+    removeSeat(selectedRowId, removeSeatCnt);
   };
 
   // 열 편집 버튼
@@ -154,11 +157,14 @@ export default function SectionCard({
       onClick: () => {
         handleAddSeat();
       },
-      confirm: {
-        title: '삭제할 좌석 수를 입력해주세요',
-        text: '좌석 삭제',
-        description: '입력한 좌석 수 만큼 끝에서부터 삭제됩니다.',
-        onConfirm: handleRemoveSeat,
+      dialog: {
+        dialogTitle: '삭제할 좌석 수를 입력해주세요',
+        type: 'removeSeat',
+        rowId: selectedRowId ?? undefined,
+        rowName: '테스트22',
+        currentSeatCount: 10,
+        sectionName: '테스트',
+        onClick: handleRemoveSeat,
       },
     },
   ];
