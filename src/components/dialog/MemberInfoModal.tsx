@@ -16,7 +16,7 @@ import { HexColorPicker } from 'react-colorful';
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
-import AlertDialogCustom from '@/components/modal/AlertDialogCustom.tsx';
+import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 
 interface MemberInfoModalProps {
   member?: Member; // 수정시 사용

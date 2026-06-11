@@ -14,7 +14,7 @@ import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
 import { IconTicket, IconUserPlus } from '@tabler/icons-react';
 import '@/pages/MemberPage.css';
-import MemberInfoModal from '@/components/modal/MemberInfoModal.tsx';
+import MemberInfoModal from '@/components/dialog/MemberInfoModal.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 

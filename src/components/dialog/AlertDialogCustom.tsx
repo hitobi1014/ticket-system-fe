@@ -9,16 +9,30 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button.tsx';
+import { Button, buttonVariants } from '@/components/ui/button.tsx';
+import * as React from 'react';
+import type { VariantProps } from 'class-variance-authority';
 
 interface Props {
+  variant: VariantProps<typeof buttonVariants>['variant'];
+  size: VariantProps<typeof buttonVariants>['size'];
   buttonText: string;
   title: string;
   description: string;
-  onConfirm: () => void;
+  onConfirm?: () => void;
+  disabled?: boolean;
+  icon?: React.ReactNode;
 }
 
-export default function AlertDialogCustom({ buttonText, title, description, onConfirm }: Props) {
+export default function AlertDialogCustom({
+  icon,
+  variant,
+  size,
+  buttonText,
+  title,
+  description,
+  onConfirm,
+}: Props) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -31,8 +45,9 @@ export default function AlertDialogCustom({ buttonText, title, description, onCo
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel variant="close">닫기</AlertDialogCancel>
-          <AlertDialogAction variant="confirm" onClick={onConfirm}>
-            확인
+          <AlertDialogAction variant={variant} size={size} onClick={onConfirm}>
+            {icon}
+            {buttonText ?? '확인'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

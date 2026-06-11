@@ -1,7 +1,7 @@
 import type { ButtonItem, CreateRowsRequest, CreateSeatRequest, FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
-import { IconArmchair, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import './SectionCard.css';
 import { clsx } from 'clsx';
@@ -129,21 +129,36 @@ export default function SectionCard({
       },
     },
     {
+      text: '열 삭제',
+      size: 'xs',
+      icon: <IconMinus stroke={2} />,
+      disabled: selectedRowId === undefined,
+      onClick: () => {
+        handleRemoveRow(selectedRowId!);
+      },
+    },
+    {
       text: '좌석 추가',
       size: 'xs',
       icon: <IconArmchair stroke={2} />,
-      disabled: selectedRowId === null,
+      disabled: selectedRowId === undefined,
       onClick: () => {
         handleAddSeat();
       },
     },
     {
-      text: '열 삭제',
+      text: '좌석 삭제',
       size: 'xs',
       icon: <IconTrash stroke={2} />,
-      disabled: selectedRowId === null,
+      disabled: selectedRowId === undefined,
       onClick: () => {
-        handleRemoveRow(selectedRowId!);
+        handleAddSeat();
+      },
+      confirm: {
+        title: '삭제할 좌석 수를 입력해주세요',
+        text: '좌석 삭제',
+        description: '입력한 좌석 수 만큼 끝에서부터 삭제됩니다.',
+        onConfirm: handleRemoveSeat,
       },
     },
   ];

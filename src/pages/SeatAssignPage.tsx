@@ -2,7 +2,7 @@ import useFloorStore from '@/store/floorStore.ts';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog.tsx';
-import { AssignMemberModal } from '@/components/modal/AssignMemberModal.tsx';
+import { AssignMemberModal } from '@/components/dialog/AssignMemberModal.tsx';
 import SeatAssignSidebar from '@/components/seat-assign/SeatAssignSidebar.tsx';
 import SeatAssignGrid from '@/components/seat-assign/SeatAssignGrid.tsx';
 
