@@ -12,7 +12,7 @@ export function AppSidebar() {
   ];
   return (
     <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-b-mist-500">
+      <SidebarHeader className="border-b border-b-mist-500 border-r border-r-mist-500">
         <div className="flex items-center justify-between">
           <div className="secondary-color group-data-[collapsible=icon]:hidden">Orchestra</div>
           <CustomTrigger />

@@ -91,7 +91,7 @@ export default function MembersPage() {
         <p>등록된 회원이 없습니다.</p>
       ) : (
         /* 테이블 wrapper - flex-col로 테이블 헤더/바디 분리 */
-        <div className="flex flex-col flex-1 overflow-hidden rounded-lg border border-mist-500">
+        <div className="flex flex-col flex-1 overflow-hidden rounded-lg ">
           {/*헤더 고정*/}
           <div className="shrink-0">
             <Table className="secondary-bg">
