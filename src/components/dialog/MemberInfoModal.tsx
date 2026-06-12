@@ -13,11 +13,11 @@ import {
 } from '@/components/ui/select.tsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
 import { HexColorPicker } from 'react-colorful';
+import * as React from 'react';
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
-import FieldVisibleInput from '@/components/input/FieldVisibleInput.tsx';
 
 interface MemberInfoModalProps {
   member?: Member; // 수정시 사용
@@ -68,47 +68,43 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
       <div>
         {/*  이름 */}
-        <FieldVisibleInput
-          label={'이름'}
-          comp={
-            <InputGroup>
-              <InputGroupInput
-                id="inline-end-input"
-                value={form?.name}
-                type="text"
-                placeholder="이름을 입력하세요"
-                onChange={(e) => handleChange('name', e.target.value)}
-              />
-            </InputGroup>
-          }
-        />
+        <Field className="max-w-sm">
+          <FieldLabel htmlFor="inline-end-input">이름</FieldLabel>
+          <InputGroup>
+            <InputGroupInput
+              id="inline-end-input"
+              value={form?.name}
+              type="text"
+              placeholder="이름을 입력하세요"
+              onChange={(e) => handleChange('name', e.target.value)}
+            />
+          </InputGroup>
+        </Field>
 
         {/*  악기 */}
-        <FieldVisibleInput
-          label={'악기'}
-          comp={
-            <Select
-              value={form?.instrument.abbr}
-              onValueChange={(v) => {
-                const find = INSTRUMENTS.find((i) => i.abbr === v)!;
-                handleChange('instrument', find);
-              }}
-            >
-              <SelectTrigger className="w-45">
-                <SelectValue placeholder="선택" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectGroup>
-                  {INSTRUMENTS.map((i) => (
-                    <SelectItem key={i.abbr} value={i.abbr}>
-                      {i.abbr}
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          }
-        />
+        <Field className="max-w-sm">
+          <FieldLabel htmlFor="inline-end-input">악기</FieldLabel>
+          <Select
+            value={form?.instrument.abbr}
+            onValueChange={(v) => {
+              const find = INSTRUMENTS.find((i) => i.abbr === v)!;
+              handleChange('instrument', find);
+            }}
+          >
+            <SelectTrigger className="w-45">
+              <SelectValue placeholder="선택" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {INSTRUMENTS.map((i) => (
+                  <SelectItem key={i.abbr} value={i.abbr}>
+                    {i.abbr}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </Field>
 
         {/* 상점 */}
         <Field className="max-w-sm">
@@ -125,41 +121,37 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
         </Field>
 
         {/*  배정 티켓수 */}
-        <FieldVisibleInput
-          label={'배정 티켓'}
-          comp={
-            <InputGroup>
-              <InputGroupInput
-                id="inline-end-input"
-                type="number"
-                value={form?.allocatedTickets}
-                placeholder="배정할 티켓 수량을 입력하세요."
-                onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
-              />
-            </InputGroup>
-          }
-        />
+        <Field className="max-w-sm">
+          <FieldLabel htmlFor="inline-end-input">배정티켓</FieldLabel>
+          <InputGroup>
+            <InputGroupInput
+              id="inline-end-input"
+              type="number"
+              value={form?.allocatedTickets}
+              placeholder="배정할 티켓 수량을 입력하세요."
+              onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
+            />
+          </InputGroup>
+        </Field>
 
         {/* 회원 색상 */}
-        <FieldVisibleInput
-          label={'색상'}
-          comp={
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className="w-6 h-6 rounded-full border border-gray-300"
-                  style={{ backgroundColor: form?.color }}
-                />
-              </PopoverTrigger>
-              <PopoverContent>
-                <HexColorPicker
-                  color={form?.color}
-                  onChange={(color) => handleChange('color', color)}
-                />
-              </PopoverContent>
-            </Popover>
-          }
-        />
+        <Field className="max-w-sm">
+          <FieldLabel htmlFor="inline-end-input">색상</FieldLabel>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="w-6 h-6 rounded-full border border-gray-300"
+                style={{ backgroundColor: form?.color }}
+              />
+            </PopoverTrigger>
+            <PopoverContent>
+              <HexColorPicker
+                color={form?.color}
+                onChange={(color) => handleChange('color', color)}
+              />
+            </PopoverContent>
+          </Popover>
+        </Field>
       </div>
       <DialogFooter className="flex justify-between!">
         <AlertDialogCustom
