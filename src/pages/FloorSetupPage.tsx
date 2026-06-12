@@ -5,6 +5,8 @@ import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
+import { Button } from '@/components/ui/button';
+import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 
 export default function FloorSetupPage() {
   const { floors, addFloor, addSection, removeSection, addAisle, removeAisle } = useFloorStore();
@@ -118,38 +120,6 @@ export default function FloorSetupPage() {
     },
   ];
 
-  const sectionButtons: ButtonItem[] = [
-    {
-      text: '구역 추가',
-      variant: 'secondary',
-      icon: <IconPlus stroke={2} />,
-      onClick: handleAddSection,
-    },
-    {
-      text: '구역 삭제',
-      variant: 'secondary',
-      icon: <IconTrash stroke={2} />,
-      disabled: selectedSectionId === null,
-      onClick: handleRemoveSection,
-    },
-  ];
-
-  const aisleButtons: ButtonItem[] = [
-    {
-      text: '통로 추가',
-      variant: 'secondary',
-      icon: <IconLayoutColumns stroke={2} />,
-      onClick: handleAddAisle,
-    },
-    {
-      text: '통로 삭제',
-      variant: 'secondary',
-      icon: <IconTrash stroke={2} />,
-      disabled: selectedAisleId === null,
-      onClick: handleRemoveAisle,
-    },
-  ];
-
   return (
     <div className="primary-bg h-full flex flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
@@ -190,9 +160,44 @@ export default function FloorSetupPage() {
           >
             {/* 구역 기능 버튼 그룹 */}
             <div className="flex gap-x-2">
-              <FunctionButtons buttons={sectionButtons} />
+              <div className="flex gap-x-2 justify-end">
+                {/* Dialog로 변경 */}
+                <AddSectionDialog
+                  floorId={1}
+                  floorRowId={1}
+                  onConfirm={() => {
+                    console.log('테스트');
+                  }}
+                />
+
+                {/*<Button size="base" variant="secondary" onClick={handleAddSection}>*/}
+                {/*  구역 추가*/}
+                {/*</Button>*/}
+
+                <Button
+                  size="base"
+                  variant="secondary"
+                  onClick={handleRemoveSection}
+                  disabled={selectedSectionId === null}
+                >
+                  <IconMinus stroke={2} />
+                  구역 삭제
+                </Button>
+              </div>
               <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
-              <FunctionButtons buttons={aisleButtons} />
+              <div className="flex gap-x-2 justify-end">
+                <Button variant="secondary" size="base" onClick={handleAddAisle}>
+                  <IconLayoutColumns stroke={2} /> 통로 추가
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="base"
+                  onClick={handleRemoveAisle}
+                  disabled={selectedAisleId === null}
+                >
+                  <IconTrash stroke={2} /> 통로 삭제
+                </Button>
+              </div>
             </div>
 
             {/* 구역인지 통로인지 구분*/}
