@@ -10,7 +10,12 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { IconArrowNarrowLeft, IconArrowNarrowRight, IconPlus } from '@tabler/icons-react';
+import {
+  IconArrowNarrowLeft,
+  IconArrowNarrowRight,
+  IconMinus,
+  IconPlus,
+} from '@tabler/icons-react';
 import { Field, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input';
 import {
@@ -130,8 +135,10 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
             </div>
           ) : (
             <div>
-              <h3 className="primary-color text-base">구역2단계</h3>
-              <DialogDescription className="text-mist-400">열 정보를 입력하세요</DialogDescription>
+              <h3 className="primary-color text-base">구역 추가-열 상세 설정</h3>
+              <DialogDescription className="text-mist-400">
+                각 열의 좌석 수를 조정하세요. 기본값은12석입니다.
+              </DialogDescription>
             </div>
           )}
         </DialogHeader>
@@ -235,21 +242,70 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
             </FieldGroup>
           </div>
         ) : (
-          // <Step1
-          //   sectionName={sectionName}
-          //   rowCount={rowCount}
-          //   // ... props
-          //   onNext={handleNextStep}
-          // />
-          <div>스텝2</div>
-          // <Step2
-          //   rowConfigs={rowConfigs}
-          //   onBack={() => setStep(1)}
-          //   onConfirm={(configs) => {
-          //     onConfirm({ sectionName, rowConfigs: configs });
-          //     setOpen(false);
-          //   }}
-          // />
+          <div>
+            {/* step02-content-01*/}
+            <div className="primary-color primary-bg flex gap-x-4 px-4 rounded-md">
+              <div className="flex gap-x-2">
+                <p className="secondary-color">구역</p>
+                <p>{sectionName}</p>
+              </div>
+              <div className="flex gap-x-2">
+                <p className="secondary-color">열 수</p>
+                <p>{rowCount}</p>
+              </div>
+              <div className="flex gap-x-2">
+                <p className="secondary-color">형식</p>
+                <p>
+                  {rowNameType === 'number' ? '숫자' : rowNameType === 'alpha' ? '알파벳' : '없음'}
+                </p>
+              </div>
+            </div>
+            {/* step02-content-02*/}
+            <div className="flex justify-between">
+              <div className="flex gap-x-4">
+                <p className="primary-color">전체 일괄 적용</p>
+                <Input
+                  type="number"
+                  aria-label="seat-count"
+                  className="secondary-bg rounded-md
+                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                "
+                />
+                <Button variant="dialog" size="sm">
+                  전체 적용
+                </Button>
+              </div>
+              <p className="secondary-color">개별 수정도 가능</p>
+            </div>
+            {/* step02-content-03*/}
+            <div>
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i}>
+                  <p>{i}열</p>
+                  <div>
+                    <Button variant="dialog">
+                      <IconMinus stroke={2} />
+                    </Button>
+                    <Input
+                      aria-label="seat-input"
+                      type="number"
+                      min={1}
+                      value={10}
+                      className="primary-bg
+                      [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+                    "
+                    />
+                    <Button variant="dialog">
+                      <IconPlus stroke={2} />
+                    </Button>
+                  </div>
+
+                  {/*TODO seat-input value 만큼 상자 그리기*/}
+                  <div></div>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
         <DialogFooter className="secondary-bg border-0 pb-2.5">
           <div
