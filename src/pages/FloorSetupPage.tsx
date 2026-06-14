@@ -139,8 +139,9 @@ export default function FloorSetupPage() {
             <TabsTrigger
               key={floor.id}
               value={String(floor.id)}
-              className="cursor-pointer
-              text-content-primary text-base rounded-none border-b-2 border-transparent
+              className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
+              hover:text-content-danger
+              data-[state=active]:text-content-primary
               data-[state=active]:bg-transparent
               data-[state=active]:shadow-none
               data-[state=active]:border-b-white

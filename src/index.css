@@ -9,6 +9,7 @@
     /* surface: 배경 */
     --color-surface-primary: var(--color-mist-900);
     --color-surface-secondary: var(--color-mist-700);
+    --color-surface-accent: var(--color-mist-500);
     --color-surface-danger: var(--color-amber-300);
     --color-surface-danger-hover: var(--color-amber-400);
 

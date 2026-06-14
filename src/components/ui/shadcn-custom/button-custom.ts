@@ -5,7 +5,7 @@ export const customVariants = {
   modify: 'bg-sky-800 text-content-secondary rounded-md hover:bg-sky-900', // 수정 관련된 기능
   primary: 'border border-surface-secondary text-content-primary',
   secondary: 'bg-surface-primary border border-surface-secondary text-content-primary',
-  dialog: 'border text-content-secondary border-mist-500 hover:bg-mist-800',
+  dialog: 'border text-content-primary border-mist-500 hover:bg-mist-800',
   // 페이지: primary/secondary/danger
 } as const;
 

@@ -97,6 +97,34 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
     }
   };
 
+  // content-3
+  const MAX_VISIBLE = 16; // 보여줄 최대 박스 수
+  const renderSeatBoxes = (count: number) => {
+    if (count <= MAX_VISIBLE) {
+      return Array.from({ length: count }).map((_, i) => (
+        <div key={i} className="w-5 h-5 bg-surface-secondary rounded-sm text-center text-sm">
+          {i + 1}
+        </div>
+      ));
+    }
+
+    const front = Array.from({ length: MAX_VISIBLE - 2 }).map((_, i) => (
+      <div key={i} className="w-5 h-5 bg-surface-secondary rounded-sm text-center text-sm">
+        {i + 1}
+      </div>
+    ));
+
+    return [
+      ...front,
+      <div key="ellipsis" className="w-5 h-5 text-content-secondary text-center text-sm">
+        ...
+      </div>,
+      <div key="last" className="w-5 h-5 bg-surface-secondary rounded-sm text-center text-sm">
+        {count}
+      </div>,
+    ];
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -107,7 +135,7 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
       </DialogTrigger>
 
       {/* 컨텐트 시작 */}
-      <DialogContent className="bg-surface-secondary">
+      <DialogContent className="bg-surface-secondary min-w-150">
         <DialogHeader className="pt-8">
           <DialogTitle className="text-content-primary flex items-center gap-x-2">
             {/* 스텝 프로그레스 */}
@@ -219,7 +247,10 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
               <div className="flex gap-x-1">
                 <p>미리보기:</p>
                 {previewDisplay.map((v, i) => (
-                  <span key={i} className="sub-bg text-content-primary px-2 py-0.5 rounded text-xs">
+                  <span
+                    key={i}
+                    className="bg-surface-accent text-content-primary px-2 py-0.5 rounded text-xs"
+                  >
                     {v === '...' ? '...' : `${v}열`}
                   </span>
                 ))}
@@ -264,13 +295,13 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
               </div>
             </div>
             {/* step02-content-02*/}
-            <div className="bg-surface-primary flex justify-between items-center px-4 py-2 rounded-md">
+            <div className="bg-surface-primary text-content-primary flex justify-between items-center px-4 py-2 rounded-md">
               <div className="flex h-full gap-x-4 items-center">
-                <p className="text-content-primary text-xs">전체 일괄 적용</p>
+                <p className="text-content-secondary text-xs">전체 일괄 적용</p>
                 <Input
                   type="number"
                   aria-label="seat-count"
-                  className="bg-secondary text-primary  w-16 h-7 rounded-md
+                  className="bg-surface-secondary  w-16 h-7 rounded-md
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                 "
                 />
@@ -281,30 +312,60 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
               <p className="text-content-secondary text-xs">개별 수정도 가능</p>
             </div>
             {/* step02-content-03*/}
-            <div>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i}>
-                  <p>{i}열</p>
-                  <div>
-                    <Button variant="dialog">
+            <div className="flex flex-col gap-y-1 text-content-primary">
+              {rowConfigs.map((config, i) => (
+                <div
+                  key={i}
+                  className="flex items-center gap-x-3 bg-surface-primary rounded-md px-2 py-1"
+                >
+                  <p className="w-6 text-content-secondary">{config.name}열</p>
+                  <div className="flex gap-x-2">
+                    <Button
+                      variant="dialog"
+                      className="w-6 h-6"
+                      onClick={() =>
+                        setRowConfigs((prev) =>
+                          prev.map((row, idx) =>
+                            idx === i ? { ...row, seatCount: config.seatCount - 1 } : row,
+                          ),
+                        )
+                      }
+                    >
                       <IconMinus stroke={2} />
                     </Button>
                     <Input
                       aria-label="seat-input"
                       type="number"
                       min={1}
-                      value={10}
-                      className="bg-surface-secondary
+                      value={config.seatCount}
+                      onChange={(e) =>
+                        setRowConfigs((prev) =>
+                          prev.map((row, idx) =>
+                            idx === i ? { ...row, seatCount: Number(e.target.value) } : row,
+                          ),
+                        )
+                      }
+                      className="bg-surface-secondary w-12 h-6 text-center text-sm
                       [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                     "
                     />
-                    <Button variant="dialog">
+                    <Button
+                      variant="dialog"
+                      className="w-6 h-6"
+                      onClick={() =>
+                        setRowConfigs((prev) =>
+                          prev.map((row, idx) =>
+                            idx === i ? { ...row, seatCount: config.seatCount + 1 } : row,
+                          ),
+                        )
+                      }
+                    >
                       <IconPlus stroke={2} />
                     </Button>
                   </div>
 
                   {/*TODO seat-input value 만큼 상자 그리기*/}
-                  <div></div>
+                  <div className="flex gap-x-1">{renderSeatBoxes(config.seatCount)}</div>
                 </div>
               ))}
             </div>
