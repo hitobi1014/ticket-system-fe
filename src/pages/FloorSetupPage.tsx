@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, addSection, removeSection, addAisle, removeAisle } = useFloorStore();
+  const { floors, addFloor, removeSection, addAisle, removeAisle } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -45,23 +45,7 @@ export default function FloorSetupPage() {
     // }
   };
 
-  const handleAddSection = () => {
-    if (!selectedFloor) return;
-    const sectionName = window.prompt('구역명을 입력하세요.');
-    if (!sectionName?.trim()) {
-      alert('구역명은 빈 값으로 입력할 수 없습니다.');
-      return;
-    }
-    const maxSectionId = floors
-      .flatMap((f) => f.rows.flatMap((r) => r.items))
-      .filter((item): item is Section => item.kind === 'section')
-      .reduce((max, section) => Math.max(max, section.id), 0);
-
-    addSection(selectedFloor.id, {
-      id: maxSectionId + 1,
-      name: sectionName,
-    });
-  };
+  // handleAddSection은 AddSectionDialog로 대체됨 (삭제 예정)
 
   const handleRemoveSection = () => {
     if (selectedSectionId === null) return;
@@ -162,18 +146,15 @@ export default function FloorSetupPage() {
             {/* 구역 기능 버튼 그룹 */}
             <div className="flex gap-x-2">
               <div className="flex gap-x-2 justify-end">
-                {/* Dialog로 변경 */}
                 <AddSectionDialog
                   key={floor.id}
                   floorId={floor.id}
                   onConfirm={() => {
-                    console.log('테스트');
+                    // 구역 추가 완료 시 선택 상태 초기화
+                    setSelectedSectionId(null);
+                    setSelectedRowId(null);
                   }}
                 />
-
-                {/*<Button size="base" variant="secondary" onClick={handleAddSection}>*/}
-                {/*  구역 추가*/}
-                {/*</Button>*/}
 
                 <Button
                   size="base"

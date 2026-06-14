@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select.tsx';
 import { clsx } from 'clsx';
 import useFloorStore from '@/store/floorStore.ts';
+import type { Section } from '@/types';
 
 interface Props {
   floorId: number;
@@ -54,7 +55,7 @@ const generateRowNames = (
 };
 
 export default function AddSectionDialog({ floorId, onConfirm }: Props) {
-  const { floors } = useFloorStore();
+  const { floors, addSectionWithRows } = useFloorStore();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [bulkCount, setBulkCount] = useState(1);
@@ -89,8 +90,6 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
 
   // 2단계 > 1단계 이동
   const handlePreviousStep = () => {
-    const names = generateRowNames(rowNameType, startValue, rowCount);
-    // setRowConfigs(names.map((name) => ({ name, seatCount: defaultSeatCount })));
     setStep(1);
   };
 
@@ -462,7 +461,21 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                 <Button
                   variant="dialog"
                   onClick={() => {
-                    setOpen(false);
+                    // 최대 Section ID 계산
+                    const maxSectionId = floors
+                      .flatMap((f) => f.rows.flatMap((r) => r.items))
+                      .filter((item): item is Section => item.kind === 'section')
+                      .reduce((max, section) => Math.max(max, section.id), 0);
+
+                    addSectionWithRows(floorId, {
+                      sectionId: maxSectionId + 1,
+                      sectionName,
+                      rowConfigs,
+                      targetRowIndex: selectRow,
+                    });
+
+                    onConfirm(); // 콜백 실행
+                    setOpen(false); // 다이얼로그 닫기
                   }}
                 >
                   구역 추가 완료({getTotalSeatCount()})석
