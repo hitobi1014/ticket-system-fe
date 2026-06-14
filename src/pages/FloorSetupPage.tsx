@@ -164,8 +164,8 @@ export default function FloorSetupPage() {
               <div className="flex gap-x-2 justify-end">
                 {/* Dialog로 변경 */}
                 <AddSectionDialog
-                  floorId={1}
-                  floorRowId={1}
+                  key={floor.id}
+                  floorId={floor.id}
                   onConfirm={() => {
                     console.log('테스트');
                   }}

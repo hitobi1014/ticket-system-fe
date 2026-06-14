@@ -16,7 +16,7 @@ import {
   IconMinus,
   IconPlus,
 } from '@tabler/icons-react';
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -27,10 +27,10 @@ import {
   SelectValue,
 } from '@/components/ui/select.tsx';
 import { clsx } from 'clsx';
+import useFloorStore from '@/store/floorStore.ts';
 
 interface Props {
   floorId: number;
-  floorRowId: number;
   onConfirm: () => void;
 }
 
@@ -53,15 +53,18 @@ const generateRowNames = (
   return Array.from({ length: rowCount }, () => '');
 };
 
-export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Props) {
+export default function AddSectionDialog({ floorId, onConfirm }: Props) {
+  const { floors } = useFloorStore();
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
+  const [bulkCount, setBulkCount] = useState(1);
+  const [selectRow, setSelectRow] = useState<number | 'new'>('new');
 
   // 1단계 상태
   const [sectionName, setSectionName] = useState('');
-  const [rowCount, setRowCount] = useState(5);
-  const [defaultSeatCount, setDefaultSeatCount] = useState(10);
-  const [rowNameType, setRowNameType] = useState<'number' | 'alpha' | 'custom'>('number');
+  const [rowCount, setRowCount] = useState(5); // 열 수
+  const [defaultSeatCount, setDefaultSeatCount] = useState(10); // 기본 좌석 수
+  const [rowNameType, setRowNameType] = useState<'number' | 'alpha'>('number');
   const [startValue, setStartValue] = useState('1');
 
   // 2단계 상태
@@ -72,6 +75,10 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
     previewNames.length > 4
       ? [...previewNames.slice(0, 3), '...', previewNames[previewNames.length - 1]]
       : previewNames;
+
+  const getTotalSeatCount = () => {
+    return rowConfigs.reduce((acc, row) => acc + row.seatCount, 0);
+  };
 
   // 1단계 → 2단계 이동 시 rowConfigs 초기화
   const handleNextStep = () => {
@@ -176,72 +183,122 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
           <div className="text-content-primary">
             <FieldGroup>
               {/*필드1: 구역명*/}
-              <Field className="max-w-sm">
-                <FieldLabel htmlFor="section-name">구역명</FieldLabel>
-                <Input
-                  id="section-name"
-                  aria-label="section-name"
-                  className="bg-surface-primary border-0"
-                  type="text"
-                  placeholder="구역명을 입력해주세요."
-                />
-              </Field>
+              <div className="flex gap-x-4">
+                <Field className="max-w-sm">
+                  <FieldLabel htmlFor="section-name">구역명</FieldLabel>
+                  <Input
+                    id="section-name"
+                    aria-label="section-name"
+                    value={sectionName}
+                    onChange={(e) => setSectionName(e.target.value)}
+                    className="bg-surface-primary border-0"
+                    type="text"
+                    placeholder="구역명을 입력해주세요."
+                  />
+                </Field>
+                <Field className="max-w-sm">
+                  <FieldLabel htmlFor="section-row">배치 열</FieldLabel>
+                  <Select
+                    value={selectRow === 'new' ? 'new' : String(selectRow)}
+                    onValueChange={(v) => setSelectRow(v === 'new' ? 'new' : Number(v))}
+                  >
+                    <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
+                      <SelectValue placeholder="new" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-surface-primary text-content-primary">
+                      <SelectGroup>
+                        <SelectItem value="new">새 열 추가</SelectItem>
+                        {floors
+                          .find((f) => f.id === floorId)
+                          ?.rows.map((_, i) => (
+                            <SelectItem key={i} value={String(i)}>
+                              {i + 1}열 (기존)
+                            </SelectItem>
+                          ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                  <FieldDescription className="text-content-secondary text-xs">
+                    이 구역이 배치될 열 위치
+                  </FieldDescription>
+                </Field>
+              </div>
 
               {/*필드2: 열 수*/}
               {/*필드3: 기본좌석 수*/}
-              <div className="flex gap-x-2">
+              <div className="flex gap-x-4">
                 <Field className="max-w-sm">
                   <FieldLabel htmlFor="col-count">열 수</FieldLabel>
                   <Input
                     id="col-count"
                     aria-label="col-count"
+                    value={rowCount}
+                    onChange={(e) => setRowCount(Number(e.target.value))}
                     className="bg-surface-primary border-0
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                   "
                     type="number"
                     placeholder="열의 수를 입력해주세요."
                   />
+                  <FieldDescription className="text-content-secondary text-xs">
+                    구역에 배치할 열의 수 ex) 가구역 10열
+                  </FieldDescription>
                 </Field>
                 <Field className="max-w-sm">
                   <FieldLabel htmlFor="base-seat-count">기본 좌석 수/열</FieldLabel>
                   <Input
                     id="base-seat-count"
                     aria-label="base-seat-count"
+                    value={defaultSeatCount}
+                    onChange={(e) => setDefaultSeatCount(Number(e.target.value))}
                     className="bg-surface-primary border-0
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                   "
                     type="number"
                     placeholder="좌석수를 입력해주세요"
                   />
+                  <FieldDescription className="text-content-secondary text-xs">
+                    열 기본 좌석 수
+                  </FieldDescription>
                 </Field>
               </div>
-              <Field className="max-w-sm">
-                <FieldLabel htmlFor="base-seat-count">열 이름 형식</FieldLabel>
-                <Select
-                  value={rowNameType}
-                  onValueChange={(v) => setRowNameType(v as 'number' | 'alpha' | 'custom')}
-                >
-                  <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
-                    <SelectValue placeholder="선택" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-surface-primary text-content-primary">
-                    <SelectGroup>
-                      <SelectItem value="number">숫자(1,2,3...)</SelectItem>
-                      <SelectItem value="alpha">알파벳(A,B,C...)</SelectItem>
-                      <SelectItem value="custom">커스텀(사용미정)</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </Field>
-              <div>
-                {rowNameType === 'number' ? <p>시작 번호</p> : <p>시작 알파벳</p>}
-                <Input
-                  aria-label="start-value"
-                  className="bg-surface-primary border-0"
-                  type="text"
-                  value={startValue}
-                  onChange={(e) => setStartValue(e.target.value)}
-                />
+              <div className="flex items-center gap-x-4">
+                <Field className="max-w-sm">
+                  <FieldLabel htmlFor="base-seat-count">열 이름 형식</FieldLabel>
+                  <Select
+                    value={rowNameType}
+                    onValueChange={(v) => {
+                      setRowNameType(v as 'number' | 'alpha');
+                      if (v === 'number') {
+                        setStartValue('1');
+                      } else {
+                        setStartValue('A');
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
+                      <SelectValue placeholder="선택" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-surface-primary text-content-primary">
+                      <SelectGroup>
+                        <SelectItem value="number">숫자(1,2,3...)</SelectItem>
+                        <SelectItem value="alpha">알파벳(A,B,C...)</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </Field>
+                <Field className="max-w-sm">
+                  <FieldLabel htmlFor="base-seat-count">
+                    {rowNameType === 'number' ? '시작 번호' : '시작 알파벳'}
+                  </FieldLabel>
+                  <Input
+                    aria-label="start-value"
+                    className="bg-surface-primary border-0"
+                    type="text"
+                    value={startValue}
+                    onChange={(e) => setStartValue(e.target.value)}
+                  />
+                </Field>
               </div>
               {/*미리보기*/}
               <div className="flex gap-x-1">
@@ -280,8 +337,7 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
             <div className="text-content-primary bg-surface-primary flex gap-x-4 px-4 py-2 rounded-md">
               <div className="flex gap-x-1">
                 <p className="text-mist-400">구역</p>
-                {/* TODO secitonNAME 테스트 후 삭제*/}
-                <p className="font-bold">{sectionName === '' && '테스트'}</p>
+                <p className="font-bold">{sectionName}</p>
               </div>
               <div className="flex gap-x-1">
                 <p className="text-mist-400">열 수</p>
@@ -289,9 +345,7 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
               </div>
               <div className="flex gap-x-1">
                 <p className="text-mist-400">형식</p>
-                <p className="font-bold">
-                  {rowNameType === 'number' ? '숫자' : rowNameType === 'alpha' ? '알파벳' : '없음'}
-                </p>
+                <p className="font-bold">{rowNameType === 'number' ? '숫자' : '알파벳'}</p>
               </div>
             </div>
             {/* step02-content-02*/}
@@ -301,11 +355,22 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
                 <Input
                   type="number"
                   aria-label="seat-count"
+                  min={1}
+                  value={bulkCount}
+                  onChange={(e) => setBulkCount(parseInt(e.target.value) || 0)}
                   className="bg-surface-secondary  w-16 h-7 rounded-md
                   [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
                 "
                 />
-                <Button variant="dialog" size="sm">
+                <Button
+                  variant="dialog"
+                  size="sm"
+                  onClick={() => {
+                    setRowConfigs((prev) =>
+                      prev.map((row) => ({ ...row, seatCount: Number(bulkCount) })),
+                    );
+                  }}
+                >
                   전체 적용
                 </Button>
               </div>
@@ -318,7 +383,7 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
                   key={i}
                   className="flex items-center gap-x-3 bg-surface-primary rounded-md px-2 py-1"
                 >
-                  <p className="w-6 text-content-secondary">{config.name}열</p>
+                  <p className="w-8 text-content-secondary">{config.name}열</p>
                   <div className="flex gap-x-2">
                     <Button
                       variant="dialog"
@@ -397,11 +462,10 @@ export default function AddSectionDialog({ floorId, floorRowId, onConfirm }: Pro
                 <Button
                   variant="dialog"
                   onClick={() => {
-                    console.log('완료');
                     setOpen(false);
                   }}
                 >
-                  구역 추가 완료({defaultSeatCount})석
+                  구역 추가 완료({getTotalSeatCount()})석
                 </Button>
               )}
             </div>
