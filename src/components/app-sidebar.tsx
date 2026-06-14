@@ -14,7 +14,9 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b border-b-mist-500 border-r border-r-mist-500">
         <div className="flex items-center justify-between">
-          <div className="secondary-color group-data-[collapsible=icon]:hidden">Orchestra</div>
+          <div className="text-content-secondary group-data-[collapsible=icon]:hidden">
+            Orchestra
+          </div>
           <CustomTrigger />
         </div>
       </SidebarHeader>

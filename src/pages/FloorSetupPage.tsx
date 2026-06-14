@@ -121,7 +121,7 @@ export default function FloorSetupPage() {
   ];
 
   return (
-    <div className="primary-bg h-full flex flex-col overflow-hidden">
+    <div className="bg-surface-primary h-full flex flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />;
       <Tabs
@@ -140,7 +140,7 @@ export default function FloorSetupPage() {
               key={floor.id}
               value={String(floor.id)}
               className="cursor-pointer
-              primary-color text-base rounded-none border-b-2 border-transparent
+              text-content-primary text-base rounded-none border-b-2 border-transparent
               data-[state=active]:bg-transparent
               data-[state=active]:shadow-none
               data-[state=active]:border-b-white
@@ -184,7 +184,7 @@ export default function FloorSetupPage() {
                   구역 삭제
                 </Button>
               </div>
-              <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5" />
+              <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5 " />
               <div className="flex gap-x-2 justify-end">
                 <Button variant="secondary" size="base" onClick={handleAddAisle}>
                   <IconLayoutColumns stroke={2} /> 통로 추가

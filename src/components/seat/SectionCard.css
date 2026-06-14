@@ -1,6 +1,0 @@
-@import "tailwindcss";
-
-.card {
-    background-color: var(--color-secondary);
-    @apply rounded-md;
-}

@@ -30,7 +30,7 @@ export default function Row({ row, isSelected, onClick }: RowProps) {
             return (
               // 분리
               <div key={seat.id} className="flex items-center">
-                <Button className="primary-bg primary-color border-0 w-8 h-8 text-sm">
+                <Button className="bg-surface-primary text-content-primary border-0 w-8 h-8 text-sm">
                   {seat.seatNumber}
                 </Button>
               </div>

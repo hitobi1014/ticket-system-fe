@@ -3,7 +3,6 @@ import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
-import './SectionCard.css';
 import { clsx } from 'clsx';
 import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
 
@@ -174,9 +173,9 @@ export default function SectionCard({
           handleSelectAisle(item.id);
         }}
         className={clsx(
-          'primary-color card flex items-center justify-center self-stretch px-3 cursor-pointer',
+          'text-content-primary bg-surface-secondary rounded-md flex items-center justify-center self-stretch px-3 cursor-pointer',
           {
-            'ring-2 ring-primary-color': selectedAisleId === item.id,
+            'ring-2 ring-text-content-primary': selectedAisleId === item.id,
           },
         )}
       >
@@ -193,9 +192,12 @@ export default function SectionCard({
         e.stopPropagation();
         handleSelectSection(item.id);
       }}
-      className={clsx('card primary-color flex flex-col gap-y-2 p-4', {
-        'ring-2 ring-primary-color': selectedSectionId === item.id,
-      })}
+      className={clsx(
+        'bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4',
+        {
+          'ring-2 ring-text-content-primary': selectedSectionId === item.id,
+        },
+      )}
     >
       <div
         className="flex justify-between items-center"

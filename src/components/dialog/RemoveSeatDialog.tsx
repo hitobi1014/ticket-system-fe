@@ -63,28 +63,28 @@ export function RemoveSeatDialog({
           {buttonText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="secondary-bg">
+      <DialogContent className="bg-surface-secondary">
         <DialogHeader>
-          <DialogTitle className="primary-color flex items-center gap-x-2">
+          <DialogTitle className="text-content-primary flex items-center gap-x-2">
             <IconTrash className="danger-color" stroke={1.5} />
             <p>{title}</p>
           </DialogTitle>
-          <DialogDescription className="secondary-color">
+          <DialogDescription className="text-content-secondary">
             끝 번호부터 삭제 됩니다.
           </DialogDescription>
         </DialogHeader>
 
         {/* 구역/열 정보 */}
-        <div className="primary-bg flex justify-between px-4 py-2 rounded-md">
+        <div className="bg-surface-primary flex justify-between px-4 py-2 rounded-md">
           <div>
             <p className="text-mist-400">구역</p>
-            <p className="primary-color">
+            <p className="text-content-primary">
               {sectionName} {rowName}열
             </p>
           </div>
           <div>
             <p className="text-mist-400">현재 좌석 수</p>
-            <p className="primary-color text-right">{currentSeatCount}석</p>
+            <p className="text-content-primary text-right">{currentSeatCount}석</p>
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export function RemoveSeatDialog({
             </Button>
             <input
               type="number"
-              className="primary-bg w-full h-8 rounded-lg text-center text-mist-50
+              className="bg-surface-primary w-full h-8 rounded-lg text-center text-mist-50
             [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
             "
               min={1}
@@ -121,7 +121,7 @@ export function RemoveSeatDialog({
         </div>
 
         {/* 미리 보기 */}
-        <DialogFooter className="secondary-bg border-0 pb-2.5">
+        <DialogFooter className="bg-surface-secondary border-0 pb-2.5">
           <DialogClose asChild>
             <Button variant="dialog">취소</Button>
           </DialogClose>

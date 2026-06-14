@@ -92,7 +92,7 @@ export default function MembersPage() {
         <div className="flex flex-col flex-1 overflow-hidden rounded-lg ">
           {/*헤더 고정*/}
           <div className="shrink-0">
-            <Table className="secondary-bg">
+            <Table className="bg-surface-secondary">
               <ColGroup />
               <TableHeader className="w-25 ">
                 <TableRow>
@@ -111,7 +111,7 @@ export default function MembersPage() {
 
           {/* 바디만 스크롤 */}
           <div className="flex-1 overflow-y-auto">
-            <Table className="secondary-bg mp-table">
+            <Table className="bg-surface-secondary mp-table">
               <ColGroup />
               <TableBody className="mp-table-border">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
