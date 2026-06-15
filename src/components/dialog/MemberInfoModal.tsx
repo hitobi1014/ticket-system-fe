@@ -74,7 +74,7 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
             <InputGroupInput
               id="inline-end-input"
               value={form?.name}
-              type="text"
+              type="triggerText"
               placeholder="이름을 입력하세요"
               onChange={(e) => handleChange('name', e.target.value)}
             />
@@ -155,7 +155,7 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
       </div>
       <DialogFooter className="flex justify-between!">
         <AlertDialogCustom
-          buttonText={'회원삭제'}
+          triggerText={'회원삭제'}
           title={'확인'}
           description={`[${form.name}]님을 목록에서 제거 하시겠습니까?`}
           onConfirm={() => handleRemoveMember()}

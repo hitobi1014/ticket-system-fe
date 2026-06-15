@@ -9,13 +9,14 @@ import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeSection, addAisle, removeAisle } = useFloorStore();
+  const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
+  const [addSectionDialogKey, setAddSectionDialogKey] = useState<number>(0);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
 
@@ -32,17 +33,13 @@ export default function FloorSetupPage() {
   };
 
   const handleRemoveFloor = () => {
-    const isRemove = window.confirm(`정말로 삭제하시겠습니까? ${selectedFloorId}`); // id말고 name 확인하며 물어보기
-
     // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
-    if (!isRemove) return;
-    // removeFloor(selectedFloorId);
-    //
-    // // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
-    // if (selectedFloorId === selectedFloorId) {
-    //   const remaining = floors.filter((f) => f.selectedFloorId !== selectedFloorId);
-    //   setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
-    // }
+    if (selectedFloorId == null) return;
+    removeFloor(selectedFloorId);
+
+    // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
+    const remaining = floors.filter((f) => f.id !== selectedFloorId);
+    setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
   };
 
   // handleAddSection은 AddSectionDialog로 대체됨 (삭제 예정)
@@ -100,7 +97,13 @@ export default function FloorSetupPage() {
     {
       text: '층 삭제',
       icon: <IconMinus stroke={2} />,
-      onClick: handleRemoveFloor,
+      confirm: {
+        triggerText: '층 삭제',
+        title: '층 삭제 확인',
+        description: `선택한 층 [${selectedFloor?.name}]을 삭제하시겠습니까?`,
+        dialogActionBtnText: '삭제',
+        onConfirm: handleRemoveFloor,
+      },
     },
   ];
 
@@ -147,12 +150,13 @@ export default function FloorSetupPage() {
             <div className="flex gap-x-2">
               <div className="flex gap-x-2 justify-end">
                 <AddSectionDialog
-                  key={floor.id}
+                  key={addSectionDialogKey}
                   floorId={floor.id}
                   onConfirm={() => {
                     // 구역 추가 완료 시 선택 상태 초기화
                     setSelectedSectionId(null);
                     setSelectedRowId(null);
+                    setAddSectionDialogKey((prev) => prev + 1);
                   }}
                 />
 

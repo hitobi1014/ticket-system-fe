@@ -63,8 +63,8 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
 
   // 1단계 상태
   const [sectionName, setSectionName] = useState('');
-  const [rowCount, setRowCount] = useState(5); // 열 수
-  const [defaultSeatCount, setDefaultSeatCount] = useState(10); // 기본 좌석 수
+  const [rowCount, setRowCount] = useState(7); // 열 수
+  const [defaultSeatCount, setDefaultSeatCount] = useState(15); // 기본 좌석 수
   const [rowNameType, setRowNameType] = useState<'number' | 'alpha'>('number');
   const [startValue, setStartValue] = useState('1');
 
@@ -191,7 +191,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                     value={sectionName}
                     onChange={(e) => setSectionName(e.target.value)}
                     className="bg-surface-primary border-0"
-                    type="text"
+                    type="triggerText"
                     placeholder="구역명을 입력해주세요."
                   />
                 </Field>
@@ -293,7 +293,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                   <Input
                     aria-label="start-value"
                     className="bg-surface-primary border-0"
-                    type="text"
+                    type="triggerText"
                     value={startValue}
                     onChange={(e) => setStartValue(e.target.value)}
                   />

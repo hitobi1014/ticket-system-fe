@@ -17,8 +17,9 @@ interface Props {
   variant: VariantProps<typeof buttonVariants>['variant'];
   size: VariantProps<typeof buttonVariants>['size'];
   title: string;
-  buttonText: string;
+  triggerText: string;
   description: string;
+  dialogActionBtnText: string;
   onConfirm?: () => void;
   disabled?: boolean;
   icon?: React.ReactNode;
@@ -28,26 +29,31 @@ export default function AlertDialogCustom({
   icon,
   variant,
   size,
-  buttonText,
+  triggerText,
   title,
   description,
+  dialogActionBtnText,
   onConfirm,
 }: Props) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="cancel">{buttonText}</Button>
+        <Button variant={variant}>
+          {icon}
+          {triggerText}
+        </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle className="popup-title">{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+      <AlertDialogContent className="bg-surface-primary">
+        <AlertDialogHeader className="text-content-primary">
+          <AlertDialogTitle>{title}</AlertDialogTitle>
+          <AlertDialogDescription className="text-content-secondary">
+            {description}
+          </AlertDialogDescription>
         </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel variant="close">닫기</AlertDialogCancel>
+        <AlertDialogFooter className="bg-surface-primary border-t-surface-secondary">
+          <AlertDialogCancel variant={variant}>닫기</AlertDialogCancel>
           <AlertDialogAction variant={variant} size={size} onClick={onConfirm}>
-            {icon}
-            {buttonText ?? '확인'}
+            {dialogActionBtnText ?? '확인'}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

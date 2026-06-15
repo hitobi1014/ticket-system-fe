@@ -19,9 +19,10 @@ export interface ButtonItem {
 
   // AlertDialogCustom 위한 props
   confirm?: {
-    text: string;
+    triggerText: string;
     title: string;
     description: string;
+    dialogActionBtnText: string;
     onConfirm: () => void;
   };
 
@@ -64,9 +65,10 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
             key={i}
             variant={getVariant(btn.variant)}
             size={getSize(btn.size)}
-            buttonText={btn.text!}
+            triggerText={btn.text!}
             title={btn.confirm.title}
             description={btn.confirm.description}
+            dialogActionBtnText={btn.confirm.dialogActionBtnText}
             onConfirm={btn.confirm.onConfirm}
             disabled={btn.disabled}
             icon={btn.icon}

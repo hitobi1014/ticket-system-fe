@@ -11,8 +11,8 @@ export function AppSidebar() {
     { link: '/seats/assign', icon: <IconLayoutDashboard stroke={2} />, text: '좌석 배정' },
   ];
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b border-b-mist-500 border-r border-r-mist-500">
+    <Sidebar collapsible="icon" className="bg-surface-secondary">
+      <SidebarHeader className="border-b border-b-surface-accent border-r border-r-surface-accent">
         <div className="flex items-center justify-between">
           <div className="text-content-secondary group-data-[collapsible=icon]:hidden">
             Orchestra
@@ -21,7 +21,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <nav className="flex flex-col gap-y-2 text-mist-300">
+        <nav className="flex flex-col gap-y-2 text-content-secondary">
           {menus.map((menu) => (
             <NavLink
               className={({ isActive }) =>
