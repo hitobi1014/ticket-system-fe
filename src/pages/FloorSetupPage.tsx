@@ -92,6 +92,7 @@ export default function FloorSetupPage() {
   };
 
   const floorButtons: ButtonItem[] = [
+    // TODO 추후 여유있을때 층 추가 Dialog로 변경하기
     {
       text: '층 추가',
       icon: <IconPlus stroke={2} />,
@@ -150,7 +151,7 @@ export default function FloorSetupPage() {
             className="flex flex-col flex-1 overflow-hidden p-0"
           >
             {/* ✅ 구역 기능 버튼 그룹 */}
-            <div className="flex gap-x-2 flex-shrink-0">
+            <div className="flex gap-x-2 shrink-0">
               <div className="flex gap-x-2 justify-end">
                 <AddSectionDialog
                   key={addSectionDialogKey}
