@@ -147,10 +147,10 @@ export default function FloorSetupPage() {
           <TabsContent
             key={floor.id}
             value={String(floor.id)}
-            className="p-0 gap-x-1 overflow-x-auto"
+            className="flex flex-col flex-1 overflow-hidden p-0"
           >
-            {/* 구역 기능 버튼 그룹 */}
-            <div className="flex gap-x-2">
+            {/* ✅ 구역 기능 버튼 그룹 */}
+            <div className="flex gap-x-2 flex-shrink-0">
               <div className="flex gap-x-2 justify-end">
                 <AddSectionDialog
                   key={addSectionDialogKey}
@@ -197,8 +197,8 @@ export default function FloorSetupPage() {
               </div>
             </div>
 
-            {/* 구역인지 통로인지 구분*/}
-            <div className="flex flex-col mt-4 gap-y-4 flex-1 px-2">
+            {/* 구역 컨텐츠 시작: 구역/통로 */}
+            <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto px-2">
               {floor.rows.map((floorRow) => (
                 <div key={floorRow.id} className="flex gap-x-4">
                   {floorRow.items.map((item) => (
