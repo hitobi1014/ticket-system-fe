@@ -2,7 +2,6 @@ import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
 import { Separator } from '@/components/ui/separator.tsx';
 import { getContrastTextColor } from '@/lib/uiUtils.ts';
-import type { Member } from '@/types';
 import { clsx } from 'clsx';
 
 export default function SeatAssignSidebar() {
@@ -18,8 +17,8 @@ export default function SeatAssignSidebar() {
     return a.name.localeCompare(b.name, 'ko');
   });
 
-  const isAllowTicketZero = (member: Member): boolean => {
-    return member.allocatedTickets === 0;
+  const isAllowTicketZero = (allocatedTickets: number): boolean => {
+    return allocatedTickets == 0;
   };
 
   return (
@@ -50,13 +49,22 @@ export default function SeatAssignSidebar() {
                 </p>
                 <p
                   className={clsx('text-sm text-content-primary', {
-                    'text-mist-500': isAllowTicketZero(member),
+                    'text-mist-500': isAllowTicketZero(member.allocatedTickets),
                   })}
                 >
                   {member.name}
                 </p>
               </div>
-              <p className="bg-gray-700 px-2 py-0.5 rounded text-sm text-white min-w-[24px] text-center">
+              <p
+                className={clsx('px-2 py-0.5 rounded text-sm min-w-6 text-center', {
+                  'bg-surface-danger text-content-danger': isAllowTicketZero(
+                    member.allocatedTickets,
+                  ),
+                  'bg-surface-secondary text-content-primary': !isAllowTicketZero(
+                    member.allocatedTickets,
+                  ),
+                })}
+              >
                 {member.allocatedTickets}
               </p>
             </div>

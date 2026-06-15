@@ -199,7 +199,7 @@ export default function FloorSetupPage() {
             </div>
 
             {/* 구역 컨텐츠 시작: 구역/통로 */}
-            <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto px-2">
+            <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto no-scrollbar px-2">
               {floor.rows.map((floorRow) => (
                 <div key={floorRow.id} className="flex gap-x-4">
                   {floorRow.items.map((item) => (

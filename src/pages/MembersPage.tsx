@@ -110,7 +110,7 @@ export default function MembersPage() {
           </div>
 
           {/* 바디만 스크롤 */}
-          <div className="flex-1 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto no-scrollbar">
             <Table className="bg-surface-secondary mp-table">
               <ColGroup />
               <TableBody className="mp-table-border">
