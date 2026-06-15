@@ -20,7 +20,7 @@ interface Props {
   triggerText: string;
   description: string;
   dialogActionBtnText: string;
-  onConfirm?: () => void;
+  onConfirm: () => void;
   disabled?: boolean;
   icon?: React.ReactNode;
 }
@@ -34,11 +34,12 @@ export default function AlertDialogCustom({
   description,
   dialogActionBtnText,
   onConfirm,
+  disabled,
 }: Props) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant}>
+        <Button variant={variant} disabled={disabled} onClick={(e) => e.stopPropagation()}>
           {icon}
           {triggerText}
         </Button>
@@ -52,7 +53,14 @@ export default function AlertDialogCustom({
         </AlertDialogHeader>
         <AlertDialogFooter className="bg-surface-primary border-t-surface-secondary">
           <AlertDialogCancel variant={variant}>닫기</AlertDialogCancel>
-          <AlertDialogAction variant={variant} size={size} onClick={onConfirm}>
+          <AlertDialogAction
+            variant={variant}
+            size={size}
+            onClick={(e) => {
+              e.stopPropagation();
+              onConfirm();
+            }}
+          >
             {dialogActionBtnText ?? '확인'}
           </AlertDialogAction>
         </AlertDialogFooter>

@@ -7,6 +7,7 @@ import { IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
+import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 
 export default function FloorSetupPage() {
   const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
@@ -19,6 +20,11 @@ export default function FloorSetupPage() {
   const [addSectionDialogKey, setAddSectionDialogKey] = useState<number>(0);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
+  const selectedSection =
+    selectedFloor?.rows
+      .flatMap((r) => r.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .find((x) => x.id === selectedSectionId) ?? null;
 
   const handleAddFloor = () => {
     const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
@@ -42,8 +48,6 @@ export default function FloorSetupPage() {
     setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
   };
 
-  // handleAddSection은 AddSectionDialog로 대체됨 (삭제 예정)
-
   const handleRemoveSection = () => {
     if (selectedSectionId === null) return;
 
@@ -59,18 +63,17 @@ export default function FloorSetupPage() {
   };
 
   const handleAddAisle = () => {
-    if (!selectedFloor) return;
-    const aisleLabel = window.prompt('통로명 입력(선택)');
+    if (selectedFloor == null) return;
+    if (selectedSectionId === null) return;
 
     const maxAisleId = floors
       .flatMap((f) => f.rows.flatMap((r) => r.items))
       .filter((item): item is Aisle => item.kind === 'aisle')
-      .reduce((max, aisle) => Math.max(max, aisle.id), 0);
+      .reduce((max, a) => Math.max(max, a.id), 0);
 
-    addAisle(selectedFloor.id, {
-      id: maxAisleId + 1,
+    addAisle(selectedFloor.id, selectedSectionId, {
       kind: 'aisle',
-      label: aisleLabel ?? '',
+      id: maxAisleId + 1,
     });
   };
 
@@ -172,9 +175,17 @@ export default function FloorSetupPage() {
               </div>
               <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5 " />
               <div className="flex gap-x-2 justify-end">
-                <Button variant="secondary" size="base" onClick={handleAddAisle}>
-                  <IconLayoutColumns stroke={2} /> 통로 추가
-                </Button>
+                <AlertDialogCustom
+                  variant="secondary"
+                  size="base"
+                  title="통로 추가"
+                  triggerText="통로 추가"
+                  description={`선택한 [${selectedSection?.name}] 우측에 통로가 생성됩니다.`}
+                  dialogActionBtnText="확인"
+                  onConfirm={handleAddAisle}
+                  icon={<IconLayoutColumns stroke={2} />}
+                  disabled={selectedSectionId === null}
+                />
                 <Button
                   variant="secondary"
                   size="base"

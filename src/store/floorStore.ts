@@ -34,7 +34,7 @@ interface FloorStore {
   addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => void;
   removeSection: (sectionId: number) => void;
 
-  addAisle: (floorId: number, req: CreateAisleRequest) => void;
+  addAisle: (floorId: number, afterSectionId: number, req: CreateAisleRequest) => void;
   removeAisle: (aisleId: number) => void;
 
   addRow: (sectionId: number, req: CreateRowsRequest) => void;
@@ -215,25 +215,26 @@ const useFloorStore = create<FloorStore>()(
         'removeSection',
       ),
 
-    addAisle: (floorId, req) =>
+    addAisle: (floorId, afterSectionId, req) =>
       set(
         (state) => ({
           floors: state.floors.map((f) => {
             if (f.id !== floorId) return f;
 
-            const newAisle: Aisle = {
-              ...req,
-            };
+            const newAisle: Aisle = { ...req };
 
-            // 첫 번째 FloorRow에 추가 (없으면 새로 생성)
-            if (f.rows.length === 0) {
-              return { ...f, rows: [{ id: 1, items: [newAisle] }] };
-            }
             return {
               ...f,
-              rows: f.rows.map((floorRow, idx) =>
-                idx === 0 ? { ...floorRow, items: [...floorRow.items, newAisle] } : floorRow,
-              ),
+              rows: f.rows.map((floorRow) => {
+                const sectionIndex = floorRow.items.findIndex(
+                  (item) => item.kind === 'section' && item.id === afterSectionId,
+                );
+                if (sectionIndex === -1) return floorRow;
+
+                const newItems = [...floorRow.items];
+                newItems.splice(sectionIndex + 1, 0, newAisle);
+                return { ...floorRow, items: newItems };
+              }),
             };
           }),
         }),
