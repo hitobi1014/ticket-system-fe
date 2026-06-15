@@ -42,7 +42,7 @@ export default function SeatAssignGrid({
   };
 
   return (
-    <TabsContent value={String(floor.id)} className="flex flex-col gap-y-4">
+    <TabsContent value={String(floor.id)} className="h-screen flex flex-col gap-y-4">
       <div className="flex gap-x-4 items-center">
         <Toggle
           className={clsx('bg-surface-secondary text-content-primary cursor-pointer', {
@@ -59,15 +59,14 @@ export default function SeatAssignGrid({
         </Toggle>
         {isBulkEditMode && (
           <>
-            <Button variant="modify" size="base" onClick={() => setIsModalOpen(true)}>
-              수정하기
+            <Button variant="primary" size="base" onClick={() => setIsModalOpen(true)}>
+              좌석배정
             </Button>
-            {/*TODO 선택된 좌석 수 표기 필요성?*/}
             <span className="text-content-primary">선택된 좌석: {selectedSeatIds.size}</span>
           </>
         )}
       </div>
-      <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto px-2">
+      <div className="flex flex-col gap-y-2 flex-1 no-scrollbar overflow-auto px-2">
         {floor.rows.map((floorRow) => (
           <div key={floorRow.id} className="flex gap-x-4">
             {floorRow.items.map((item) =>

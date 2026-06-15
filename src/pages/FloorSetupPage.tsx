@@ -131,7 +131,7 @@ export default function FloorSetupPage() {
               key={floor.id}
               value={String(floor.id)}
               className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-              hover:text-content-danger
+              hover:text-amber-300
               data-[state=active]:text-content-primary
               data-[state=active]:bg-transparent
               data-[state=active]:shadow-none

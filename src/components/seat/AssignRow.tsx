@@ -28,8 +28,13 @@ export default function AssignRow({
 
   return (
     <div className="bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4">
+      <div className="flex justify-between items-center text-sm">
+        <span>{section.name}</span>
+        <span>{section.rows.flatMap((r) => r.seats).length}석</span>
+      </div>
       {section.rows.map((row) => (
-        <div key={row.id} className="flex gap-x-1.5">
+        <div key={row.id} className="flex items-center gap-x-1.5">
+          <p>{row.rowName}</p>
           {row.seats.map((seat) => (
             // 빈 좌석은 흰 배경, 배정된 좌석은 회원에게 할당된 색상
             //  1. 단건 편집

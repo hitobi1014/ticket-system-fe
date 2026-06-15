@@ -117,7 +117,7 @@ export function RemoveSeatDialog({
               <IconPlus stroke={2} />
             </Button>
           </div>
-          <p className="danger-color">삭제 후 {remaining}석이 남습니다.</p>
+          <p className="text-amber-300">삭제 후 {remaining}석이 남습니다.</p>
         </div>
 
         {/* 미리 보기 */}

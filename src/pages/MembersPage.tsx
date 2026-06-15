@@ -61,9 +61,8 @@ export default function MembersPage() {
   ];
 
   const functionButtons: ButtonItem[] = [
-    { onClick: () => setIsModalOpen(true), text: '회원 추가', icon: <IconUserPlus stroke={2} /> },
+    { text: '회원 추가', onClick: () => setIsModalOpen(true), icon: <IconUserPlus stroke={2} /> },
     {
-      className: 'function-button',
       text: '티켓 균등 배분',
       icon: <IconTicket stroke={2} />,
       onClick: distributeTickets,

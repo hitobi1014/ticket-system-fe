@@ -158,7 +158,7 @@ export default function SectionCard({
         type: 'removeSeat',
         rowId: selectedRowId ?? undefined,
         rowName: findSeatContextByRowId(floors, selectedRowId!)?.row.rowName ?? '열 설정x',
-        currentSeatCount: 10,
+        currentSeatCount: findSeatContextByRowId(floors, selectedRowId!)?.row.seats.length ?? 0,
         sectionName: findSeatContextByRowId(floors, selectedRowId!)?.section.name ?? '구역 설정x',
         onClick: handleRemoveSeat,
       },
