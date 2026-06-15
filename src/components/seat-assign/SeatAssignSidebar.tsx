@@ -23,30 +23,34 @@ export default function SeatAssignSidebar() {
   };
 
   return (
-    <div className="w-36 border-l border-gray-700 pl-4 p-y">
-      <div className="bg-gray-800 rounded-lg pl-3 py-2">
-        <h5 className="text-gray-200">잔여 좌석</h5>
-        <h3 className="text-white font-bold">{getRemainSeatCount()}</h3>
+    <div className="w-36 border-l border-surface-accent pl-4 p-y">
+      <div className="bg-surface-secondary rounded-lg pl-3 py-2">
+        <h5 className="text-content-secondary">잔여 좌석</h5>
+        <h3 className="text-content-primary font-bold">{getRemainSeatCount()}</h3>
       </div>
       <div className="flex flex-col gap-y-2 mt-2">
-        <h3 className="text-gray-500 text-sm">회원별 잔여 티켓</h3>
+        <h3 className="text-content-secondary text-sm">회원별 잔여 티켓</h3>
         <Separator />
         <div className="flex flex-col gap-y-1.5">
           {sortingMember.map((member) => (
             <div key={member.id} className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <p
-                  className="w-8 text-center text-xs  px-1 py-0.5 rounded font-bold"
-                  style={{
-                    backgroundColor: member.color,
-                    color: getContrastTextColor(member.color ?? '#ffffff'),
-                  }}
+                  className="w-8  text-center text-xs  px-1 py-0.5 rounded font-bold"
+                  style={
+                    member.color != null
+                      ? {
+                          backgroundColor: member.color,
+                          color: getContrastTextColor(member.color ?? '#ffffff'),
+                        }
+                      : undefined
+                  }
                 >
                   {member.instrument.abbr}
                 </p>
                 <p
-                  className={clsx('text-sm', {
-                    'text-gray-400': isAllowTicketZero(member),
+                  className={clsx('text-sm text-content-primary', {
+                    'text-mist-500': isAllowTicketZero(member),
                   })}
                 >
                   {member.name}

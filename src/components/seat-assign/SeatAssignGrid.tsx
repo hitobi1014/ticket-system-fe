@@ -4,6 +4,7 @@ import { SquareIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import AssignRow from '@/components/seat/AssignRow.tsx';
 import type { Floor } from '@/types';
+import { clsx } from 'clsx';
 
 interface SeatAssignGridProps {
   floor: Floor;
@@ -44,6 +45,9 @@ export default function SeatAssignGrid({
     <TabsContent value={String(floor.id)} className="flex flex-col gap-y-4">
       <div className="flex gap-x-4 items-center">
         <Toggle
+          className={clsx('bg-surface-secondary text-content-primary cursor-pointer', {
+            'bg-white text-black': isBulkEditMode,
+          })}
           pressed={isBulkEditMode}
           onPressedChange={(pressed) => {
             setIsBulkEditMode(pressed);
@@ -59,29 +63,31 @@ export default function SeatAssignGrid({
               수정하기
             </Button>
             {/*TODO 선택된 좌석 수 표기 필요성?*/}
-            <span>선택된 좌석: {selectedSeatIds.size}</span>
+            <span className="text-content-primary">선택된 좌석: {selectedSeatIds.size}</span>
           </>
         )}
       </div>
-      <div className="flex flex-col gap-y-4">
+      <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto px-2">
         {floor.rows.map((floorRow) => (
-          <div key={floorRow.id} className="flex">
-            {floorRow.items.map((item) => (
-              <div key={item.id} className="flex">
-                {item.kind === 'aisle' ? (
-                  <div className="border-2 border-dashed bg-gray-100">
-                    통로: {item.label}
-                  </div>
-                ) : (
-                  <AssignRow
-                    section={item}
-                    isBulkEditMode={isBulkEditMode}
-                    selectedSeatIds={selectedSeatIds}
-                    onSeatClick={handleSeatClick}
-                  />
-                )}
-              </div>
-            ))}
+          <div key={floorRow.id} className="flex gap-x-4">
+            {floorRow.items.map((item) =>
+              item.kind === 'aisle' ? (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
+                >
+                  <div className="w-px h-2/4 bg-surface-accent" />
+                </div>
+              ) : (
+                <AssignRow
+                  key={item.id}
+                  section={item}
+                  isBulkEditMode={isBulkEditMode}
+                  selectedSeatIds={selectedSeatIds}
+                  onSeatClick={handleSeatClick}
+                />
+              ),
+            )}
           </div>
         ))}
       </div>

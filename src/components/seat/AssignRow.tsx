@@ -27,9 +27,9 @@ export default function AssignRow({
     members.find((v) => v.id === id)?.name ?? '';
 
   return (
-    <div>
+    <div className="bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4">
       {section.rows.map((row) => (
-        <div key={row.id} className="flex gap-x-0.5">
+        <div key={row.id} className="flex gap-x-1.5">
           {row.seats.map((seat) => (
             // 빈 좌석은 흰 배경, 배정된 좌석은 회원에게 할당된 색상
             //  1. 단건 편집
@@ -38,19 +38,26 @@ export default function AssignRow({
             <Button
               key={seat.id}
               ref={triggerRef}
-              className={clsx('w-12 h-12 text-sm', {
-                'ring-2 ring-blue-500 ring-offset-1': selectedSeatIds.has(seat.id),
-              })}
+              className={clsx(
+                'w-10 h-10 bg-surface-primary text-content-primary border-0  text-sm',
+                {
+                  'ring-2 ring-content-accent ring-offset-1': selectedSeatIds.has(seat.id),
+                },
+              )}
               variant="outline"
-              style={{
-                backgroundColor: assignedSeatColor(seat.assignedMemberId),
-                color: getContrastTextColor(assignedSeatColor(seat.assignedMemberId)),
-              }}
+              style={
+                seat.assignedMemberId != null
+                  ? {
+                      backgroundColor: assignedSeatColor(seat.assignedMemberId!),
+                      color: getContrastTextColor(assignedSeatColor(seat.assignedMemberId!)),
+                    }
+                  : undefined
+              }
               onClick={() => onSeatClick(seat.id)}
             >
               <div>
                 <p>{seat.seatNumber}</p>
-                <p>{assignedSeatMemberName(seat.assignedMemberId)}</p>
+                <p>{assignedSeatMemberName(seat.assignedMemberId!)}</p>
               </div>
             </Button>
           ))}

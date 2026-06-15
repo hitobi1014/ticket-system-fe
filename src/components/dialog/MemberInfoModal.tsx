@@ -13,7 +13,6 @@ import {
 } from '@/components/ui/select.tsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
 import { HexColorPicker } from 'react-colorful';
-import * as React from 'react';
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
@@ -155,6 +154,9 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
       </div>
       <DialogFooter className="flex justify-between!">
         <AlertDialogCustom
+          variant="primary"
+          size="sm"
+          dialogActionBtnText="확인"
           triggerText={'회원삭제'}
           title={'확인'}
           description={`[${form.name}]님을 목록에서 제거 하시겠습니까?`}
