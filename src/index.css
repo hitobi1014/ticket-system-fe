@@ -18,7 +18,7 @@
     --color-content-primary: var(--color-mist-50);
     --color-content-secondary: var(--color-mist-300);
     --color-content-accent: var(--color-mist-500);
-    --color-content-danger: var(--color-amber-300);
+    --color-content-danger: var(--color-red-950);
 
     /* status*/
 }

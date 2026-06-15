@@ -92,12 +92,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     onClose();
   };
   return (
-    <DialogContent>
+    <DialogContent className="bg-surface-secondary text-content-primary">
       <DialogHeader>
-        <DialogTitle className="popup-title">좌석배정</DialogTitle>
-        <DialogDescription>{modalTitle['N']}</DialogDescription>
+        <DialogTitle className="text-lg">좌석배정</DialogTitle>
+        <DialogDescription className="text-content-secondary">{modalTitle['N']}</DialogDescription>
       </DialogHeader>
-      <Separator />
+      <Separator className="bg-surface-accent" />
       {/* 선택한 좌석 */}
       <div className="flex flex-wrap gap-1">
         {[...seatIds].map((seatId) => {
@@ -115,8 +115,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
               className={clsx(
                 'flex items-center gap-1 text-xs rounded px-2 py-1 whitespace-nowrap',
                 {
-                  'bg-amber-300 text-red-950 font-bold': memberName,
-                  'bg-gray-700 text-white': !memberName,
+                  'bg-surface-danger text-content-danger font-bold': memberName,
+                  'bg-surface-accent text-content-primary': !memberName,
                 },
               )}
             >
@@ -133,41 +133,44 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
         )}
       </div>
       {/* ✅ 회원 목록: 잔여 좌석이 남은 회원만 표기 */}
-      <Separator />
+      <Separator className="bg-surface-accent" />
       <div
-        className={clsx('-mx-4 no-scrollbar max-h-[50vh] overflow-y-auto px-4', {
+        className={clsx('-mx-4 max-h-[50vh] overflow-hidden px-4', {
           'ring-2 ring-red-400': hasMemberEmpty,
         })}
       >
         {/*검색 기능?*/}
-        <h5 className="text-sm mb-2 font-bold text-gray-600">회원 목록</h5>
-        {getAssignableMember(members).map((mem) => (
-          // 선택된 좌석보다 회원 잔여석이 적으면 클릭 비활성화
-          <div
-            className={clsx('flex justify-between items-center px-2 py-0.5 mb-1', {
-              'bg-gray-600 text-white rounded-md ': isAssignMemberSelected === mem.id,
-              'cursor-pointer hover:bg-gray-100': hasEnoughRemainingTickets(mem),
-              'opacity-40 cursor-not-allowed': !hasEnoughRemainingTickets(mem),
-            })}
-            key={mem.id}
-            onClick={() => {
-              if (!hasEnoughRemainingTickets(mem)) return;
-              setIsAssignMemberSelected(mem.id);
-            }}
-          >
-            <div className="flex items-center gap-2">
-              <p className="w-8 text-center text-xs px-2 py-0.5 rounded text-white  font-bold bg-gray-700">
-                {mem.instrument.abbr}
+        <h5 className="text-sm mb-2 font-bold text-content-secondary">회원 목록</h5>
+        <div className="flex flex-col h-full no-scrollbar overflow-y-auto">
+          {getAssignableMember(members).map((mem) => (
+            // 선택된 좌석보다 회원 잔여석이 적으면 클릭 비활성화
+            <div
+              className={clsx('flex justify-between items-center px-2 py-0.5 mb-1', {
+                'bg-surface-accent text-content-primary rounded-md ':
+                  isAssignMemberSelected === mem.id,
+                'cursor-pointer hover:bg-surface-accent': hasEnoughRemainingTickets(mem),
+                'opacity-40 cursor-not-allowed': !hasEnoughRemainingTickets(mem),
+              })}
+              key={mem.id}
+              onClick={() => {
+                if (!hasEnoughRemainingTickets(mem)) return;
+                setIsAssignMemberSelected(mem.id);
+              }}
+            >
+              <div className="flex items-center gap-2">
+                <p className="w-8 h-5 flex justify-center items-center text-xs rounded bg-surface-accent text-content-primary">
+                  {mem.instrument.abbr}
+                </p>
+                <p>{mem.name}</p>
+              </div>
+              <p className="w-14 h-7 flex justify-center items-center text-sm bg-surface-accent text-content-primary rounded-lg">
+                잔여 {mem.allocatedTickets}
               </p>
-              <p>{mem.name}</p>
             </div>
-            <p className={clsx('text-sm bg-gray-700 text-white rounded-lg py-1 px-2.5')}>
-              잔여 {mem.allocatedTickets}
-            </p>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-      <DialogFooter>
+      <DialogFooter className="bg-surface-secondary border-t-surface-accent">
         <div
           className={clsx('flex gap-2 w-full', {
             'justify-between': isVisibleCancelButton,
@@ -180,10 +183,10 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
             </Button>
           )}
           <div className="flex gap-2">
-            <Button variant="close" size="base" onClick={onClose}>
+            <Button variant="dialog" size="base" onClick={onClose}>
               닫기
             </Button>
-            <Button variant="confirm" size="base" onClick={() => handleConfirm()}>
+            <Button variant="dialog" size="base" onClick={() => handleConfirm()}>
               배정
             </Button>
           </div>
