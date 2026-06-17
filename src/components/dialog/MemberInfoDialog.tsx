@@ -1,7 +1,6 @@
 import { type CreateMemberRequest, INSTRUMENTS, type Member } from '@/types';
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { InputGroup, InputGroupInput } from '@/components/ui/input-group';
 import { Field, FieldLabel } from '@/components/ui/field.tsx';
 import {
   Select,
@@ -17,13 +16,14 @@ import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import { Input } from '@/components/ui/input';
 
 interface MemberInfoModalProps {
   member?: Member; // 수정시 사용
   onClose: () => void;
 }
 
-export default function MemberInfoModal({ member, onClose }: MemberInfoModalProps) {
+export default function MemberInfoDialog({ member, onClose }: MemberInfoModalProps) {
   const { addMember, updateMember, removeMember } = useMemberStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
@@ -58,26 +58,28 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
   };
 
   return (
-    <DialogContent className="sm:max-w-106.25" onInteractOutside={onClose}>
+    <DialogContent className="sm:max-w-106.25 bg-surface-secondary" onInteractOutside={onClose}>
       <DialogHeader>
         {/* 회원 등록/수정 */}
-        <DialogTitle className="popup-title">회원 등록</DialogTitle>
+        <DialogTitle className="text-content-primary flex items-center gap-x-2">
+          회원 등록
+        </DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
-      <div>
+      <div className="flex flex-col gap-y-2 text-content-primary">
         {/*  이름 */}
         <Field className="max-w-sm">
-          <FieldLabel htmlFor="inline-end-input">이름</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="inline-end-input"
-              value={form?.name}
-              type="triggerText"
-              placeholder="이름을 입력하세요"
-              onChange={(e) => handleChange('name', e.target.value)}
-            />
-          </InputGroup>
+          <FieldLabel htmlFor="name-input">이름</FieldLabel>
+          <Input
+            id="name-input"
+            aria-label="name"
+            value={form?.name}
+            type="triggerText"
+            className="bg-surface-primary border-0"
+            placeholder="이름을 입력하세요"
+            onChange={(e) => handleChange('name', e.target.value)}
+          />
         </Field>
 
         {/*  악기 */}
@@ -90,10 +92,10 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
               handleChange('instrumentAbbr', find.abbr);
             }}
           >
-            <SelectTrigger className="w-45">
+            <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
               <SelectValue placeholder="선택" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-surface-primary text-content-primary">
               <SelectGroup>
                 {INSTRUMENTS.map((i) => (
                   <SelectItem key={i.abbr} value={i.abbr}>
@@ -107,30 +109,34 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
 
         {/* 상점 */}
         <Field className="max-w-sm">
-          <FieldLabel htmlFor="inline-end-input">상점</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="inline-end-input"
-              type="number"
-              value={form?.point}
-              placeholder="상점을 입력하세요."
-              onChange={(e) => handleChange('point', Number(e.target.value))}
-            />
-          </InputGroup>
+          <FieldLabel htmlFor="point-input">상점</FieldLabel>
+          <Input
+            id="point-input"
+            aria-label="instrumentAbbr"
+            className="bg-surface-primary border-0
+              [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+              "
+            type="number"
+            value={form?.point}
+            placeholder="상점을 입력하세요."
+            onChange={(e) => handleChange('point', Number(e.target.value))}
+          />
         </Field>
 
         {/*  배정 티켓수 */}
         <Field className="max-w-sm">
-          <FieldLabel htmlFor="inline-end-input">배정티켓</FieldLabel>
-          <InputGroup>
-            <InputGroupInput
-              id="inline-end-input"
-              type="number"
-              value={form?.allocatedTickets}
-              placeholder="배정할 티켓 수량을 입력하세요."
-              onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
-            />
-          </InputGroup>
+          <FieldLabel htmlFor="allow-ticket-input">배정티켓</FieldLabel>
+          <Input
+            id="allow-ticket-input"
+            aria-label="allow-ticket-input"
+            type="number"
+            className="bg-surface-primary border-0
+              [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
+              "
+            value={form?.allocatedTickets}
+            placeholder="배정할 티켓 수량을 입력하세요."
+            onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
+          />
         </Field>
 
         {/* 회원 색상 */}
@@ -139,7 +145,7 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-6 h-6 rounded-full border border-gray-300"
+                className="w-6 h-6 rounded-full border-0"
                 style={{ backgroundColor: form?.color }}
               />
             </PopoverTrigger>
@@ -152,9 +158,10 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
           </Popover>
         </Field>
       </div>
-      <DialogFooter className="flex justify-between!">
+
+      <DialogFooter className="flex justify-between! bg-surface-secondary border border-t-surface-accent pb-2.5">
         <AlertDialogCustom
-          variant="primary"
+          variant="dialog"
           size="sm"
           dialogActionBtnText="확인"
           triggerText={'회원삭제'}
@@ -163,10 +170,10 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
           onConfirm={() => handleRemoveMember()}
         />
         <div className="flex gap-2">
-          <Button variant="close" onClick={() => onClose()}>
+          <Button variant="dialog" onClick={() => onClose()}>
             닫기
           </Button>
-          <Button variant={isEditMode ? 'modify' : 'confirm'} onClick={() => handleSave()}>
+          <Button variant="dialog" onClick={() => handleSave()}>
             {isEditMode ? '수정' : '등록'}
           </Button>
         </div>

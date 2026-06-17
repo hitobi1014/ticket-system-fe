@@ -14,7 +14,7 @@ import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
 import { IconTicket, IconUserPlus } from '@tabler/icons-react';
 import '@/pages/MemberPage.css';
-import MemberInfoModal from '@/components/dialog/MemberInfoModal.tsx';
+import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
@@ -156,7 +156,7 @@ export default function MembersPage() {
         </div>
       )}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <MemberInfoModal
+        <MemberInfoDialog
           key={selectedMember?.id ?? 'new'}
           member={selectedMember}
           onClose={() => {
