@@ -28,7 +28,13 @@ export interface Member {
 }
 
 // 생성 요청용 (id 없음)
-export type CreateMemberRequest = Omit<Member, 'id'>;
+export interface CreateMemberRequest {
+  name: string; // 회원 이름
+  instrumentAbbr: string;
+  point: number;
+  allocatedTickets: number; // 배정된 티켓 수
+  color?: string; // 좌석 배정 시 구분 색상 (hex 코드)
+}
 
 /** 티켓 현황 요약 (파생 데이터) */
 export interface TicketSummary {

@@ -43,6 +43,7 @@ export default function MembersPage() {
 
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
 
+  // TODO useEffect 비동기?
   useEffect(() => {
     fetchMembers();
   }, []);

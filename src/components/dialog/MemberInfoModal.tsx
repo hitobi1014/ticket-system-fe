@@ -28,7 +28,7 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     point: member?.point ?? 0,
-    instrument: member?.instrument ?? INSTRUMENTS[0],
+    instrumentAbbr: member?.instrument.abbr ?? INSTRUMENTS[0].abbr,
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color,
   });
@@ -39,13 +39,13 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let msg;
     if (isEditMode) {
       updateMember(member.id, form);
       msg = `${form.name}님 회원 정보 수정을 성공했습니다.`;
     } else {
-      addMember(form);
+      await addMember(form);
       msg = `${form.name}님 회원 등록을 성공했습니다.`;
     }
     toast(msg);
@@ -84,10 +84,10 @@ export default function MemberInfoModal({ member, onClose }: MemberInfoModalProp
         <Field className="max-w-sm">
           <FieldLabel htmlFor="inline-end-input">악기</FieldLabel>
           <Select
-            value={form?.instrument.abbr}
+            value={form?.instrumentAbbr}
             onValueChange={(v) => {
               const find = INSTRUMENTS.find((i) => i.abbr === v)!;
-              handleChange('instrument', find);
+              handleChange('instrumentAbbr', find.abbr);
             }}
           >
             <SelectTrigger className="w-45">

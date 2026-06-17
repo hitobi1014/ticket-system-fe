@@ -11,7 +11,7 @@ interface MemberStore {
   getMemberAssignedTicketsByMemberId: (id: number) => number;
   getMemberRemainTicketsByMemberId: (id: number) => number;
 
-  addMember: (req: CreateMemberRequest) => void;
+  addMember: (req: CreateMemberRequest) => Promise<void>;
   updateMember: (id: number, req: CreateMemberRequest) => void;
   removeMember: (id: number) => void;
 
@@ -45,13 +45,21 @@ const useMemberStore = create<MemberStore>((set, get) => ({
     return allowTickets - assignedTickets;
   },
 
-  addMember: (req) =>
-    set((state) => {
-      const maxId = state.members.reduce((max, m) => Math.max(max, m.id ?? 0), 0);
-      return {
-        members: [...state.members, { ...req, id: maxId + 1 }],
-      };
-    }),
+  addMember: async (req) => {
+    const newMember = await fetchApi<Member>('/members', {
+      method: 'POST',
+      body: JSON.stringify(req),
+    });
+    set((state) => ({
+      members: [...state.members, newMember],
+    }));
+    // set((state) => {
+    // const maxId = state.members.reduce((max, m) => Math.max(max, m.id ?? 0), 0);
+    //     return {
+    //       members: [...state.members, { ...req, id: maxId + 1 }],
+    //     };
+    //   }),
+  },
 
   updateMember: (id, req) =>
     set((state) => ({
