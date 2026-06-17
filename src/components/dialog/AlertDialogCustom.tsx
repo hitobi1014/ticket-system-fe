@@ -52,7 +52,9 @@ export default function AlertDialogCustom({
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="bg-surface-primary border-t-surface-secondary">
-          <AlertDialogCancel variant={variant}>닫기</AlertDialogCancel>
+          <AlertDialogCancel variant={variant} size={size}>
+            닫기
+          </AlertDialogCancel>
           <AlertDialogAction
             variant={variant}
             size={size}

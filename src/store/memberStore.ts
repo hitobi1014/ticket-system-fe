@@ -2,7 +2,7 @@ import type { CreateMemberRequest, Member } from '@/types/member.ts';
 import { create } from 'zustand/react';
 import useFloorStore from '@/store/floorStore.ts';
 import type { Section } from '@/types';
-import { fetchApi } from '@/lib/api.ts';
+import fetchApi from '@/lib/api.ts';
 
 interface MemberStore {
   members: Member[];
@@ -13,7 +13,7 @@ interface MemberStore {
 
   addMember: (req: CreateMemberRequest) => Promise<void>;
   updateMember: (id: number, req: CreateMemberRequest) => void;
-  removeMember: (id: number) => void;
+  removeMember: (id: number) => Promise<void>;
 
   updateTickets: (id: number, tickets: number) => void;
   distributeTickets: () => void;
@@ -21,10 +21,12 @@ interface MemberStore {
   updateMemberColor: (id: number, color: string) => void;
 }
 
+const memberURIPrefix = '/members';
+
 const useMemberStore = create<MemberStore>((set, get) => ({
   members: [],
   fetchMembers: async () => {
-    const members = await fetchApi<Member[]>('/members');
+    const members = await fetchApi<Member[]>(memberURIPrefix);
     set({ members });
   },
 
@@ -46,7 +48,7 @@ const useMemberStore = create<MemberStore>((set, get) => ({
   },
 
   addMember: async (req) => {
-    const newMember = await fetchApi<Member>('/members', {
+    const newMember = await fetchApi<Member>(memberURIPrefix, {
       method: 'POST',
       body: JSON.stringify(req),
     });
@@ -66,10 +68,18 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       members: state.members.map((m) => (m.id === id ? { ...m, ...req } : m)),
     })),
 
-  removeMember: (id) =>
-    set((state) => ({
-      members: state.members.filter((m) => m.id !== id),
-    })),
+  removeMember: async (id) => {
+    await fetchApi<void>(`${memberURIPrefix}/${id}`, {
+      method: 'DELETE',
+    });
+
+    set(
+      (state) => ({
+        members: state.members.filter((m) => m.id !== id),
+      }),
+      undefined,
+    );
+  },
 
   updateTickets: (id, tickets) =>
     set((state) => ({

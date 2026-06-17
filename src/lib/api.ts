@@ -1,10 +1,23 @@
-import { API_PREFIX, API_URL } from '@/constant/env.ts';
+import { API_URL } from '@/constant/env.ts';
 
-export async function fetchApi<T>(path: string, options?: RequestInit): Promise<T> {
-  const res = await fetch(`${API_URL}${API_PREFIX}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+const fetchApi = async <T>(url: string, options?: RequestInit): Promise<T> => {
+  const response = await fetch(`${API_URL}${url}`, {
     ...options,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options?.headers as Record<string, string>),
+    },
   });
-  if (!res.ok) throw new Error(`API error: ${res.status}`);
-  return res.json();
-}
+
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+
+  if (response.status === 204 || response.headers.get('content-length') === '0') {
+    return undefined as T;
+  }
+
+  const text = await response.text();
+  return text ? JSON.parse(text) : (undefined as T);
+};
+export default fetchApi;

@@ -52,9 +52,16 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     onClose();
   };
 
-  const handleRemoveMember = () => {
+  const handleRemoveMember = async () => {
     if (member === undefined) return;
-    removeMember(member.id);
+    try {
+      await removeMember(member.id);
+      toast.success(`${member.name} 회원이 삭제되었습니다.`);
+      onClose();
+    } catch (e) {
+      console.error(e);
+      toast.error('회원 삭제에 실패햇습니다.');
+    }
   };
 
   return (
@@ -145,7 +152,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
           <Popover>
             <PopoverTrigger asChild>
               <button
-                className="w-6 h-6 rounded-full border-0"
+                className="w-6 h-6 rounded-full border border-surface-accent"
                 style={{ backgroundColor: form?.color }}
               />
             </PopoverTrigger>

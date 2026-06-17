@@ -67,7 +67,14 @@ export default function MembersPage() {
   ];
 
   const functionButtons: ButtonItem[] = [
-    { text: '회원 추가', onClick: () => setIsModalOpen(true), icon: <IconUserPlus stroke={2} /> },
+    {
+      text: '회원 추가',
+      onClick: () => {
+        setSelectedMember(undefined);
+        setIsModalOpen(true);
+      },
+      icon: <IconUserPlus stroke={2} />,
+    },
     {
       text: '티켓 균등 배분',
       icon: <IconTicket stroke={2} />,
