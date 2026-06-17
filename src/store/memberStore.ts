@@ -1,11 +1,13 @@
 import type { CreateMemberRequest, Member } from '@/types/member.ts';
 import { create } from 'zustand/react';
-import { mockMembers } from '@/mocks/members.ts';
 import useFloorStore from '@/store/floorStore.ts';
 import type { Section } from '@/types';
+import { fetchApi } from '@/lib/api.ts';
 
 interface MemberStore {
   members: Member[];
+  fetchMembers: () => Promise<void>;
+
   getMemberAssignedTicketsByMemberId: (id: number) => number;
   getMemberRemainTicketsByMemberId: (id: number) => number;
 
@@ -20,7 +22,11 @@ interface MemberStore {
 }
 
 const useMemberStore = create<MemberStore>((set, get) => ({
-  members: mockMembers,
+  members: [],
+  fetchMembers: async () => {
+    const members = await fetchApi<Member[]>('/members');
+    set({ members });
+  },
 
   // 배정된 좌석수: seat에 배정된 회원수 id length
   getMemberAssignedTicketsByMemberId: (memberId) =>
