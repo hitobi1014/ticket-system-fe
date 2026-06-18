@@ -1,4 +1,4 @@
-import type { Floor, Section, Seat, Venue, Rows } from '@/types';
+import type { Floor, Rows, Seat, Section } from '@/types';
 import { mockMembers } from '@/mocks/members.ts';
 
 function buildMemberSeatMap(): Map<number, number> {

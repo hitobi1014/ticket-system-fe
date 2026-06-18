@@ -6,13 +6,20 @@ import * as React from 'react';
 import { useEffect } from 'react';
 import PageHeader from '@/components/common/PageHeader.tsx';
 import useFloorStore from '@/store/floorStore.ts';
+import useMemberStore from '@/store/memberStore.ts';
 
 export default function Layout() {
   const matches = useMatches();
-  const { fetchVenue } = useFloorStore();
+  const { fetchVenue, fetchFloor } = useFloorStore();
+  const { fetchMembers } = useMemberStore();
 
   useEffect(() => {
-    fetchVenue();
+    const fetch = async () => {
+      await fetchVenue();
+      await fetchMembers();
+      await fetchFloor();
+    };
+    fetch();
   }, []);
   const currentHandle = matches[matches.length - 1]?.handle as
     | {

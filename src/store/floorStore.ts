@@ -12,7 +12,6 @@ import type {
 
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
-import { mockFloors } from '@/mocks/seatData.ts';
 import fetchApi from '@/lib/api.ts';
 
 interface AddSectionWithRowsRequest {
@@ -27,11 +26,14 @@ interface FloorStore {
   venue: Venue | null;
   isLoading: boolean;
 
+  // ====== Venue ======
   fetchVenue: () => Promise<void>; // 최초 렌더링시 1회만 호출용
   getTotalSeatCount: () => number; // 총 좌석
   getRemainSeatCount: () => number; // 전체 남은 좌석
   getAssignedSeatCount: () => number; // 배정된 좌석
 
+  // ====== Floor ======
+  fetchFloor: () => Promise<void>;
   addFloor: (req: CreateFloorRequest) => void;
   removeFloor: (id: number) => void;
 
@@ -54,14 +56,15 @@ interface FloorStore {
 
 const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
-    // floors: [],
-    floors: mockFloors,
+    floors: [],
+    // floors: mockFloors,
     venue: null,
     isLoading: false,
 
+    // ====== Venue ======
     fetchVenue: async () => {
       set({ isLoading: true });
-      const data = (await fetchApi('/venue/first')) as Venue;
+      const data = await fetchApi<Venue>('/venue/first');
       set({
         venue: data,
         isLoading: false,
@@ -89,6 +92,13 @@ const useFloorStore = create<FloorStore>()(
         .flatMap((s) => s.rows)
         .flatMap((r) => r.seats)
         .filter((seat) => seat.assignedMemberId !== undefined).length,
+
+    // ====== Venue ======
+
+    fetchFloor: async () => {
+      const floors = await fetchApi<Floor[]>('/floors');
+      set({ floors });
+    },
 
     addFloor: (req) =>
       set(

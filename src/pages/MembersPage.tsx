@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import useFloorStore from '@/store/floorStore.ts';
 import { type Member } from '@/types/member.ts';
@@ -35,7 +35,6 @@ export default function MembersPage() {
   const {
     members,
     isLoading,
-    fetchMembers,
     getMemberAssignedTicketsByMemberId,
     getMemberRemainTicketsByMemberId,
     distributeTickets,
@@ -44,10 +43,6 @@ export default function MembersPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
-
-  useEffect(() => {
-    fetchMembers();
-  }, []);
 
   // const totalAllocated = members.reduce((sum, m) => sum + m.allocatedTickets, 0);
   // const remainingTickets = VENUE.totalSeats - totalAllocated;
