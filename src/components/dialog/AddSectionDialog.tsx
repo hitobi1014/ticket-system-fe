@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/select.tsx';
 import { clsx } from 'clsx';
 import useFloorStore from '@/store/floorStore.ts';
-import type { Section } from '@/types';
 
 interface Props {
   floorId: number;
@@ -460,17 +459,15 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
               ) : (
                 <Button
                   variant="dialog"
-                  onClick={() => {
+                  onClick={async () => {
                     // 최대 Section ID 계산
-                    const maxSectionId = floors
-                      .flatMap((f) => f.rows.flatMap((r) => r.items))
-                      .filter((item): item is Section => item.kind === 'section')
-                      .reduce((max, section) => Math.max(max, section.id), 0);
-
-                    addSectionWithRows(floorId, {
-                      sectionId: maxSectionId + 1,
+                    // const maxSectionId = floors
+                    //   .flatMap((f) => f.rows.flatMap((r) => r.items))
+                    //   .filter((item): item is Section => item.kind === 'section')
+                    //   .reduce((max, section) => Math.max(max, section.id), 0);
+                    await addSectionWithRows(floorId, {
                       sectionName,
-                      rowConfigs,
+                      rowConfig: rowConfigs,
                       targetRowIndex: selectRow,
                     });
 

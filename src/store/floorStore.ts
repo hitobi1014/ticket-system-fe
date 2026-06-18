@@ -15,9 +15,8 @@ import { devtools } from 'zustand/middleware';
 import fetchApi from '@/lib/api.ts';
 
 interface AddSectionWithRowsRequest {
-  sectionId: number;
   sectionName: string;
-  rowConfigs: { name: string; seatCount: number }[];
+  rowConfig: { name: string; seatCount: number }[];
   targetRowIndex: number | 'new'; // FloorRow 인덱스 또는 'new'
 }
 
@@ -37,8 +36,9 @@ interface FloorStore {
   addFloor: (req: CreateFloorRequest) => Promise<Floor>;
   removeFloor: (id: number) => Promise<void>;
 
-  addSection: (floorId: number, req: CreateSectionRequest) => void;
-  addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => void;
+  // TODO 초기 사용하던 함수 미사용 삭제 예정
+  addSection: (floorId: number, req: CreateSectionRequest) => Promise<void>;
+  addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => Promise<void>;
   removeSection: (sectionId: number) => void;
 
   addAisle: (floorId: number, afterSectionId: number, req: CreateAisleRequest) => void;
@@ -53,6 +53,8 @@ interface FloorStore {
   assignSeat: (seatIds: Set<number>, memberId: number) => void;
   unAssignSeat: (seatId: number) => void;
 }
+
+const FLOOR_API_PREFIX = '/floors';
 
 const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
@@ -96,12 +98,12 @@ const useFloorStore = create<FloorStore>()(
     // ====== Venue ======
 
     fetchFloor: async () => {
-      const floors = await fetchApi<Floor[]>('/floors');
+      const floors = await fetchApi<Floor[]>(`${FLOOR_API_PREFIX}`);
       set({ floors });
     },
 
     addFloor: async (req) => {
-      const floor = await fetchApi<Floor>('/floors', {
+      const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}`, {
         method: 'POST',
         body: JSON.stringify(req),
       });
@@ -118,7 +120,7 @@ const useFloorStore = create<FloorStore>()(
     },
 
     removeFloor: async (id) => {
-      await fetchApi(`/floors/${id}`, {
+      await fetchApi(`${FLOOR_API_PREFIX}${id}`, {
         method: 'DELETE',
       });
       set(
@@ -132,103 +134,97 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addSection: (floorId, req) =>
-      set(
-        (state) => ({
-          floors: state.floors.map((f) => {
-            if (f.id !== floorId) return f;
+    addSection: async (floorId, req) => {
+      const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/sections`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
 
-            const newSection: Section = {
-              kind: 'section',
-              ...req,
-              rows: [],
-            };
+      set((state) => ({
+        floors: [...state.floors, floor],
+      }));
+    },
 
-            // 첫 번째 FloorRow에 추가 (없으면 새로 생성)
-            if (f.rows.length === 0) {
-              return { ...f, rows: [{ id: 1, items: [newSection] }] };
-            }
-            return {
-              ...f,
-              rows: f.rows.map((floorRow, idx) =>
-                idx === 0 ? { ...floorRow, items: [...floorRow.items, newSection] } : floorRow,
-              ),
-            };
-          }),
-        }),
-        undefined,
-        'addSection',
-      ),
+    addSectionWithRows: async (floorId, req) => {
+      // floors/:floorId/sections-with-rows
+      const result = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/sections-with-rows`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
 
-    addSectionWithRows: (floorId, req) =>
-      set(
-        (state) => {
-          // 1. 최대 row ID, seat ID 계산
-          const maxRowId = state.floors
-            .flatMap((f) => f.rows.flatMap((r) => r.items))
-            .filter((item): item is Section => item.kind === 'section')
-            .flatMap((s) => s.rows)
-            .reduce((max, row) => Math.max(max, row.id), 0);
+      set((state) => ({
+        floors: [...state.floors, result],
+      }));
 
-          const maxSeatId = state.floors
-            .flatMap((f) => f.rows.flatMap((r) => r.items))
-            .filter((item): item is Section => item.kind === 'section')
-            .flatMap((s) => s.rows)
-            .flatMap((r) => r.seats)
-            .reduce((max, seat) => Math.max(max, seat.id), 0);
-
-          let currentRowId = maxRowId + 1;
-          let currentSeatId = maxSeatId + 1;
-
-          // 2. rowConfigs를 기반으로 Rows[] 생성 (각 Row에 Seat[] 포함)
-          const newRows = req.rowConfigs.map((config) => ({
-            id: currentRowId++,
-            rowName: config.name,
-            seats: Array.from({ length: config.seatCount }, (_, i) => ({
-              id: currentSeatId++,
-              seatNumber: i + 1,
-              visible: true,
-            })),
-          }));
-
-          // 3. Section 객체 생성
-          const newSection: Section = {
-            kind: 'section',
-            id: req.sectionId,
-            name: req.sectionName,
-            rows: newRows,
-          };
-
-          // 4. targetRowIndex에 따라 처리
-          return {
-            floors: state.floors.map((f) => {
-              if (f.id !== floorId) return f;
-
-              // 새 FloorRow 생성
-              if (req.targetRowIndex === 'new') {
-                const maxFloorRowId =
-                  f.rows.reduce((max, floorRow) => Math.max(max, floorRow.id), 0) + 1;
-                return {
-                  ...f,
-                  rows: [...f.rows, { id: maxFloorRowId, items: [newSection] }],
-                };
-              }
-
-              // 기존 FloorRow의 items 배열 맨 뒤에 추가
-              return {
-                ...f,
-                rows: f.rows.map((floorRow, idx) =>
-                  idx === req.targetRowIndex
-                    ? { ...floorRow, items: [...floorRow.items, newSection] }
-                    : floorRow,
-                ),
-              };
-            }),
-          };
-        },
-        undefined,
-        'addSectionWithRows',
-      ),
+      // set(
+      //   (state) => {
+      //     // 1. 최대 row ID, seat ID 계산
+      //     const maxRowId = state.floors
+      //       .flatMap((f) => f.rows.flatMap((r) => r.items))
+      //       .filter((item): item is Section => item.kind === 'section')
+      //       .flatMap((s) => s.rows)
+      //       .reduce((max, row) => Math.max(max, row.id), 0);
+      //
+      //     const maxSeatId = state.floors
+      //       .flatMap((f) => f.rows.flatMap((r) => r.items))
+      //       .filter((item): item is Section => item.kind === 'section')
+      //       .flatMap((s) => s.rows)
+      //       .flatMap((r) => r.seats)
+      //       .reduce((max, seat) => Math.max(max, seat.id), 0);
+      //
+      //     let currentRowId = maxRowId + 1;
+      //     let currentSeatId = maxSeatId + 1;
+      //
+      //     // 2. rowConfigs를 기반으로 Rows[] 생성 (각 Row에 Seat[] 포함)
+      //     const newRows = req.rowConfigs.map((config) => ({
+      //       id: currentRowId++,
+      //       rowName: config.name,
+      //       seats: Array.from({ length: config.seatCount }, (_, i) => ({
+      //         id: currentSeatId++,
+      //         seatNumber: i + 1,
+      //         visible: true,
+      //       })),
+      //     }));
+      //
+      //     // 3. Section 객체 생성
+      //     const newSection: Section = {
+      //       kind: 'section',
+      //       id: req.sectionId,
+      //       name: req.sectionName,
+      //       rows: newRows,
+      //     };
+      //
+      //     // 4. targetRowIndex에 따라 처리
+      //     return {
+      //       floors: state.floors.map((f) => {
+      //         if (f.id !== floorId) return f;
+      //
+      //         // 새 FloorRow 생성
+      //         if (req.targetRowIndex === 'new') {
+      //           const maxFloorRowId =
+      //             f.rows.reduce((max, floorRow) => Math.max(max, floorRow.id), 0) + 1;
+      //           return {
+      //             ...f,
+      //             rows: [...f.rows, { id: maxFloorRowId, items: [newSection] }],
+      //           };
+      //         }
+      //
+      //         // 기존 FloorRow의 items 배열 맨 뒤에 추가
+      //         return {
+      //           ...f,
+      //           rows: f.rows.map((floorRow, idx) =>
+      //             idx === req.targetRowIndex
+      //               ? { ...floorRow, items: [...floorRow.items, newSection] }
+      //               : floorRow,
+      //           ),
+      //         };
+      //       }),
+      //     };
+      //   },
+      //   undefined,
+      //   'addSectionWithRows',
+      // ),
+    },
 
     removeSection: (sectionId) =>
       set(

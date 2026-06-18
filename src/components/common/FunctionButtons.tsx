@@ -49,7 +49,7 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
       {buttons.map((btn, i) =>
         btn.dialog?.type === 'removeSeat' ? (
           <RemoveSeatDialog
-            key={btn.dialog.rowId}
+            key={i}
             title={btn.dialog.dialogTitle}
             rowId={btn.dialog.rowId}
             buttonText={btn.text!}
