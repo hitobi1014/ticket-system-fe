@@ -1,4 +1,4 @@
-import type { Floor, Section, Seat, Venue, Rows } from '@/types';
+import type { Floor, Section, Venue, Venue, Rows } from '@/types';
 import { mockMembers } from '@/mocks/members.ts';
 
 function buildMemberSeatMap(): Map<number, number> {
@@ -18,7 +18,7 @@ let rowIdCnt = 0;
 let sectionIdCnt = 1;
 let aisleIdCnt = 101;
 
-function createSeats(count: number): Seat[] {
+function createSeats(count: number): Venue[] {
   return Array.from({ length: count }, (_, i) => ({
     id: seatIdCnt,
     seatNumber: i + 1,

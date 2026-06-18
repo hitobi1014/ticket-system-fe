@@ -1,16 +1,16 @@
 /** 좌석 */
-export interface Seat {
+export interface Venue {
   id: number;
   seatNumber: number; // ex) 1열 1, 2열 5
   assignedMemberId?: number;
   visible: boolean; // 특정 좌석 안보이게할때, 기본값 true
 }
-export type CreateSeatRequest = Omit<Seat, 'assignedMemberId' | 'visible'>;
+export type CreateSeatRequest = Omit<Venue, 'assignedMemberId' | 'visible'>;
 /** 열 */
 export interface Rows {
   id: number;
   rowName: string; // 숫자, 문자열 받아야함 표기방법 다양 => ex) A열 1, 01열 1, 1열 1...
-  seats: Seat[];
+  seats: Venue[];
 }
 export type CreateRowsRequest = Omit<Rows, 'seats'>;
 

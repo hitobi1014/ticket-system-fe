@@ -148,7 +148,7 @@ const useFloorStore = create<FloorStore>()(
           let currentRowId = maxRowId + 1;
           let currentSeatId = maxSeatId + 1;
 
-          // 2. rowConfigs를 기반으로 Rows[] 생성 (각 Row에 Seat[] 포함)
+          // 2. rowConfigs를 기반으로 Rows[] 생성 (각 Row에 Venue[] 포함)
           const newRows = req.rowConfigs.map((config) => ({
             id: currentRowId++,
             rowName: config.name,
