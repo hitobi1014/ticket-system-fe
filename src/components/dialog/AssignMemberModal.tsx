@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
 import { findSeatContext, getAssignableMember } from '@/lib/seatUtils.ts';
-import type { Floor, Member, Rows, Venue, Section } from '@/types';
+import type { Floor, Member, Rows, Seat, Section } from '@/types';
 import { clsx } from 'clsx';
 import { TriangleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -38,7 +38,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   };
 
   const formatSeatLabel = (
-    ctx: { floor: Floor; section: Section; row: Rows; seat: Venue },
+    ctx: { floor: Floor; section: Section; row: Rows; seat: Seat },
     memberName?: string | null,
   ): string => {
     const base = `${ctx.floor.name}﹒${ctx.section.name}﹒${ctx.row.rowName}열﹒${ctx.seat.seatNumber}번`;
