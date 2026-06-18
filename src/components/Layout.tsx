@@ -3,10 +3,17 @@ import { Toaster } from '@/components/ui/sonner.tsx';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import * as React from 'react';
+import { useEffect } from 'react';
 import PageHeader from '@/components/common/PageHeader.tsx';
+import useFloorStore from '@/store/floorStore.ts';
 
 export default function Layout() {
   const matches = useMatches();
+  const { fetchVenue } = useFloorStore();
+
+  useEffect(() => {
+    fetchVenue();
+  }, []);
   const currentHandle = matches[matches.length - 1]?.handle as
     | {
         title: string;

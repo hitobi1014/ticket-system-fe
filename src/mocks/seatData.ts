@@ -160,11 +160,3 @@ export const mockFloors: Floor[] = [
     ],
   },
 ];
-
-export const mockVenueConfig: Venue = {
-  id: 1,
-  name: '상명아트센터 계당홀',
-  floors: mockFloors,
-  createdAt: '2024-01-01T00:00:00.000Z',
-  updatedAt: '2024-01-01T00:00:00.000Z',
-};

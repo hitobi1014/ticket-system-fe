@@ -43,7 +43,6 @@ export default function MembersPage() {
 
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
 
-  // TODO useEffect 비동기?
   useEffect(() => {
     fetchMembers();
   }, []);
@@ -52,7 +51,7 @@ export default function MembersPage() {
   // const remainingTickets = VENUE.totalSeats - totalAllocated;
 
   const memberInfoCards: MemberInfoCardProps[] = [
-    { title: '총 좌석', boldText: useFloorStore.getState().getTotalSeatCount(), textPostFix: '석' },
+    { title: '총 좌석', boldText: getTotalSeatCount(), textPostFix: '석' },
     {
       title: '잔여 좌석 ',
       boldText: useFloorStore.getState().getRemainSeatCount(),

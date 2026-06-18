@@ -7,12 +7,13 @@ import type {
   CreateSectionRequest,
   Floor,
   Section,
+  Venue,
 } from '@/types';
 
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
 import { mockFloors } from '@/mocks/seatData.ts';
-import { VENUE } from '@/constant/venue.ts';
+import fetchApi from '@/lib/api.ts';
 
 interface AddSectionWithRowsRequest {
   sectionId: number;
@@ -23,6 +24,10 @@ interface AddSectionWithRowsRequest {
 
 interface FloorStore {
   floors: Floor[];
+  venue: Venue | null;
+  isLoading: boolean;
+
+  fetchVenue: () => Promise<void>; // 최초 렌더링시 1회만 호출용
   getTotalSeatCount: () => number; // 총 좌석
   getRemainSeatCount: () => number; // 전체 남은 좌석
   getAssignedSeatCount: () => number; // 배정된 좌석
@@ -51,14 +56,19 @@ const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
     // floors: [],
     floors: mockFloors,
+    venue: null,
+    isLoading: false,
 
-    getTotalSeatCount: () => VENUE.totalSeats,
-    // get()
-    //   .floors.flatMap((f) => f.items)
-    //   .filter((item): item is Section => item.kind === 'section')
-    //   .flatMap((s) => s.rows)
-    //   .flatMap((r) => r.seats).length,
+    fetchVenue: async () => {
+      set({ isLoading: true });
+      const data = (await fetchApi('/venue/first')) as Venue;
+      set({
+        venue: data,
+        isLoading: false,
+      });
+    },
 
+    getTotalSeatCount: () => get().venue?.totalSeats ?? 0,
     // 총 좌석 - 회원 할당된 좌석
     getRemainSeatCount: () => {
       const totalSeatCount = get().getTotalSeatCount();
