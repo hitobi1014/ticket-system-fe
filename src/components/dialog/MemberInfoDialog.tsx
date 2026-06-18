@@ -42,7 +42,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   const handleSave = async () => {
     let msg;
     if (isEditMode) {
-      updateMember(member.id, form);
+      await updateMember(member.id, form);
       msg = `${form.name}님 회원 정보 수정을 성공했습니다.`;
     } else {
       await addMember(form);

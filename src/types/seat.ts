@@ -52,7 +52,7 @@ export type CreateFloorRequest = Omit<Floor, 'rows'>;
 // =====================
 
 /** 공연장 설정 (전체 좌석 구조) */
-export interface VenueConfig {
+export interface Venue {
   id: number;
   name: string; // 공연장 이름
   floors: Floor[]; // 층 배열

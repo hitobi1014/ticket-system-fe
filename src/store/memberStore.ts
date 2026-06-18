@@ -12,11 +12,11 @@ interface MemberStore {
   getMemberRemainTicketsByMemberId: (id: number) => number;
 
   addMember: (req: CreateMemberRequest) => Promise<void>;
-  updateMember: (id: number, req: CreateMemberRequest) => void;
+  updateMember: (id: number, req: CreateMemberRequest) => Promise<void>;
   removeMember: (id: number) => Promise<void>;
 
   updateTickets: (id: number, tickets: number) => void;
-  distributeTickets: () => void;
+  distributeTickets: () => Promise<void>;
 
   updateMemberColor: (id: number, color: string) => void;
 }
@@ -55,18 +55,17 @@ const useMemberStore = create<MemberStore>((set, get) => ({
     set((state) => ({
       members: [...state.members, newMember],
     }));
-    // set((state) => {
-    // const maxId = state.members.reduce((max, m) => Math.max(max, m.id ?? 0), 0);
-    //     return {
-    //       members: [...state.members, { ...req, id: maxId + 1 }],
-    //     };
-    //   }),
   },
 
-  updateMember: (id, req) =>
+  updateMember: async (id, req) => {
+    await fetchApi<void>(`${memberURIPrefix}/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(req),
+    });
     set((state) => ({
       members: state.members.map((m) => (m.id === id ? { ...m, ...req } : m)),
-    })),
+    }));
+  },
 
   removeMember: async (id) => {
     await fetchApi<void>(`${memberURIPrefix}/${id}`, {
@@ -86,21 +85,15 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       members: state.members.map((m) => (m.id === id ? { ...m, allocatedTickets: tickets } : m)),
     })),
 
-  distributeTickets: () =>
-    set((state) => {
-      const memberCount = state.members.length;
-      if (memberCount === 0) return state;
+  distributeTickets: async () => {
+    await fetchApi<void>(`${memberURIPrefix}/distribute`, {
+      method: 'POST',
+    });
 
-      const totalSeats = useFloorStore.getState().getTotalSeatCount();
-      const perMember = Math.floor(totalSeats / memberCount);
-
-      return {
-        members: state.members.map((m) => ({
-          ...m,
-          allocatedTickets: perMember,
-        })),
-      };
-    }),
+    // 배분 후 최신 목록 재조회
+    const members = await fetchApi<Member[]>(memberURIPrefix);
+    set({ members }, undefined);
+  },
 
   updateMemberColor: (id, color) =>
     set((state) => ({

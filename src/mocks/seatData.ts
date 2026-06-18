@@ -1,4 +1,4 @@
-import type { Floor, Section, Seat, VenueConfig, Rows } from '@/types';
+import type { Floor, Section, Seat, Venue, Rows } from '@/types';
 import { mockMembers } from '@/mocks/members.ts';
 
 function buildMemberSeatMap(): Map<number, number> {
@@ -161,7 +161,7 @@ export const mockFloors: Floor[] = [
   },
 ];
 
-export const mockVenueConfig: VenueConfig = {
+export const mockVenueConfig: Venue = {
   id: 1,
   name: '상명아트센터 계당홀',
   floors: mockFloors,
