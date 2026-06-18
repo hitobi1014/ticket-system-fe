@@ -6,8 +6,9 @@ import fetchApi from '@/lib/api.ts';
 
 interface MemberStore {
   members: Member[];
-  fetchMembers: () => Promise<void>;
+  isLoading: boolean;
 
+  fetchMembers: () => Promise<void>;
   getMemberAssignedTicketsByMemberId: (id: number) => number;
   getMemberRemainTicketsByMemberId: (id: number) => number;
 
@@ -25,9 +26,12 @@ const memberURIPrefix = '/members';
 
 const useMemberStore = create<MemberStore>((set, get) => ({
   members: [],
+  isLoading: false,
+
   fetchMembers: async () => {
+    set({ isLoading: true });
     const members = await fetchApi<Member[]>(memberURIPrefix);
-    set({ members });
+    set({ members, isLoading: false });
   },
 
   // 배정된 좌석수: seat에 배정된 회원수 id length

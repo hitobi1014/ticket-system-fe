@@ -19,6 +19,7 @@ import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/Me
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 import type { ButtonItem } from '@/types/index';
+import AppSpinner from '@/components/common/AppSpinner.tsx';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -33,6 +34,7 @@ const TABLE_HEADS = ['이름', '악기', '배정 티켓', '잔여 티켓', '배�
 export default function MembersPage() {
   const {
     members,
+    isLoading,
     fetchMembers,
     getMemberAssignedTicketsByMemberId,
     getMemberRemainTicketsByMemberId,
@@ -81,6 +83,10 @@ export default function MembersPage() {
       disabled: members.length === 0 || getTotalSeatCount() === 0,
     },
   ];
+
+  if (isLoading) {
+    return <AppSpinner text="로딩중" />;
+  }
 
   return (
     <div className="flex flex-col h-full overflow-hidden gap-y-4">
