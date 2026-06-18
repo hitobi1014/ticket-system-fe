@@ -34,8 +34,8 @@ interface FloorStore {
 
   // ====== Floor ======
   fetchFloor: () => Promise<void>;
-  addFloor: (req: CreateFloorRequest) => void;
-  removeFloor: (id: number) => void;
+  addFloor: (req: CreateFloorRequest) => Promise<Floor>;
+  removeFloor: (id: number) => Promise<void>;
 
   addSection: (floorId: number, req: CreateSectionRequest) => void;
   addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => void;
@@ -100,16 +100,27 @@ const useFloorStore = create<FloorStore>()(
       set({ floors });
     },
 
-    addFloor: (req) =>
+    addFloor: async (req) => {
+      const floor = await fetchApi<Floor>('/floors', {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+
       set(
         (state) => ({
-          floors: [...state.floors, { ...req, rows: [] }],
+          floors: [...state.floors, floor],
         }),
         undefined,
         'addFloor',
-      ),
+      );
 
-    removeFloor: (id) =>
+      return floor;
+    },
+
+    removeFloor: async (id) => {
+      await fetchApi(`/floors/${id}`, {
+        method: 'DELETE',
+      });
       set(
         (state) => {
           return {
@@ -118,7 +129,8 @@ const useFloorStore = create<FloorStore>()(
         },
         undefined,
         'removeFloor',
-      ),
+      );
+    },
 
     addSection: (floorId, req) =>
       set(

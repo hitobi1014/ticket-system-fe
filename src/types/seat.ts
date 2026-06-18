@@ -44,8 +44,8 @@ export interface Floor {
   rows: FloorRow[]; // 해당 층의 구역 배열,  좌>우 배치 순서
 }
 
-// 생성 요청용 id x
-export type CreateFloorRequest = Omit<Floor, 'rows'>;
+// 생성 요청용
+export type CreateFloorRequest = Omit<Floor, 'id' | 'rows'>;
 
 // =====================
 // 추가 타입

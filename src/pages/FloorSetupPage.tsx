@@ -8,6 +8,7 @@ import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import { toast } from 'sonner';
 
 export default function FloorSetupPage() {
   const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
@@ -26,23 +27,22 @@ export default function FloorSetupPage() {
       .filter((item): item is Section => item.kind === 'section')
       .find((x) => x.id === selectedSectionId) ?? null;
 
-  const handleAddFloor = () => {
+  const handleAddFloor = async () => {
     const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
     if (!name?.trim()) return;
-    const newId = floors.reduce((max, f) => Math.max(max, f.id), 0) + 1;
     const req: CreateFloorRequest = {
-      id: newId,
       name: name.trim(),
     };
-    addFloor(req);
-    setSelectedFloorId(req.id);
+    const savedFloor = await addFloor(req);
+    setSelectedFloorId(savedFloor.id);
   };
 
-  const handleRemoveFloor = () => {
+  const handleRemoveFloor = async () => {
     // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
     if (selectedFloorId == null) return;
-    removeFloor(selectedFloorId);
+    await removeFloor(selectedFloorId);
 
+    toast('층 삭제 성공했습니다.');
     // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
     const remaining = floors.filter((f) => f.id !== selectedFloorId);
     setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
@@ -202,9 +202,9 @@ export default function FloorSetupPage() {
             <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto no-scrollbar px-2">
               {floor.rows.map((floorRow) => (
                 <div key={floorRow.id} className="flex gap-x-4">
-                  {floorRow.items.map((item) => (
+                  {floorRow.items.map((item, idx) => (
                     <SectionCard
-                      key={item.id}
+                      key={idx}
                       item={item}
                       selectedSectionId={selectedSectionId}
                       selectedAisleId={selectedAisleId}
