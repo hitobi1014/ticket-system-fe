@@ -126,9 +126,9 @@ export default function FloorSetupPage() {
       >
         {/* 1층 탭바 */}
         <TabsList className="bg-transparent flex gap-x-2">
-          {floors.map((floor, idx) => (
+          {floors.map((floor) => (
             <TabsTrigger
-              key={idx}
+              key={floor.id}
               value={String(floor.id)}
               className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
               hover:text-amber-300
@@ -144,9 +144,9 @@ export default function FloorSetupPage() {
         </TabsList>
 
         {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
-        {floors.map((floor, idx) => (
+        {floors.map((floor) => (
           <TabsContent
-            key={idx}
+            key={floor.id}
             value={String(floor.id)}
             className="flex flex-col flex-1 overflow-hidden p-0"
           >
@@ -202,9 +202,9 @@ export default function FloorSetupPage() {
             <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto no-scrollbar px-2">
               {floor.rows.map((floorRow) => (
                 <div key={floorRow.id} className="flex gap-x-4">
-                  {floorRow.items.map((item, idx) => (
+                  {floorRow.items.map((item) => (
                     <SectionCard
-                      key={idx}
+                      key={item.id}
                       item={item}
                       selectedSectionId={selectedSectionId}
                       selectedAisleId={selectedAisleId}
