@@ -34,6 +34,7 @@ export type FloorItem = Section | Aisle;
 
 export interface FloorRow {
   id: number;
+  order: number;
   items: FloorItem[];
 }
 

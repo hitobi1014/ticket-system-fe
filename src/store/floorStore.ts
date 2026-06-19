@@ -17,7 +17,7 @@ import fetchApi from '@/lib/api.ts';
 interface AddSectionWithRowsRequest {
   sectionName: string;
   rowConfig: { name: string; seatCount: number }[];
-  targetRowIndex: number | 'new'; // FloorRow 인덱스 또는 'new'
+  targetFloorRowId: number | 'new'; // FloorRow 인덱스 또는 'new'
 }
 
 interface FloorStore {
@@ -153,7 +153,7 @@ const useFloorStore = create<FloorStore>()(
       });
 
       set((state) => ({
-        floors: [...state.floors, result],
+        floors: state.floors.map((f) => (f.id === result.id ? result : f)),
       }));
 
       // set(

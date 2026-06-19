@@ -58,7 +58,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [bulkCount, setBulkCount] = useState(1);
-  const [selectRow, setSelectRow] = useState<number | 'new'>('new');
+  const [selectRowId, setSelectRowId] = useState<number | 'new'>('new');
 
   // 1단계 상태
   const [sectionName, setSectionName] = useState('');
@@ -197,8 +197,10 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                 <Field className="max-w-sm">
                   <FieldLabel htmlFor="section-row">배치 열</FieldLabel>
                   <Select
-                    value={selectRow === 'new' ? 'new' : String(selectRow)}
-                    onValueChange={(v) => setSelectRow(v === 'new' ? 'new' : Number(v))}
+                    value={selectRowId === 'new' ? 'new' : String(selectRowId)}
+                    onValueChange={(v) => {
+                      setSelectRowId(v === 'new' ? 'new' : Number(v));
+                    }}
                   >
                     <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
                       <SelectValue placeholder="new" />
@@ -208,9 +210,10 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                         <SelectItem value="new">새 열 추가</SelectItem>
                         {floors
                           .find((f) => f.id === floorId)
-                          ?.rows.map((_, i) => (
-                            <SelectItem key={i} value={String(i)}>
-                              {i + 1}열 (기존)
+                          ?.rows.map((r, i) => (
+                            // <SelectItem key={i} value={String(i)}>
+                            <SelectItem key={`${r.order}_${i}`} value={String(r.id)}>
+                              {r.order + 1}열 (기존)
                             </SelectItem>
                           ))}
                       </SelectGroup>
@@ -426,8 +429,6 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                       <IconPlus stroke={2} />
                     </Button>
                   </div>
-
-                  {/*TODO seat-input value 만큼 상자 그리기*/}
                   <div className="flex gap-x-1">{renderSeatBoxes(config.seatCount)}</div>
                 </div>
               ))}
@@ -460,15 +461,10 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                 <Button
                   variant="dialog"
                   onClick={async () => {
-                    // 최대 Section ID 계산
-                    // const maxSectionId = floors
-                    //   .flatMap((f) => f.rows.flatMap((r) => r.items))
-                    //   .filter((item): item is Section => item.kind === 'section')
-                    //   .reduce((max, section) => Math.max(max, section.id), 0);
                     await addSectionWithRows(floorId, {
                       sectionName,
                       rowConfig: rowConfigs,
-                      targetRowIndex: selectRow,
+                      targetFloorRowId: selectRowId,
                     });
 
                     onConfirm(); // 콜백 실행
