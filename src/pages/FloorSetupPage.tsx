@@ -1,6 +1,6 @@
 import useFloorStore from '../store/floorStore.ts';
 import { useState } from 'react';
-import type { Aisle, ButtonItem, CreateFloorRequest, Section } from '@/types';
+import type { Aisle, ButtonItem, CreateAisleRequest, CreateFloorRequest, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
@@ -26,6 +26,10 @@ export default function FloorSetupPage() {
       .flatMap((r) => r.items)
       .filter((item): item is Section => item.kind === 'section')
       .find((x) => x.id === selectedSectionId) ?? null;
+  const selectedFloorRow =
+    selectedFloor?.rows.find((r) =>
+      r.items.some((item) => item.kind === 'section' && item.id === selectedSectionId),
+    ) ?? null;
 
   const handleAddFloor = async () => {
     const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
@@ -62,19 +66,33 @@ export default function FloorSetupPage() {
     removeSection(findItem.id);
   };
 
-  const handleAddAisle = () => {
+  const handleAddAisle = async () => {
+    console.log('handleAddAisle 실행');
+    const floorRowId = selectedFloorRow?.id;
+
     if (selectedFloor == null) return;
     if (selectedSectionId === null) return;
+    if (floorRowId == null) return;
 
-    const maxAisleId = floors
-      .flatMap((f) => f.rows.flatMap((r) => r.items))
-      .filter((item): item is Aisle => item.kind === 'aisle')
-      .reduce((max, a) => Math.max(max, a.id), 0);
+    // todo  as-is 삭제대상
+    // const maxAisleId = floors
+    //   .flatMap((f) => f.rows.flatMap((r) => r.items))
+    //   .filter((item): item is Aisle => item.kind === 'aisle')
+    //   .reduce((max, a) => Math.max(max, a.id), 0);
 
-    addAisle(selectedFloor.id, selectedSectionId, {
-      kind: 'aisle',
-      id: maxAisleId + 1,
-    });
+    const req: CreateAisleRequest = {
+      label: '통로',
+      sectionId: selectedSectionId,
+      floorRowId: floorRowId,
+      direction: 'right', // TODO 화면에서 값 받아야함
+    };
+    await addAisle(selectedFloor.id, req);
+
+    // as-is
+    // addAisle(selectedFloor.id, selectedSectionId, {
+    //   kind: 'aisle',
+    //   id: maxAisleId + 1,
+    // });
   };
 
   const handleRemoveAisle = () => {
@@ -176,6 +194,7 @@ export default function FloorSetupPage() {
               </div>
               <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5 " />
               <div className="flex gap-x-2 justify-end">
+                {/*todo 버튼 2개 다이얼로그안에 어떻게 넣을지? footer context로?*/}
                 <AlertDialogCustom
                   variant="secondary"
                   size="base"

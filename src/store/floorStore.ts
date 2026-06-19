@@ -1,10 +1,8 @@
 import type {
-  Aisle,
   CreateAisleRequest,
   CreateFloorRequest,
   CreateRowsRequest,
   CreateSeatRequest,
-  CreateSectionRequest,
   Floor,
   Section,
   Venue,
@@ -40,16 +38,17 @@ interface FloorStore {
 
   // ====== Section ======
   syncSection: (floor: Floor) => void;
-  addSection: (floorId: number, req: CreateSectionRequest) => Promise<void>;
   addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => Promise<void>;
   removeSection: (sectionId: number) => void;
 
-  addAisle: (floorId: number, afterSectionId: number, req: CreateAisleRequest) => void;
-  removeAisle: (aisleId: number) => void;
+  addAisle: (floorId: number, req: CreateAisleRequest) => Promise<void>;
+  removeAisle: (aisleId: number) => Promise<void>;
 
-  addRow: (sectionId: number, req: CreateRowsRequest) => void;
+  // ====== Section - Row ======
+  addRow: (sectionId: number, req: CreateRowsRequest) => Promise<void>;
   removeRow: (rowId: number) => void;
 
+  // ====== Section - Row - Seat ======
   addSeat: (rowId: number, reqs: CreateSeatRequest[]) => void;
   removeSeat: (rowId: number, removeCount: number) => void;
 
@@ -59,6 +58,7 @@ interface FloorStore {
 
 const FLOOR_API_PREFIX = '/floors';
 const SECTION_API_PREFIX = '/sections';
+const AISLE_API_PREFIX = '/aisles';
 
 const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
@@ -138,17 +138,6 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addSection: async (floorId, req) => {
-      const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/sections`, {
-        method: 'POST',
-        body: JSON.stringify(req),
-      });
-
-      set((state) => ({
-        floors: [...state.floors, floor],
-      }));
-    },
-
     /**
      * 구역, 통로, 좌석 등 업데이트 이후 동기화
      * @param floor
@@ -191,34 +180,19 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addAisle: (floorId, afterSectionId, req) =>
-      set(
-        (state) => ({
-          floors: state.floors.map((f) => {
-            if (f.id !== floorId) return f;
+    addAisle: async (floorId, req) => {
+      const result = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/aisles`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      get().syncSection(result);
+    },
 
-            const newAisle: Aisle = { ...req };
-
-            return {
-              ...f,
-              rows: f.rows.map((floorRow) => {
-                const sectionIndex = floorRow.items.findIndex(
-                  (item) => item.kind === 'section' && item.id === afterSectionId,
-                );
-                if (sectionIndex === -1) return floorRow;
-
-                const newItems = [...floorRow.items];
-                newItems.splice(sectionIndex + 1, 0, newAisle);
-                return { ...floorRow, items: newItems };
-              }),
-            };
-          }),
-        }),
-        undefined,
-        'addAisle',
-      ),
-
-    removeAisle: (aisleId: number) =>
+    removeAisle: async (aisleId: number) => {
+      //aisles/:id
+      await fetchApi(`${AISLE_API_PREFIX}/${aisleId}`, {
+        method: 'DELETE',
+      });
       set(
         (state) => {
           return {
@@ -233,7 +207,8 @@ const useFloorStore = create<FloorStore>()(
         },
         undefined,
         'removeAisle',
-      ),
+      );
+    },
 
     addRow: (sectionId, req) =>
       set(

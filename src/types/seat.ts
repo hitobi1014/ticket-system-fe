@@ -28,12 +28,23 @@ export interface Aisle {
   kind: 'aisle';
   label?: string;
 }
-export type CreateAisleRequest = Aisle;
+export interface CreateAisleRequest {
+  label?: string;
+  sectionId: number; // 기준 section
+  floorRowId: number;
+  direction: 'left' | 'right'; // 해당 section 좌/우
+}
 
 export type FloorItem = Section | Aisle;
 
 export interface FloorRow {
   id: number;
+  /*
+     층에서 구역 열
+     1열 [VIP-A구역] [VIP-B구역] [일반B구역]
+     2열 [C구역]
+     3열 [D구역]
+   */
   order: number;
   items: FloorItem[];
 }
@@ -41,6 +52,7 @@ export interface FloorRow {
 /** 층 */
 export interface Floor {
   id: number;
+  // todo 얘도 순서 필요하면?
   name: string; // 층 이름 (1층, 2층 등)
   rows: FloorRow[]; // 해당 층의 구역 배열,  좌>우 배치 순서
 }
