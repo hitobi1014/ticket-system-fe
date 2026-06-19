@@ -170,11 +170,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         <AlertDialogCustom
           variant="dialog"
           size="sm"
-          dialogActionBtnText="확인"
           triggerText={'회원삭제'}
           title={'확인'}
           description={`[${form.name}]님을 목록에서 제거 하시겠습니까?`}
-          onConfirm={() => handleRemoveMember()}
+          actions={[{ text: '확인', onClick: () => handleRemoveMember() }]}
         />
         <div className="flex gap-2">
           <Button variant="dialog" onClick={() => onClose()}>

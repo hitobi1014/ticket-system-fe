@@ -13,14 +13,20 @@ import { Button, buttonVariants } from '@/components/ui/button.tsx';
 import * as React from 'react';
 import type { VariantProps } from 'class-variance-authority';
 
+export interface DialogAction {
+  text: string;
+  variant?: VariantProps<typeof buttonVariants>['variant'];
+  size?: VariantProps<typeof buttonVariants>['size'];
+  onClick: () => void;
+}
+
 interface Props {
   variant: VariantProps<typeof buttonVariants>['variant'];
   size: VariantProps<typeof buttonVariants>['size'];
   title: string;
   triggerText: string;
   description: string;
-  dialogActionBtnText: string;
-  onConfirm: () => void;
+  actions: DialogAction[];
   disabled?: boolean;
   icon?: React.ReactNode;
 }
@@ -32,8 +38,7 @@ export default function AlertDialogCustom({
   triggerText,
   title,
   description,
-  dialogActionBtnText,
-  onConfirm,
+  actions,
   disabled,
 }: Props) {
   return (
@@ -55,16 +60,19 @@ export default function AlertDialogCustom({
           <AlertDialogCancel variant={variant} size={size}>
             닫기
           </AlertDialogCancel>
-          <AlertDialogAction
-            variant={variant}
-            size={size}
-            onClick={(e) => {
-              e.stopPropagation();
-              onConfirm();
-            }}
-          >
-            {dialogActionBtnText ?? '확인'}
-          </AlertDialogAction>
+          {actions.map((action, i) => (
+            <AlertDialogAction
+              key={i}
+              variant={action.variant ?? variant}
+              size={action.size ?? size}
+              onClick={(e) => {
+                e.stopPropagation();
+                action.onClick();
+              }}
+            >
+              {action.text}
+            </AlertDialogAction>
+          ))}
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

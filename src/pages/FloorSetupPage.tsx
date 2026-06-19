@@ -66,33 +66,21 @@ export default function FloorSetupPage() {
     removeSection(findItem.id);
   };
 
-  const handleAddAisle = async () => {
-    console.log('handleAddAisle 실행');
+  // TODO 좌/우측 값 받기
+  const handleAddAisle = async (direction: 'left' | 'right') => {
     const floorRowId = selectedFloorRow?.id;
 
     if (selectedFloor == null) return;
     if (selectedSectionId === null) return;
     if (floorRowId == null) return;
 
-    // todo  as-is 삭제대상
-    // const maxAisleId = floors
-    //   .flatMap((f) => f.rows.flatMap((r) => r.items))
-    //   .filter((item): item is Aisle => item.kind === 'aisle')
-    //   .reduce((max, a) => Math.max(max, a.id), 0);
-
     const req: CreateAisleRequest = {
       label: '통로',
       sectionId: selectedSectionId,
       floorRowId: floorRowId,
-      direction: 'right', // TODO 화면에서 값 받아야함
+      direction: direction,
     };
     await addAisle(selectedFloor.id, req);
-
-    // as-is
-    // addAisle(selectedFloor.id, selectedSectionId, {
-    //   kind: 'aisle',
-    //   id: maxAisleId + 1,
-    // });
   };
 
   const handleRemoveAisle = () => {
@@ -123,8 +111,7 @@ export default function FloorSetupPage() {
         triggerText: '층 삭제',
         title: '층 삭제 확인',
         description: `선택한 층 [${selectedFloor?.name}]을 삭제하시겠습니까?`,
-        dialogActionBtnText: '삭제',
-        onConfirm: handleRemoveFloor,
+        actions: [{ text: '삭제', onClick: handleRemoveFloor }],
       },
     },
   ];
@@ -194,15 +181,16 @@ export default function FloorSetupPage() {
               </div>
               <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5 " />
               <div className="flex gap-x-2 justify-end">
-                {/*todo 버튼 2개 다이얼로그안에 어떻게 넣을지? footer context로?*/}
                 <AlertDialogCustom
                   variant="secondary"
                   size="base"
                   title="통로 추가"
                   triggerText="통로 추가"
-                  description={`선택한 [${selectedSection?.name}] 우측에 통로가 생성됩니다.`}
-                  dialogActionBtnText="확인"
-                  onConfirm={handleAddAisle}
+                  description={`선택한 [${selectedSection?.name}] 기준으로 통로를 추가합니다.`}
+                  actions={[
+                    { text: '← 좌측', onClick: () => handleAddAisle('left') },
+                    { text: '우측 →', onClick: () => handleAddAisle('right') },
+                  ]}
                   icon={<IconLayoutColumns stroke={2} />}
                   disabled={selectedSectionId === null}
                 />
@@ -218,7 +206,7 @@ export default function FloorSetupPage() {
             </div>
 
             {/* 구역 컨텐츠 시작: 구역/통로 */}
-            <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto no-scrollbar px-2">
+            <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto no-scrollbar pt-1 px-2">
               {floor.rows.map((floorRow) => (
                 <div key={floorRow.id} className="flex gap-x-4">
                   {floorRow.items.map((item) => (

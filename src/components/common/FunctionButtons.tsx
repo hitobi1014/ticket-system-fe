@@ -1,7 +1,7 @@
 import { Button, buttonVariants } from '@/components/ui/button.tsx';
 import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
-import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import AlertDialogCustom, { type DialogAction } from '@/components/dialog/AlertDialogCustom.tsx';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 
 export interface FunctionButtonsProps {
@@ -22,8 +22,7 @@ export interface ButtonItem {
     triggerText: string;
     title: string;
     description: string;
-    dialogActionBtnText: string;
-    onConfirm: () => void;
+    actions: DialogAction[];
   };
 
   dialog?: {
@@ -68,8 +67,7 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
             triggerText={btn.text!}
             title={btn.confirm.title}
             description={btn.confirm.description}
-            dialogActionBtnText={btn.confirm.dialogActionBtnText}
-            onConfirm={btn.confirm.onConfirm}
+            actions={btn.confirm.actions}
             disabled={btn.disabled}
             icon={btn.icon}
           />
