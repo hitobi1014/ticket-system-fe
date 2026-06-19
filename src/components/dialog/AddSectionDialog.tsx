@@ -28,6 +28,7 @@ import {
 } from '@/components/ui/select.tsx';
 import { clsx } from 'clsx';
 import useFloorStore from '@/store/floorStore.ts';
+import CustomSpinner from '@/components/common/CustomSpinner.tsx';
 
 interface Props {
   floorId: number;
@@ -59,6 +60,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
   const [step, setStep] = useState<1 | 2>(1);
   const [bulkCount, setBulkCount] = useState(1);
   const [selectRowId, setSelectRowId] = useState<number | 'new'>('new');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 1단계 상태
   const [sectionName, setSectionName] = useState('');
@@ -460,18 +462,29 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
               ) : (
                 <Button
                   variant="dialog"
+                  disabled={isSubmitting}
                   onClick={async () => {
-                    await addSectionWithRows(floorId, {
-                      sectionName,
-                      rowConfig: rowConfigs,
-                      targetFloorRowId: selectRowId,
-                    });
-
-                    onConfirm(); // 콜백 실행
-                    setOpen(false); // 다이얼로그 닫기
+                    setIsSubmitting(true);
+                    try {
+                      await addSectionWithRows(floorId, {
+                        sectionName,
+                        rowConfig: rowConfigs,
+                        targetFloorRowId: selectRowId,
+                      });
+                      onConfirm(); // 콜백 실행
+                      setOpen(false); // 다이얼로그 닫기
+                    } finally {
+                      setIsSubmitting(false);
+                    }
                   }}
                 >
-                  구역 추가 완료({getTotalSeatCount()})석
+                  {isSubmitting ? (
+                    <>
+                      <CustomSpinner text="처리 중..." />
+                    </>
+                  ) : (
+                    `구역 추가 완료(${getTotalSeatCount()})석`
+                  )}
                 </Button>
               )}
             </div>

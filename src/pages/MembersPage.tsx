@@ -19,7 +19,7 @@ import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/Me
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 import type { ButtonItem } from '@/types/index';
-import AppSpinner from '@/components/common/AppSpinner.tsx';
+import CustomSpinner from '@/components/common/CustomSpinner.tsx';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -80,7 +80,7 @@ export default function MembersPage() {
   ];
 
   if (isLoading) {
-    return <AppSpinner text="로딩중" />;
+    return <CustomSpinner text="로딩중" />;
   }
 
   return (
