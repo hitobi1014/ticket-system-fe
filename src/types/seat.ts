@@ -5,7 +5,9 @@ export interface Seat {
   assignedMemberId?: number;
   visible: boolean; // 특정 좌석 안보이게할때, 기본값 true
 }
-export type CreateSeatRequest = Omit<Seat, 'assignedMemberId' | 'visible'>;
+export interface CreateSeatRequest {
+  addSeatCount: number;
+}
 /** 열 */
 export interface Rows {
   id: number;

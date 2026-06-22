@@ -1,4 +1,4 @@
-import type { ButtonItem, CreateRowsRequest, CreateSeatRequest, FloorItem, Section } from '@/types';
+import type { ButtonItem, CreateRowsRequest, CreateSeatRequest, FloorItem } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
@@ -62,7 +62,7 @@ export default function SectionCard({
   /**
    * 입력 받은 좌석 수 만큼 해당 열에 좌석 추가
    */
-  const handleAddSeat = () => {
+  const handleAddSeat = async () => {
     if (selectedRowId === null) {
       alert('선택된 row가 없습니다.');
       return;
@@ -75,35 +75,19 @@ export default function SectionCard({
       return;
     }
 
-    const maxSeatId = floors
-      .flatMap((f) => f.rows.flatMap((r) => r.items))
-      .filter((item): item is Section => item.kind === 'section')
-      .flatMap((s) => s.rows)
-      .filter((row) => row.id === selectedRowId)
-      .flatMap((r) => r.seats)
-      .reduce((max, seat) => Math.max(max, seat.id), 0);
+    const req: CreateSeatRequest = {
+      addSeatCount: addSeatCount,
+    };
 
-    const maxSeatNumber = floors
-      .flatMap((f) => f.rows.flatMap((r) => r.items))
-      .filter((item): item is Section => item.kind === 'section')
-      .flatMap((s) => s.rows)
-      .filter((row) => row.id === selectedRowId)
-      .flatMap((r) => r.seats)
-      .reduce((max, seat) => Math.max(max, seat.seatNumber), 0);
-
-    const reqs: CreateSeatRequest[] = Array.from({ length: addSeatCount }, (_, i) => ({
-      id: maxSeatId + i + 1,
-      seatNumber: maxSeatNumber + i + 1,
-    }));
-    addSeat(selectedRowId, reqs);
+    await addSeat(selectedRowId, req);
   };
 
-  const handleRemoveSeat = (removeSeatCnt: number) => {
+  const handleRemoveSeat = async (removeSeatCnt: number) => {
     if (selectedRowId == null) {
       alert('값 없음');
       return;
     }
-    removeSeat(selectedRowId, removeSeatCnt);
+    await removeSeat(selectedRowId, removeSeatCnt);
   };
 
   // 열 편집 버튼

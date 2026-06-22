@@ -49,8 +49,8 @@ interface FloorStore {
   removeRow: (rowId: number) => Promise<void>;
 
   // ====== Section - Row - Seat ======
-  addSeat: (rowId: number, reqs: CreateSeatRequest[]) => void;
-  removeSeat: (rowId: number, removeCount: number) => void;
+  addSeat: (rowId: number, req: CreateSeatRequest) => Promise<void>;
+  removeSeat: (rowId: number, removeCount: number) => Promise<void>;
 
   assignSeat: (seatIds: Set<number>, memberId: number) => void;
   unAssignSeat: (seatId: number) => void;
@@ -60,6 +60,7 @@ const FLOOR_API_PREFIX = '/floors';
 const SECTION_API_PREFIX = '/sections';
 const AISLE_API_PREFIX = '/aisles';
 const ROW_API_PREFIX = '/rows';
+const SEAT_API_PREFIX = '/seats';
 
 const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
@@ -267,59 +268,47 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addSeat: (rowId, reqs) =>
-      set(
-        (state) => ({
-          floors: state.floors.map((f) => ({
-            ...f,
-            rows: f.rows.map((floorRow) => ({
-              ...floorRow,
-              items: floorRow.items.map((item) => {
-                if (item.kind !== 'section') return item;
-                return {
-                  ...item,
-                  rows: item.rows.map((row) => {
-                    if (row.id !== rowId) return row;
-                    return {
-                      ...row,
-                      seats: [...row.seats, ...reqs.map((req) => ({ ...req, visible: true }))],
-                    };
-                  }),
-                };
-              }),
-            })),
-          })),
-        }),
-        undefined,
-        'addSeat',
-      ),
+    addSeat: async (rowId, req) => {
+      const floor = await fetchApi<Floor>(`${ROW_API_PREFIX}/${rowId}/seats`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      get().syncSection(floor);
+    },
 
-    removeSeat: (rowId, removeCount) =>
-      set(
-        (state) => ({
-          floors: state.floors.map((f) => ({
-            ...f,
-            rows: f.rows.map((floorRow) => ({
-              ...floorRow,
-              items: floorRow.items.map((item) => {
-                if (item.kind !== 'section') return item;
-                return {
-                  ...item,
-                  rows: item.rows.map((row) => {
-                    if (row.id !== rowId) return row;
-                    return {
-                      ...row,
-                      seats: row.seats.slice(0, row.seats.length - removeCount),
-                    };
-                  }),
-                };
-              }),
-            })),
-          })),
-        }),
-        undefined,
-        'removeSeat',
-      ),
+    removeSeat: async (rowId, removeCount) => {
+      // seats/:rowId
+      const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/${rowId}?seatCount=${removeCount}`, {
+        method: 'DELETE',
+      });
+      get().syncSection(floor);
+
+      // set(
+      //   (state) => ({
+      //     floors: state.floors.map((f) => ({
+      //       ...f,
+      //       rows: f.rows.map((floorRow) => ({
+      //         ...floorRow,
+      //         items: floorRow.items.map((item) => {
+      //           if (item.kind !== 'section') return item;
+      //           return {
+      //             ...item,
+      //             rows: item.rows.map((row) => {
+      //               if (row.id !== rowId) return row;
+      //               return {
+      //                 ...row,
+      //                 seats: row.seats.slice(0, row.seats.length - removeCount),
+      //               };
+      //             }),
+      //           };
+      //         }),
+      //       })),
+      //     })),
+      //   }),
+      //   undefined,
+      //   'removeSeat',
+      // );
+    },
 
     assignSeat: (seatIds, memberId) =>
       set(
