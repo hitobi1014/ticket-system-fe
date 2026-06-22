@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import PageHeader from '@/components/common/PageHeader.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
+import { toast } from 'sonner';
 
 export default function Layout() {
   const matches = useMatches();
@@ -15,9 +16,11 @@ export default function Layout() {
 
   useEffect(() => {
     const fetch = async () => {
-      await fetchVenue();
-      await fetchMembers();
-      await fetchFloor();
+      try {
+        await Promise.all([fetchVenue(), fetchMembers(), fetchFloor()]);
+      } catch (e) {
+        toast.error('데이터를 불러오는데 실패했습니다.');
+      }
     };
     fetch();
   }, []);

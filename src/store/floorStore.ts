@@ -39,7 +39,7 @@ interface FloorStore {
   // ====== Section ======
   syncSection: (floor: Floor) => void;
   addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => Promise<void>;
-  removeSection: (sectionId: number) => void;
+  removeSection: (sectionId: number) => Promise<void>;
 
   addAisle: (floorId: number, req: CreateAisleRequest) => Promise<void>;
   removeAisle: (aisleId: number) => Promise<void>;

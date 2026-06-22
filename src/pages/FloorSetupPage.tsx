@@ -37,14 +37,23 @@ export default function FloorSetupPage() {
     const req: CreateFloorRequest = {
       name: name.trim(),
     };
-    const savedFloor = await addFloor(req);
-    setSelectedFloorId(savedFloor.id);
+    try {
+      const savedFloor = await addFloor(req);
+      setSelectedFloorId(savedFloor.id);
+    } catch (e) {
+      toast.error('층 추가에 실패했습니다.');
+    }
   };
 
   const handleRemoveFloor = async () => {
     // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
     if (selectedFloorId == null) return;
-    await removeFloor(selectedFloorId);
+
+    try {
+      await removeFloor(selectedFloorId);
+    } catch (e) {
+      toast.error('층 삭제에 실패했습니다.');
+    }
 
     toast('층 삭제 성공했습니다.');
     // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
@@ -52,7 +61,7 @@ export default function FloorSetupPage() {
     setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
   };
 
-  const handleRemoveSection = () => {
+  const handleRemoveSection = async () => {
     if (selectedSectionId === null) return;
 
     const findItem = selectedFloor?.rows
@@ -63,7 +72,11 @@ export default function FloorSetupPage() {
     const isRemove = window.confirm(`${findItem.name} 구역을 정말 삭제하시겠습니까?`);
     if (!isRemove) return;
 
-    removeSection(findItem.id);
+    try {
+      await removeSection(findItem.id);
+    } catch (e: any) {
+      toast.error('구역 삭제에 실패했습니다.');
+    }
   };
 
   // TODO 좌/우측 값 받기
@@ -80,7 +93,12 @@ export default function FloorSetupPage() {
       floorRowId: floorRowId,
       direction: direction,
     };
-    await addAisle(selectedFloor.id, req);
+
+    try {
+      await addAisle(selectedFloor.id, req);
+    } catch (e: any) {
+      toast.error('통로 추가에 실패했습니다.');
+    }
   };
 
   const handleRemoveAisle = () => {
