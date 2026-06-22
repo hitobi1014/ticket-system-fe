@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
 import { findSeatContext, getAssignableMember } from '@/lib/seatUtils.ts';
-import type { Floor, Member, Rows, Seat, Section } from '@/types';
+import type { AssignSeatRequest, Floor, Member, Rows, Seat, Section } from '@/types';
 import { clsx } from 'clsx';
 import { TriangleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -57,7 +57,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   }).length;
 
   // 확인버튼 클릭시 선택한 좌석에 선택한 회원 배정
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     if (!isAssignMemberSelected) {
       toast('선택된 회원이 없습니다. 회원을 선택해주세요');
       setHasMemberEmpty(true);
@@ -66,7 +66,16 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       return;
     }
 
-    assignSeat(seatIds, isAssignMemberSelected);
+    const req: AssignSeatRequest = {
+      seatIds: [...seatIds],
+      memberId: isAssignMemberSelected,
+    };
+    try {
+      await assignSeat(req);
+    } catch (e) {
+      toast.error('회원 좌석배정에 실패했습니다.');
+      return;
+    }
     const findMember = members.find((m) => m.id === isAssignMemberSelected);
     if (findMember) {
       updateTickets(findMember.id, findMember.allocatedTickets - seatIds.size);

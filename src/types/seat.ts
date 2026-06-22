@@ -25,6 +25,11 @@ export interface Section {
 }
 export type CreateSectionRequest = Omit<Section, 'kind' | 'rows'>;
 
+export interface AssignSeatRequest {
+  seatIds: number[];
+  memberId: number;
+}
+
 export interface Aisle {
   id: number;
   kind: 'aisle';
