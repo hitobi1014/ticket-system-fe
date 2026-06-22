@@ -11,7 +11,15 @@ import { toast } from 'sonner';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
 import { findSeatContext, getAssignableMember } from '@/lib/seatUtils.ts';
-import type { AssignSeatRequest, Floor, Member, Rows, Seat, Section } from '@/types';
+import type {
+  AssignSeatRequest,
+  Floor,
+  Member,
+  Rows,
+  Seat,
+  Section,
+  UnAssignSeatRequest,
+} from '@/types';
 import { clsx } from 'clsx';
 import { TriangleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
@@ -72,7 +80,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     };
     try {
       await assignSeat(req);
-    } catch (e) {
+    } catch {
       toast.error('회원 좌석배정에 실패했습니다.');
       return;
     }
@@ -87,19 +95,21 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const hasEnoughRemainingTickets = (member: Member): boolean => {
     return member.allocatedTickets >= seatIds.size;
   };
-  const handleCancel = () => {
-    [...seatIds].forEach((seatId) => {
-      unAssignSeat(seatId);
 
-      const ctx = findSeatContext(floors, seatId);
-      const findMember = members.find((m) => m.id === ctx?.seat.assignedMemberId);
-      if (findMember) {
-        updateTickets(findMember.id, findMember.allocatedTickets + seatIds.size);
-      }
-    });
+  const handleCancel = async () => {
+    const req: UnAssignSeatRequest = {
+      seatIds: [...seatIds],
+    };
+    try {
+      await unAssignSeat(req);
+    } catch {
+      toast.error('배정 취소를 실패했습니다.');
+      return;
+    }
     toast('배정이 취소되었습니다.');
     onClose();
   };
+
   return (
     <DialogContent className="bg-surface-secondary text-content-primary">
       <DialogHeader>

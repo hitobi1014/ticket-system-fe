@@ -29,6 +29,7 @@ export interface AssignSeatRequest {
   seatIds: number[];
   memberId: number;
 }
+export type UnAssignSeatRequest = Omit<AssignSeatRequest, 'memberId'>;
 
 export interface Aisle {
   id: number;

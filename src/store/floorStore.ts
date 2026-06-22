@@ -6,6 +6,7 @@ import type {
   CreateSeatRequest,
   Floor,
   Section,
+  UnAssignSeatRequest,
   Venue,
 } from '@/types';
 
@@ -54,7 +55,7 @@ interface FloorStore {
   removeSeat: (rowId: number, removeCount: number) => Promise<void>;
 
   assignSeat: (req: AssignSeatRequest) => Promise<void>;
-  unAssignSeat: (seatId: number) => void;
+  unAssignSeat: (req: UnAssignSeatRequest) => Promise<void>;
 }
 
 const FLOOR_API_PREFIX = '/floors';
@@ -319,27 +320,15 @@ const useFloorStore = create<FloorStore>()(
       get().syncSection(floor);
     },
 
-    unAssignSeat: (seatId) =>
-      set((state) => ({
-        floors: state.floors.map((f) => ({
-          ...f,
-          rows: f.rows.map((floorRow) => ({
-            ...floorRow,
-            items: floorRow.items.map((item) => {
-              if (item.kind !== 'section') return item;
-              return {
-                ...item,
-                rows: item.rows.map((row) => ({
-                  ...row,
-                  seats: row.seats.map((seat) =>
-                    seat.id === seatId ? { ...seat, assignedMemberId: undefined } : seat,
-                  ),
-                })),
-              };
-            }),
-          })),
-        })),
-      })),
+    unAssignSeat: async (req) => {
+      const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/unassign`, {
+        method: 'PATCH',
+        body: JSON.stringify(req),
+      });
+      get().syncSection(floor);
+    },
+
+    // END
   })),
 );
 

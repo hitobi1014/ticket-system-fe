@@ -24,6 +24,12 @@ export default defineConfig([
         'warn',
         { allowConstantExport: true, allowExportNames: ['useSidebar'] },
       ],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          caughtErrorsIgnorePattern: '^_', // catch 변수 _ 무시
+        },
+      ],
     },
   },
 ]);
