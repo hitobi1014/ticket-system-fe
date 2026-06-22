@@ -40,30 +40,23 @@ export default function SectionCard({
     onSelectedSectionId(null);
   };
 
-  const handleAddRow = (sectionId: number) => {
+  const handleAddRow = async (sectionId: number) => {
     const rowName = window.prompt('추가 할 열 이름을 입력해주세요.');
     if (rowName === null || rowName === '') {
       alert(`열 이름을 다시 확인해주세요. 빈 값은 입력할 수 없습니다. \n 입력한 값: ${rowName}`);
       return;
     }
 
-    const maxRowId = floors
-      .flatMap((f) => f.rows.flatMap((r) => r.items))
-      .filter((item): item is Section => item.kind === 'section')
-      .flatMap((s) => s.rows)
-      .reduce((max, row) => Math.max(max, row.id), 0);
-
     const req: CreateRowsRequest = {
-      id: maxRowId + 1,
       rowName: rowName,
     };
-    addRow(sectionId, req);
+    await addRow(sectionId, req);
   };
 
-  const handleRemoveRow = (rowId: number) => {
+  const handleRemoveRow = async (rowId: number) => {
     const isRemove = window.confirm(`선택한 row:${rowId}를 삭제하시겠습니까?`);
     if (!isRemove) return;
-    removeRow(rowId);
+    await removeRow(rowId);
   };
 
   /**
