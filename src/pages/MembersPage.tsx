@@ -39,7 +39,8 @@ export default function MembersPage() {
     getMemberRemainTicketsByMemberId,
     distributeTickets,
   } = useMemberStore();
-  const { getTotalSeatCount, getRemainSeatCount, getAssignedSeatCount } = useFloorStore();
+  const { getTotalSeatCount, getRemainSeatCount, getAssignedSeatCount, getUnallocatedTickedCount } =
+    useFloorStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
@@ -49,13 +50,14 @@ export default function MembersPage() {
 
   const memberInfoCards: MemberInfoCardProps[] = [
     { title: '총 좌석', boldText: getTotalSeatCount(), textPostFix: '석' },
+    { title: '미배분 티켓', boldText: getUnallocatedTickedCount(), textPostFix: '장' },
     {
-      title: '미배정 좌석 ',
+      title: '미배정 좌석',
       boldText: getRemainSeatCount(),
       textPostFix: '석',
     },
     {
-      title: '배정된 좌석',
+      title: '배정 좌석',
       boldText: getAssignedSeatCount(),
       textPostFix: '석',
     },

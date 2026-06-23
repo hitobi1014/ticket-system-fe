@@ -13,6 +13,7 @@ import type {
 import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
 import fetchApi from '@/lib/api.ts';
+import useMemberStore from '@/store/memberStore.ts';
 
 interface AddSectionWithRowsRequest {
   sectionName: string;
@@ -28,7 +29,8 @@ interface FloorStore {
   // ====== Venue ======
   fetchVenue: () => Promise<void>; // 최초 렌더링시 1회만 호출용
   getTotalSeatCount: () => number; // 총 좌석
-  getRemainSeatCount: () => number; // 전체 남은 좌석
+  getUnallocatedTickedCount: () => number; // 총 좌석 수(티켓) 회원에게 미배분한 티켓 수
+  getRemainSeatCount: () => number; // 미배정된 좌석(빈 좌석)
   getAssignedSeatCount: () => number; // 배정된 좌석
 
   // ====== Floor ======
@@ -83,6 +85,13 @@ const useFloorStore = create<FloorStore>()(
 
     getTotalSeatCount: () => get().venue?.totalSeats ?? 0,
 
+    getUnallocatedTickedCount: () => {
+      const totalTicket = get().getTotalSeatCount();
+      const allocatedTickedCount = useMemberStore.getState().getAllocatedTickets();
+
+      return totalTicket - allocatedTickedCount;
+    },
+
     getAssignedSeatCount: () =>
       get()
         .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
@@ -105,7 +114,7 @@ const useFloorStore = create<FloorStore>()(
       set({ floors });
     },
 
-    addFloor: async (req) => {
+    addFloor: async (req: CreateFloorRequest) => {
       const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}`, {
         method: 'POST',
         body: JSON.stringify(req),
@@ -122,7 +131,7 @@ const useFloorStore = create<FloorStore>()(
       return floor;
     },
 
-    removeFloor: async (id) => {
+    removeFloor: async (id: number) => {
       await fetchApi(`${FLOOR_API_PREFIX}/${id}`, {
         method: 'DELETE',
       });
@@ -147,7 +156,7 @@ const useFloorStore = create<FloorStore>()(
       }));
     },
 
-    addSectionWithRows: async (floorId, req) => {
+    addSectionWithRows: async (floorId: number, req: AddSectionWithRowsRequest) => {
       const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/sections-with-rows`, {
         method: 'POST',
         body: JSON.stringify(req),
@@ -156,7 +165,7 @@ const useFloorStore = create<FloorStore>()(
       get().syncSection(floor);
     },
 
-    removeSection: async (sectionId) => {
+    removeSection: async (sectionId: number) => {
       // sections/:id
       await fetchApi(`${SECTION_API_PREFIX}/${sectionId}`, {
         method: 'DELETE',
@@ -179,7 +188,7 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addAisle: async (floorId, req) => {
+    addAisle: async (floorId: number, req: CreateAisleRequest) => {
       const result = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/aisles`, {
         method: 'POST',
         body: JSON.stringify(req),
@@ -209,7 +218,7 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addRow: async (sectionId, req) => {
+    addRow: async (sectionId: number, req: CreateRowsRequest) => {
       // sections/:sectionId/rows
       const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows`, {
         method: 'POST',
@@ -239,7 +248,7 @@ const useFloorStore = create<FloorStore>()(
       // );
     },
 
-    removeRow: async (rowId) => {
+    removeRow: async (rowId: number) => {
       await fetchApi(`${ROW_API_PREFIX}/${rowId}`, {
         method: 'DELETE',
       });
@@ -265,7 +274,7 @@ const useFloorStore = create<FloorStore>()(
       );
     },
 
-    addSeat: async (rowId, req) => {
+    addSeat: async (rowId: number, req: CreateSeatRequest) => {
       const floor = await fetchApi<Floor>(`${ROW_API_PREFIX}/${rowId}/seats`, {
         method: 'POST',
         body: JSON.stringify(req),
@@ -273,7 +282,7 @@ const useFloorStore = create<FloorStore>()(
       get().syncSection(floor);
     },
 
-    removeSeat: async (rowId, removeCount) => {
+    removeSeat: async (rowId: number, removeCount: number) => {
       // seats/:rowId
       const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/${rowId}?seatCount=${removeCount}`, {
         method: 'DELETE',
@@ -307,7 +316,7 @@ const useFloorStore = create<FloorStore>()(
       // );
     },
 
-    assignSeat: async (req) => {
+    assignSeat: async (req: AssignSeatRequest) => {
       const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/assign`, {
         method: 'PATCH',
         body: JSON.stringify(req),
@@ -315,7 +324,7 @@ const useFloorStore = create<FloorStore>()(
       get().syncSection(floor);
     },
 
-    unAssignSeat: async (req) => {
+    unAssignSeat: async (req: UnAssignSeatRequest) => {
       const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/unassign`, {
         method: 'PATCH',
         body: JSON.stringify(req),

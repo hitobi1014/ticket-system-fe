@@ -11,6 +11,7 @@ interface MemberStore {
   fetchMembers: () => Promise<void>;
   getMemberAssignedTicketsByMemberId: (id: number) => number;
   getMemberRemainTicketsByMemberId: (id: number) => number;
+  getAllocatedTickets: () => number;
 
   addMember: (req: CreateMemberRequest) => Promise<void>;
   updateMember: (id: number, req: CreateMemberRequest) => Promise<void>;
@@ -50,6 +51,8 @@ const useMemberStore = create<MemberStore>((set, get) => ({
     const assignedTickets = get().getMemberAssignedTicketsByMemberId(memberId);
     return allowTickets - assignedTickets;
   },
+
+  getAllocatedTickets: () => get().members.reduce((sum, m) => sum + m.allocatedTickets, 0),
 
   addMember: async (req) => {
     const newMember = await fetchApi<Member>(memberURIPrefix, {
