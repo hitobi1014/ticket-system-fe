@@ -82,18 +82,6 @@ const useFloorStore = create<FloorStore>()(
     },
 
     getTotalSeatCount: () => get().venue?.totalSeats ?? 0,
-    // 총 좌석 - 회원 할당된 좌석
-    getRemainSeatCount: () => {
-      const totalSeatCount = get().getTotalSeatCount();
-      const assignSeatCount = get()
-        .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
-        .filter((item): item is Section => item.kind === 'section')
-        .flatMap((s) => s.rows)
-        .flatMap((r) => r.seats)
-        .filter((seat) => seat.assignedMemberId !== null).length;
-
-      return totalSeatCount - assignSeatCount;
-    },
 
     getAssignedSeatCount: () =>
       get()
@@ -101,7 +89,14 @@ const useFloorStore = create<FloorStore>()(
         .filter((item): item is Section => item.kind === 'section')
         .flatMap((s) => s.rows)
         .flatMap((r) => r.seats)
-        .filter((seat) => seat.assignedMemberId !== undefined).length,
+        .filter((seat) => seat.assignedMemberId != null).length,
+
+    getRemainSeatCount: () => {
+      const totalSeatCount = get().getTotalSeatCount();
+      const assignSeatCount = get().getAssignedSeatCount();
+
+      return totalSeatCount - assignSeatCount;
+    },
 
     // ====== Venue ======
 
@@ -128,7 +123,7 @@ const useFloorStore = create<FloorStore>()(
     },
 
     removeFloor: async (id) => {
-      await fetchApi(`${FLOOR_API_PREFIX}${id}`, {
+      await fetchApi(`${FLOOR_API_PREFIX}/${id}`, {
         method: 'DELETE',
       });
       set(
