@@ -10,7 +10,17 @@ const fetchApi = async <T>(url: string, options?: RequestInit): Promise<T> => {
   });
 
   if (!response.ok) {
-    throw new Error(`API error: ${response.status}`);
+    const errText = await response.text();
+    let message = `API error: ${response.status}`;
+    try {
+      const errJson = JSON.parse(errText);
+      if (errJson?.message) {
+        message = errJson.mesage;
+      }
+    } catch {
+      message = '오류발생';
+    }
+    throw new Error(message);
   }
 
   if (response.status === 204 || response.headers.get('content-length') === '0') {
@@ -18,6 +28,8 @@ const fetchApi = async <T>(url: string, options?: RequestInit): Promise<T> => {
   }
 
   const text = await response.text();
-  return text ? JSON.parse(text) : (undefined as T);
+  const json = JSON.parse(text);
+
+  return (json && typeof json === 'object' && 'data' in json ? json.data : json) as T;
 };
 export default fetchApi;

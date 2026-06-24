@@ -19,7 +19,8 @@ export default function Layout() {
       try {
         await Promise.all([fetchVenue(), fetchMembers(), fetchFloor()]);
       } catch (e) {
-        toast.error('데이터를 불러오는데 실패했습니다.');
+        const message = e instanceof Error ? e.message : '데이터를 불러오는데 실패했습니다.';
+        toast.error(message);
       }
     };
     fetch();
