@@ -21,5 +21,3 @@ type 규칙:
 
 
 ## **commit message**
-
-chore: 커밋 커스텀 커맨드 파일 추가
