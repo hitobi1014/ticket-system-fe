@@ -7,11 +7,13 @@ import { useEffect } from 'react';
 import PageHeader from '@/components/common/PageHeader.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
+import useVenueStore from '@/store/venueStore.ts';
 import { toast } from 'sonner';
 
 export default function Layout() {
   const matches = useMatches();
-  const { fetchVenue, fetchFloor } = useFloorStore();
+  const { fetchFloor } = useFloorStore();
+  const { fetchVenue } = useVenueStore();
   const { fetchMembers } = useMemberStore();
 
   useEffect(() => {

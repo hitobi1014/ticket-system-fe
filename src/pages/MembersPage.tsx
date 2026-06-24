@@ -21,6 +21,7 @@ import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import type { ButtonItem } from '@/types/index';
 import CustomSpinner from '@/components/common/CustomSpinner.tsx';
 import { toast } from 'sonner';
+import useVenueStore from '@/store/venueStore.ts';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -40,14 +41,11 @@ export default function MembersPage() {
     getMemberRemainTicketsByMemberId,
     distributeTickets,
   } = useMemberStore();
-  const { getTotalSeatCount, getRemainSeatCount, getAssignedSeatCount, getUnallocatedTickedCount } =
-    useFloorStore();
+  const { getRemainSeatCount, getAssignedSeatCount, getUnallocatedTickedCount } = useFloorStore();
+  const { getTotalSeatCount } = useVenueStore();
+
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
-
-  // const totalAllocated = members.reduce((sum, m) => sum + m.allocatedTickets, 0);
-  // const remainingTickets = VENUE.totalSeats - totalAllocated;
 
   const memberInfoCards: MemberInfoCardProps[] = [
     { title: '총 좌석', boldText: getTotalSeatCount(), textPostFix: '석' },

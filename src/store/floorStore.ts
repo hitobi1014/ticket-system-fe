@@ -14,6 +14,7 @@ import { create } from 'zustand/react';
 import { devtools } from 'zustand/middleware';
 import fetchApi from '@/lib/api.ts';
 import useMemberStore from '@/store/memberStore.ts';
+import useVenueStore from '@/store/venueStore.ts';
 
 interface AddSectionWithRowsRequest {
   sectionName: string;
@@ -26,9 +27,7 @@ interface FloorStore {
   venue: Venue | null;
   isLoading: boolean;
 
-  // ====== Venue ======
-  fetchVenue: () => Promise<void>; // 최초 렌더링시 1회만 호출용
-  getTotalSeatCount: () => number; // 총 좌석
+  // ====== 좌석 정보 =====
   getUnallocatedTickedCount: () => number; // 총 좌석 수(티켓) 회원에게 미배분한 티켓 수
   getRemainSeatCount: () => number; // 미배정된 좌석(빈 좌석)
   getAssignedSeatCount: () => number; // 배정된 좌석
@@ -69,24 +68,11 @@ const SEAT_API_PREFIX = '/seats';
 const useFloorStore = create<FloorStore>()(
   devtools((set, get) => ({
     floors: [],
-    // floors: mockFloors,
     venue: null,
     isLoading: false,
 
-    // ====== Venue ======
-    fetchVenue: async () => {
-      set({ isLoading: true });
-      const data = await fetchApi<Venue>('/venue/first');
-      set({
-        venue: data,
-        isLoading: false,
-      });
-    },
-
-    getTotalSeatCount: () => get().venue?.totalSeats ?? 0,
-
     getUnallocatedTickedCount: () => {
-      const totalTicket = get().getTotalSeatCount();
+      const totalTicket = useVenueStore.getState().getTotalSeatCount();
       const allocatedTickedCount = useMemberStore.getState().getAllocatedTickets();
 
       return totalTicket - allocatedTickedCount;
@@ -101,7 +87,7 @@ const useFloorStore = create<FloorStore>()(
         .filter((seat) => seat.assignedMemberId != null).length,
 
     getRemainSeatCount: () => {
-      const totalSeatCount = get().getTotalSeatCount();
+      const totalSeatCount = useVenueStore.getState().getTotalSeatCount();
       const assignSeatCount = get().getAssignedSeatCount();
 
       return totalSeatCount - assignSeatCount;
@@ -197,7 +183,6 @@ const useFloorStore = create<FloorStore>()(
     },
 
     removeAisle: async (aisleId: number) => {
-      //aisles/:id
       await fetchApi(`${AISLE_API_PREFIX}/${aisleId}`, {
         method: 'DELETE',
       });
@@ -219,33 +204,11 @@ const useFloorStore = create<FloorStore>()(
     },
 
     addRow: async (sectionId: number, req: CreateRowsRequest) => {
-      // sections/:sectionId/rows
       const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows`, {
         method: 'POST',
         body: JSON.stringify(req),
       });
-
       get().syncSection(floor);
-
-      // set(
-      //   (state) => ({
-      //     floors: state.floors.map((f) => ({
-      //       ...f,
-      //       rows: f.rows.map((floorRow) => ({
-      //         ...floorRow,
-      //         items: floorRow.items.map((item) => {
-      //           if (item.kind !== 'section' || item.id !== sectionId) return item;
-      //           return {
-      //             ...item,
-      //             rows: [...item.rows, { ...req, seats: [] }],
-      //           };
-      //         }),
-      //       })),
-      //     })),
-      //   }),
-      //   undefined,
-      //   'addRow',
-      // );
     },
 
     removeRow: async (rowId: number) => {
@@ -283,37 +246,10 @@ const useFloorStore = create<FloorStore>()(
     },
 
     removeSeat: async (rowId: number, removeCount: number) => {
-      // seats/:rowId
       const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/${rowId}?seatCount=${removeCount}`, {
         method: 'DELETE',
       });
       get().syncSection(floor);
-
-      // set(
-      //   (state) => ({
-      //     floors: state.floors.map((f) => ({
-      //       ...f,
-      //       rows: f.rows.map((floorRow) => ({
-      //         ...floorRow,
-      //         items: floorRow.items.map((item) => {
-      //           if (item.kind !== 'section') return item;
-      //           return {
-      //             ...item,
-      //             rows: item.rows.map((row) => {
-      //               if (row.id !== rowId) return row;
-      //               return {
-      //                 ...row,
-      //                 seats: row.seats.slice(0, row.seats.length - removeCount),
-      //               };
-      //             }),
-      //           };
-      //         }),
-      //       })),
-      //     })),
-      //   }),
-      //   undefined,
-      //   'removeSeat',
-      // );
     },
 
     assignSeat: async (req: AssignSeatRequest) => {
