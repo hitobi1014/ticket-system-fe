@@ -237,9 +237,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                     aria-label="col-count"
                     value={rowCount}
                     onChange={(e) => setRowCount(Number(e.target.value))}
-                    className="bg-surface-primary border-0
-                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                  "
+                    className="bg-surface-primary border-0 no-spinners"
                     type="number"
                     placeholder="열의 수를 입력해주세요."
                   />
@@ -254,9 +252,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                     aria-label="base-seat-count"
                     value={defaultSeatCount}
                     onChange={(e) => setDefaultSeatCount(Number(e.target.value))}
-                    className="bg-surface-primary border-0
-                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                  "
+                    className="bg-surface-primary border-0 no-spinners"
                     type="number"
                     placeholder="좌석수를 입력해주세요"
                   />
@@ -361,9 +357,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                   min={1}
                   value={bulkCount}
                   onChange={(e) => setBulkCount(parseInt(e.target.value) || 0)}
-                  className="bg-surface-secondary  w-16 h-7 rounded-md
-                  [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                "
+                  className="bg-surface-secondary w-16 h-7 rounded-md no-spinners"
                 />
                 <Button
                   variant="dialog"
@@ -413,9 +407,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                           ),
                         )
                       }
-                      className="bg-surface-secondary w-12 h-6 text-center text-sm
-                      [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-                    "
+                      className="bg-surface-secondary w-12 h-6 text-center text-sm no-spinners"
                     />
                     <Button
                       variant="dialog"

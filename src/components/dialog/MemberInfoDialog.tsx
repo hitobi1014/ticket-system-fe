@@ -119,9 +119,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
           <Input
             id="point-input"
             aria-label="instrumentAbbr"
-            className="bg-surface-primary border-0
-              [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-              "
+            className="bg-surface-primary border-0 no-spinners"
             type="number"
             value={form?.point}
             placeholder="상점을 입력하세요."
@@ -136,9 +134,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             id="allow-ticket-input"
             aria-label="allow-ticket-input"
             type="number"
-            className="bg-surface-primary border-0
-              [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-              "
+            className="bg-surface-primary border-0 no-spinners"
             value={form?.allocatedTickets}
             placeholder="배정할 티켓 수량을 입력하세요."
             onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}

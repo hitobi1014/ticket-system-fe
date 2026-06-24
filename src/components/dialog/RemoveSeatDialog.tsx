@@ -101,9 +101,7 @@ export function RemoveSeatDialog({
             </Button>
             <input
               type="number"
-              className="bg-surface-primary w-full h-8 rounded-lg text-center text-mist-50
-            [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none
-            "
+              className="bg-surface-primary w-full h-8 rounded-lg text-center text-mist-50 no-spinners"
               min={1}
               max={currentSeatCount}
               value={deleteCount}
