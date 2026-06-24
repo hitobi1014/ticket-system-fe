@@ -14,10 +14,34 @@ import { useState } from 'react';
 import type { CreateVenueRequest, StagePosition, UpdateVenueRequest } from '@/types';
 import useVenueStore from '@/store/venueStore.ts';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface VenueInfoDialogProps {
   venue: UpdateVenueRequest | undefined;
   isUpdate: boolean;
+}
+
+const stagePositionStyle: Record<StagePosition, string> = {
+  front: 'top-2 left-1/2 -translate-x-1/2',
+  back: 'bottom-2 left-1/2 -translate-x-1/2',
+  left: 'left-2 top-1/2 -translate-y-1/2',
+  right: 'right-2 top-1/2 -translate-y-1/2',
+  center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+};
+
+function StagePreview({ position }: { position: StagePosition }) {
+  return (
+    <div className="relative h-32 rounded-lg border border-border bg-surface-primary overflow-hidden">
+      <span
+        className={cn(
+          'absolute px-3 py-1 rounded text-xs font-semibold bg-blue-500 text-white transition-all duration-300',
+          stagePositionStyle[position],
+        )}
+      >
+        STAGE
+      </span>
+    </div>
+  );
 }
 
 // 무대위치
@@ -171,6 +195,7 @@ export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
             </div>
           </Field>
           {/*6. 무대 미리보기*/}
+          <StagePreview position={form.stagePosition} />
         </div>
 
         <DialogFooter className="flex bg-surface-secondary">

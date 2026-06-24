@@ -26,3 +26,6 @@ dist-ssr
 claude/*
 
 .env
+
+.claude/commands/request.md
+.claude/commands/cl-response.md
