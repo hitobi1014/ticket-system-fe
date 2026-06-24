@@ -32,18 +32,28 @@ const useVenueStore = create<VenueStore>()(
     getTotalSeatCount: () => get().venue?.totalSeats ?? 0,
 
     addVenue: async (req) => {
-      const newVenue = await fetchApi<Venue>(`${VENUE_API_PREFIX}`, {
-        method: 'POST',
-        body: JSON.stringify(req),
-      });
-      set({ venue: newVenue });
+      set({ isLoading: true });
+      try {
+        const newVenue = await fetchApi<Venue>(`${VENUE_API_PREFIX}`, {
+          method: 'POST',
+          body: JSON.stringify(req),
+        });
+        set({ venue: newVenue });
+      } finally {
+        set({ isLoading: false });
+      }
     },
     updateVenue: async (req) => {
-      const updateVenue = await fetchApi<Venue>(`${VENUE_API_PREFIX}/${req.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify(req),
-      });
-      set({ venue: updateVenue });
+      set({ isLoading: true });
+      try {
+        const updateVenue = await fetchApi<Venue>(`${VENUE_API_PREFIX}/${req.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(req),
+        });
+        set({ venue: updateVenue });
+      } finally {
+        set({ isLoading: false });
+      }
     },
   })),
 );

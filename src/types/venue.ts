@@ -1,3 +1,5 @@
+export type StagePosition = 'front' | 'back' | 'left' | 'right' | 'center';
+
 /** 공연장 설정 (전체 좌석 구조) */
 export interface Venue {
   id: number;
@@ -6,7 +8,7 @@ export interface Venue {
   performanceDate: string;
   totalSeats: number;
   address: string;
-  stagePosition: 'front' | 'back' | 'left' | 'right' | 'center';
+  stagePosition: StagePosition;
 
   createdAt: string; // 생성일 (ISO 8601)
   updatedAt: string; // 수정일 (ISO 8601)

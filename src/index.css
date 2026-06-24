@@ -23,6 +23,12 @@
     /* status*/
 }
 
+@utility no-spinners {
+    appearance: textfield;
+    &::-webkit-outer-spin-button {appearance: none;}
+    &::-webkit-inner-spin-button {appearance: none;}
+}
+
 @layer utilities {
     .popup-title {
         @apply text-lg font-bold text-gray-600;

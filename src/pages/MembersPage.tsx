@@ -21,6 +21,7 @@ import type { ButtonItem } from '@/types/index';
 import CustomSpinner from '@/components/common/CustomSpinner.tsx';
 import { toast } from 'sonner';
 import useVenueStore from '@/store/venueStore.ts';
+import { VenueInfoDialog } from '@/components/dialog/VenueInfoDialog.tsx';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -41,7 +42,7 @@ export default function MembersPage() {
     distributeTickets,
   } = useMemberStore();
   const { getRemainSeatCount, getAssignedSeatCount, getUnallocatedTickedCount } = useFloorStore();
-  const { getTotalSeatCount } = useVenueStore();
+  const { venue, getTotalSeatCount } = useVenueStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
@@ -63,6 +64,9 @@ export default function MembersPage() {
   ];
 
   const functionButtons: ButtonItem[] = [
+    {
+      dialog: <VenueInfoDialog venue={venue ?? undefined} isUpdate={venue?.id != null} />,
+    },
     {
       text: '회원 추가',
       onClick: () => {
