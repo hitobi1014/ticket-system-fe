@@ -131,9 +131,9 @@ export default function MembersPage() {
 
           {/* 바디만 스크롤 */}
           <div className="flex-1 overflow-y-auto no-scrollbar">
-            <Table className="bg-surface-secondary mp-table">
+            <Table className="bg-surface-secondary text-content-primary">
               <ColGroup />
-              <TableBody className="mp-table-border">
+              <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
                 {/* 회원 목록 */}
                 {members.map((member) => {
