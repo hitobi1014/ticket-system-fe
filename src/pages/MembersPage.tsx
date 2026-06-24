@@ -20,6 +20,7 @@ import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 
 import type { ButtonItem } from '@/types/index';
 import CustomSpinner from '@/components/common/CustomSpinner.tsx';
+import { toast } from 'sonner';
 
 const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
 const ColGroup = () => (
@@ -76,7 +77,14 @@ export default function MembersPage() {
     {
       text: '티켓 균등 배분',
       icon: <IconTicket stroke={2} />,
-      onClick: distributeTickets,
+      onClick: async () => {
+        try {
+          await distributeTickets();
+          toast.success('티켓 균등 배분이 완료되었습니다.');
+        } catch (e) {
+          toast.error(e instanceof Error ? e.message : '티켓 배분에 실패했습니다.');
+        }
+      },
       disabled: members.length === 0 || getTotalSeatCount() === 0,
     },
   ];

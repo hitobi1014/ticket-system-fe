@@ -80,8 +80,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     };
     try {
       await assignSeat(req);
-    } catch {
-      toast.error('회원 좌석배정에 실패했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '회원 좌석배정에 실패했습니다.');
       return;
     }
     const findMember = members.find((m) => m.id === isAssignMemberSelected);
@@ -102,8 +102,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     };
     try {
       await unAssignSeat(req);
-    } catch {
-      toast.error('배정 취소를 실패했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '배정 취소를 실패했습니다.');
       return;
     }
     toast('배정이 취소되었습니다.');

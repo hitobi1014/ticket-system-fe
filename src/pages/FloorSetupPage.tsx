@@ -41,7 +41,7 @@ export default function FloorSetupPage() {
       const savedFloor = await addFloor(req);
       setSelectedFloorId(savedFloor.id);
     } catch (e) {
-      toast.error('층 추가에 실패했습니다.');
+      toast.error(e instanceof Error ? e.message : '층 추가에 실패했습니다.');
     }
   };
 
@@ -52,7 +52,7 @@ export default function FloorSetupPage() {
     try {
       await removeFloor(selectedFloorId);
     } catch (e) {
-      toast.error('층 삭제에 실패했습니다.');
+      toast.error(e instanceof Error ? e.message : '층 삭제에 실패했습니다.');
     }
 
     toast('층 삭제 성공했습니다.');
@@ -74,8 +74,8 @@ export default function FloorSetupPage() {
 
     try {
       await removeSection(findItem.id);
-    } catch (e: any) {
-      toast.error('구역 삭제에 실패했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '구역 삭제에 실패했습니다.');
     }
   };
 
@@ -96,8 +96,8 @@ export default function FloorSetupPage() {
 
     try {
       await addAisle(selectedFloor.id, req);
-    } catch (e: any) {
-      toast.error('통로 추가에 실패했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '통로 추가에 실패했습니다.');
     }
   };
 

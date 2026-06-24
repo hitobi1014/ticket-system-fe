@@ -5,6 +5,7 @@ import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-reac
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { clsx } from 'clsx';
 import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
+import { toast } from 'sonner';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -50,13 +51,22 @@ export default function SectionCard({
     const req: CreateRowsRequest = {
       rowName: rowName,
     };
-    await addRow(sectionId, req);
+    try {
+      await addRow(sectionId, req);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '행 추가에 실패했습니다.');
+    }
   };
 
   const handleRemoveRow = async (rowId: number) => {
     const isRemove = window.confirm(`선택한 row:${rowId}를 삭제하시겠습니까?`);
     if (!isRemove) return;
-    await removeRow(rowId);
+
+    try {
+      await removeRow(rowId);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '행 삭제에 실패했습니다.');
+    }
   };
 
   /**
@@ -79,7 +89,11 @@ export default function SectionCard({
       addSeatCount: addSeatCount,
     };
 
-    await addSeat(selectedRowId, req);
+    try {
+      await addSeat(selectedRowId, req);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '좌석 추가에 실패했습니다.');
+    }
   };
 
   const handleRemoveSeat = async (removeSeatCnt: number) => {
@@ -87,7 +101,12 @@ export default function SectionCard({
       alert('값 없음');
       return;
     }
-    await removeSeat(selectedRowId, removeSeatCnt);
+
+    try {
+      await removeSeat(selectedRowId, removeSeatCnt);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '좌석 삭제에 실패했습니다.');
+    }
   };
 
   // 열 편집 버튼

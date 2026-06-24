@@ -59,8 +59,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       toast.success(`${member.name} 회원이 삭제되었습니다.`);
       onClose();
     } catch (e) {
-      console.error(e);
-      toast.error('회원 삭제에 실패햇습니다.');
+      toast.error(e instanceof Error ? e.message : '회원 삭제에 실패햇습니다.');
     }
   };
 
