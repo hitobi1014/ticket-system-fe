@@ -6,6 +6,7 @@ import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { clsx } from 'clsx';
 import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
 import { toast } from 'sonner';
+import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -141,23 +142,21 @@ export default function SectionCard({
       },
     },
     {
-      variant: 'secondary',
-      text: '좌석 삭제',
-      size: 'xs',
-      icon: <IconTrash stroke={2} />,
-      disabled: selectedRowId === undefined,
-      onClick: () => {
-        handleAddSeat();
-      },
-      dialog: {
-        dialogTitle: '좌석 삭제',
-        type: 'removeSeat',
-        rowId: selectedRowId ?? undefined,
-        rowName: findSeatContextByRowId(floors, selectedRowId!)?.row.rowName ?? '열 설정x',
-        currentSeatCount: findSeatContextByRowId(floors, selectedRowId!)?.row.seats.length ?? 0,
-        sectionName: findSeatContextByRowId(floors, selectedRowId!)?.section.name ?? '구역 설정x',
-        onClick: handleRemoveSeat,
-      },
+      dialog: (
+        <RemoveSeatDialog
+          title="좌석 삭제"
+          buttonText="좌석 삭제"
+          icon={<IconTrash stroke={2} />}
+          variant="secondary"
+          size="xs"
+          disabled={selectedRowId === undefined}
+          rowId={selectedRowId ?? undefined}
+          rowName={findSeatContextByRowId(floors, selectedRowId!)?.row.rowName ?? '열 설정x'}
+          currentSeatCount={findSeatContextByRowId(floors, selectedRowId!)?.row.seats.length ?? 0}
+          sectionName={findSeatContextByRowId(floors, selectedRowId!)?.section.name ?? '구역 설정x'}
+          onConfirm={handleRemoveSeat}
+        />
+      ),
     },
   ];
 

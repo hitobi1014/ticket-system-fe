@@ -2,7 +2,6 @@ import { Button, buttonVariants } from '@/components/ui/button.tsx';
 import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import AlertDialogCustom, { type DialogAction } from '@/components/dialog/AlertDialogCustom.tsx';
-import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 
 export interface FunctionButtonsProps {
   buttons: ButtonItem[];
@@ -17,7 +16,6 @@ export interface ButtonItem {
   className?: string;
   icon?: React.ReactNode;
 
-  // AlertDialogCustom 위한 props
   confirm?: {
     triggerText: string;
     title: string;
@@ -25,15 +23,7 @@ export interface ButtonItem {
     actions: DialogAction[];
   };
 
-  dialog?: {
-    dialogTitle: string;
-    type: 'removeSeat'; // 추후 추가시 type 변경
-    rowId?: number;
-    currentSeatCount: number;
-    sectionName: string;
-    rowName: string;
-    onClick: (removeCnt: number) => void;
-  };
+  dialog?: React.ReactNode;
 }
 
 export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
@@ -46,19 +36,8 @@ export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
   return (
     <div className="flex gap-x-2 justify-end" onClick={(e) => e.stopPropagation()}>
       {buttons.map((btn, i) =>
-        btn.dialog?.type === 'removeSeat' ? (
-          <RemoveSeatDialog
-            key={i}
-            title={btn.dialog.dialogTitle}
-            rowId={btn.dialog.rowId}
-            buttonText={btn.text!}
-            icon={btn.icon}
-            variant={getVariant(btn.variant)}
-            size={getSize(btn.size)}
-            disabled={btn.disabled}
-            onConfirm={btn.dialog.onClick}
-            {...btn.dialog}
-          />
+        btn.dialog ? (
+          <React.Fragment key={i}>{btn.dialog}</React.Fragment>
         ) : btn.confirm ? (
           <AlertDialogCustom
             key={i}
