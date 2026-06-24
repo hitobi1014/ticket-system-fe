@@ -13,7 +13,6 @@ import {
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
 import { IconTicket, IconUserPlus } from '@tabler/icons-react';
-import '@/pages/MemberPage.css';
 import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';

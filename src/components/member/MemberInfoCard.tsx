@@ -1,5 +1,3 @@
-import '@/pages/MemberPage.css';
-
 export interface MemberInfoCardProps {
   title: string;
   boldText: string | number;
