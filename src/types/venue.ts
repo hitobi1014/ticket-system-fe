@@ -15,4 +15,4 @@ export interface Venue {
 }
 
 export type CreateVenueRequest = Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>;
-export type UpdateVenueRequest = Omit<Venue, 'createdAt' | 'updatedAt'>;
+export type UpdateVenueRequest = Omit<Venue, 'id' | 'createdAt' | 'updatedAt'>;

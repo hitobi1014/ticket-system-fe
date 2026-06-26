@@ -65,7 +65,14 @@ export default function MembersPage() {
 
   const functionButtons: ButtonItem[] = [
     {
-      dialog: <VenueInfoDialog venue={venue ?? undefined} isUpdate={venue?.id != null} />,
+      dialog: (
+        <VenueInfoDialog
+          key={venue?.id}
+          venueId={venue?.id}
+          venue={venue ?? undefined}
+          isUpdate={venue?.id != null}
+        />
+      ),
     },
     {
       text: '회원 추가',

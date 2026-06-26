@@ -12,7 +12,7 @@ interface VenueStore {
   fetchVenue: () => Promise<void>; // 최초 렌더링시 1회만 호출용
   getTotalSeatCount: () => number; // 총 좌석
   addVenue: (req: CreateVenueRequest) => Promise<void>;
-  updateVenue: (req: UpdateVenueRequest) => Promise<void>;
+  updateVenue: (venueId: number, req: UpdateVenueRequest) => Promise<void>;
 }
 
 const VENUE_API_PREFIX = '/venue';
@@ -43,10 +43,10 @@ const useVenueStore = create<VenueStore>()(
         set({ isLoading: false });
       }
     },
-    updateVenue: async (req) => {
+    updateVenue: async (venueId, req) => {
       set({ isLoading: true });
       try {
-        const updateVenue = await fetchApi<Venue>(`${VENUE_API_PREFIX}/${req.id}`, {
+        const updateVenue = await fetchApi<Venue>(`${VENUE_API_PREFIX}/${venueId}`, {
           method: 'PATCH',
           body: JSON.stringify(req),
         });

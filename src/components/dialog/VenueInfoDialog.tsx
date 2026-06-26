@@ -17,6 +17,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface VenueInfoDialogProps {
+  venueId?: number;
   venue: UpdateVenueRequest | undefined;
   isUpdate: boolean;
 }
@@ -53,7 +54,7 @@ const stagePositionOptions: { value: StagePosition; label: string }[] = [
   { value: 'back', label: '뒤' },
 ];
 
-export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
+export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogProps) {
   const [open, setOpen] = useState(false);
   const { addVenue, updateVenue, isLoading } = useVenueStore();
 
@@ -71,7 +72,7 @@ export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
 
   const handleSave = async () => {
     if (isUpdate) {
-      if (venue?.id == null) {
+      if (venueId == null) {
         toast.error('venue id 없음');
         return;
       }
@@ -81,10 +82,9 @@ export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
         stagePosition: form.stagePosition,
         name: form.name,
         address: form.address,
-        id: venue.id,
       };
       try {
-        await updateVenue(req);
+        await updateVenue(venueId, req);
       } catch (e) {
         toast.error(e instanceof Error ? e.message : '공연장 정보 수정 실패');
         return;
@@ -106,11 +106,13 @@ export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
       }
       toast.success('공연장 등록을 성공했습니다.');
     }
+
+    setOpen(false);
   };
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>공연장 정보</Button>
+        <Button variant="primary">공연장 정보</Button>
       </DialogTrigger>
       <DialogContent className="min-w-140 bg-surface-secondary text-content-primary">
         <DialogHeader>
@@ -174,7 +176,7 @@ export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
                 min={1}
                 type="number"
                 className="bg-surface-primary border-0 no-spinners"
-                onChange={(e) => handleChange('totalSeats', Number(e.target.value))}
+                onChange={(e) => handleChange('totalSeats', parseInt(e.target.value) || 0)}
               />
             </Field>
           </div>
@@ -203,7 +205,7 @@ export function VenueInfoDialog({ venue, isUpdate }: VenueInfoDialogProps) {
             <Button variant="dialog">취소</Button>
           </DialogClose>
           <Button variant="dialog" disabled={isLoading} onClick={handleSave}>
-            저장
+            {isUpdate ? '수정' : '저장'}
           </Button>
         </DialogFooter>
       </DialogContent>
