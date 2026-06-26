@@ -6,12 +6,15 @@ import SeatAssignPage from '@/pages/SeatAssignPage.tsx';
 import Layout from '@/components/Layout.tsx';
 import { IconSearch, IconArmchair2, IconLayoutDashboard, IconUsers } from '@tabler/icons-react';
 import SeatFindPage from '@/pages/SeatFindPage.tsx';
+import LoginPage from '@/pages/LoginPage.tsx';
+import ProtectedRoute from '@/components/ProtectedRoute.tsx';
 
 export interface NavRoute {
   path: string;
   title: string;
   Icon: TablerIcon;
   element: React.ReactNode;
+  isPublic?: boolean;
 }
 
 export const navRoutes: NavRoute[] = [
@@ -38,10 +41,18 @@ export const navRoutes: NavRoute[] = [
     title: '좌석찾기',
     Icon: IconSearch,
     element: <SeatFindPage />,
+    isPublic: true,
   },
 ];
 
+const protectedRoutes = navRoutes.filter((r) => !r.isPublic);
+const publicRoutes = navRoutes.filter((r) => r.isPublic);
+
 const router = createBrowserRouter([
+  {
+    path: '/login',
+    element: <LoginPage />,
+  },
   {
     element: <Layout />,
     children: [
@@ -49,7 +60,18 @@ const router = createBrowserRouter([
         path: '/',
         element: <Navigate to="/members" replace />,
       },
-      ...navRoutes.map(({ path, title, Icon, element }) => ({
+      {
+        element: <ProtectedRoute />,
+        children: protectedRoutes.map(({ path, title, Icon, element }) => ({
+          path,
+          element,
+          handle: {
+            title,
+            icon: <Icon stroke={1.5} />,
+          },
+        })),
+      },
+      ...publicRoutes.map(({ path, title, Icon, element }) => ({
         path,
         element,
         handle: {

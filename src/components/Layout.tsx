@@ -8,6 +8,7 @@ import PageHeader from '@/components/common/PageHeader.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
+import useAuthStore from '@/store/authStore';
 import { toast } from 'sonner';
 
 export default function Layout() {
@@ -15,8 +16,10 @@ export default function Layout() {
   const { fetchFloor } = useFloorStore();
   const { fetchVenue } = useVenueStore();
   const { fetchMembers } = useMemberStore();
+  const { isAuthenticated } = useAuthStore();
 
   useEffect(() => {
+    if (!isAuthenticated) return;
     const fetch = async () => {
       try {
         await Promise.all([fetchVenue(), fetchMembers(), fetchFloor()]);
@@ -25,7 +28,7 @@ export default function Layout() {
       }
     };
     fetch();
-  }, []);
+  }, [isAuthenticated]);
   const currentHandle = matches[matches.length - 1]?.handle as
     | {
         title: string;
