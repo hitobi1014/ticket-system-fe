@@ -3,11 +3,14 @@ import { Toggle } from '@/components/ui/toggle.tsx';
 import { SquareIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import AssignRow from '@/components/seat/AssignRow.tsx';
-import type { Floor } from '@/types';
+import type { Floor, StagePosition } from '@/types';
 import { clsx } from 'clsx';
+import { cn } from '@/lib/utils.ts';
+import StageBar from '@/components/seat-assign/StageBar.tsx';
 
 interface SeatAssignGridProps {
   floor: Floor;
+  stagePosition: StagePosition;
   isBulkEditMode: boolean;
   setIsBulkEditMode: (isBulkEditMode: boolean) => void;
   selectedSeatIds: Set<number>;
@@ -17,6 +20,7 @@ interface SeatAssignGridProps {
 
 export default function SeatAssignGrid({
   floor,
+  stagePosition,
   isBulkEditMode,
   setIsBulkEditMode,
   selectedSeatIds,
@@ -66,29 +70,42 @@ export default function SeatAssignGrid({
           </>
         )}
       </div>
-      <div className="flex flex-col gap-y-2 flex-1 no-scrollbar overflow-auto px-2">
-        {floor.rows.map((floorRow) => (
-          <div key={floorRow.id} className="flex gap-x-4">
-            {floorRow.items.map((item) =>
-              item.kind === 'aisle' ? (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
-                >
-                  <div className="w-px h-2/4 bg-surface-accent" />
-                </div>
-              ) : (
-                <AssignRow
-                  key={item.id}
-                  section={item}
-                  isBulkEditMode={isBulkEditMode}
-                  selectedSeatIds={selectedSeatIds}
-                  onSeatClick={handleSeatClick}
-                />
-              ),
-            )}
-          </div>
-        ))}
+      <div
+        className={cn(
+          'flex gap-2 flex-1 overflow-hidden',
+          stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
+        )}
+      >
+        {(stagePosition === 'front' || stagePosition === 'left') && (
+          <StageBar position={stagePosition} />
+        )}
+        <div className="flex flex-col gap-y-2 flex-1 no-scrollbar overflow-auto px-2">
+          {floor.rows.map((floorRow) => (
+            <div key={floorRow.id} className="flex gap-x-4">
+              {floorRow.items.map((item) =>
+                item.kind === 'aisle' ? (
+                  <div
+                    key={item.id}
+                    className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
+                  >
+                    <div className="w-px h-2/4 bg-surface-accent" />
+                  </div>
+                ) : (
+                  <AssignRow
+                    key={item.id}
+                    section={item}
+                    isBulkEditMode={isBulkEditMode}
+                    selectedSeatIds={selectedSeatIds}
+                    onSeatClick={handleSeatClick}
+                  />
+                ),
+              )}
+            </div>
+          ))}
+        </div>
+        {(stagePosition === 'back' || stagePosition === 'right') && (
+          <StageBar position={stagePosition} />
+        )}
       </div>
     </TabsContent>
   );

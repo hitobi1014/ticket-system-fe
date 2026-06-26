@@ -6,7 +6,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog.tsx';
-import { DialogDescription, DialogClose } from '@/components/ui/dialog';
+import { DialogClose, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Field, FieldLabel } from '@/components/ui/field.tsx';
 import { Input } from '@/components/ui/input.tsx';
@@ -27,7 +27,7 @@ const stagePositionStyle: Record<StagePosition, string> = {
   back: 'bottom-2 left-1/2 -translate-x-1/2',
   left: 'left-2 top-1/2 -translate-y-1/2',
   right: 'right-2 top-1/2 -translate-y-1/2',
-  center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2',
+  // center: 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2', ==> 무대 중앙인 경우는 추후 여유될때 고려
 };
 
 function StagePreview({ position }: { position: StagePosition }) {
@@ -50,7 +50,6 @@ const stagePositionOptions: { value: StagePosition; label: string }[] = [
   { value: 'front', label: '앞' },
   { value: 'right', label: '오른쪽' },
   { value: 'left', label: '왼쪽' },
-  { value: 'center', label: '중앙' },
   { value: 'back', label: '뒤' },
 ];
 

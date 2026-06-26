@@ -1,4 +1,4 @@
-export type StagePosition = 'front' | 'back' | 'left' | 'right' | 'center';
+export type StagePosition = 'front' | 'back' | 'left' | 'right';
 
 /** 공연장 설정 (전체 좌석 구조) */
 export interface Venue {

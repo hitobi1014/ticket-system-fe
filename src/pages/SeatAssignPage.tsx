@@ -1,4 +1,5 @@
 import useFloorStore from '@/store/floorStore.ts';
+import useVenueStore from '@/store/venueStore.ts';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import { useState } from 'react';
 import { Dialog } from '@/components/ui/dialog.tsx';
@@ -8,6 +9,7 @@ import SeatAssignGrid from '@/components/seat-assign/SeatAssignGrid.tsx';
 
 export default function SeatAssignPage() {
   const { floors } = useFloorStore();
+  const { venue } = useVenueStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
@@ -52,6 +54,7 @@ export default function SeatAssignPage() {
                     <SeatAssignGrid
                       key={floor.id}
                       floor={floor}
+                      stagePosition={venue?.stagePosition ?? 'front'}
                       isBulkEditMode={isBulkEditMode}
                       setIsBulkEditMode={setIsBulkEditMode}
                       selectedSeatIds={selectedSeatIds}

@@ -1,4 +1,5 @@
 import useFloorStore from '../store/floorStore.ts';
+import useVenueStore from '@/store/venueStore.ts';
 import { useState } from 'react';
 import type { Aisle, ButtonItem, CreateAisleRequest, CreateFloorRequest, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
@@ -9,9 +10,13 @@ import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils.ts';
+import StageBar from '@/components/seat-assign/StageBar.tsx';
 
 export default function FloorSetupPage() {
   const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
+  const { venue } = useVenueStore();
+  const stagePosition = venue?.stagePosition ?? 'front';
   const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
     floors.length > 0 ? floors[0].id : null,
   );
@@ -224,23 +229,36 @@ export default function FloorSetupPage() {
             </div>
 
             {/* 구역 컨텐츠 시작: 구역/통로 */}
-            <div className="flex flex-col mt-4 gap-y-4 flex-1 overflow-auto no-scrollbar pt-1 px-2">
-              {floor.rows.map((floorRow) => (
-                <div key={floorRow.id} className="flex gap-x-4">
-                  {floorRow.items.map((item) => (
-                    <SectionCard
-                      key={item.id}
-                      item={item}
-                      selectedSectionId={selectedSectionId}
-                      selectedAisleId={selectedAisleId}
-                      selectedRowId={selectedRowId}
-                      onSelectedSectionId={setSelectedSectionId}
-                      onSelectedAisleId={setSelectedAisleId}
-                      onSelectedRowId={setSelectedRowId}
-                    />
-                  ))}
-                </div>
-              ))}
+            <div
+              className={cn(
+                'flex mt-4 gap-2 flex-1 overflow-hidden',
+                stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
+              )}
+            >
+              {(stagePosition === 'front' || stagePosition === 'left') && (
+                <StageBar position={stagePosition} />
+              )}
+              <div className="flex flex-col gap-y-4 flex-1 overflow-auto no-scrollbar pt-1 px-2">
+                {floor.rows.map((floorRow) => (
+                  <div key={floorRow.id} className="flex gap-x-4">
+                    {floorRow.items.map((item) => (
+                      <SectionCard
+                        key={item.id}
+                        item={item}
+                        selectedSectionId={selectedSectionId}
+                        selectedAisleId={selectedAisleId}
+                        selectedRowId={selectedRowId}
+                        onSelectedSectionId={setSelectedSectionId}
+                        onSelectedAisleId={setSelectedAisleId}
+                        onSelectedRowId={setSelectedRowId}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
+              {(stagePosition === 'back' || stagePosition === 'right') && (
+                <StageBar position={stagePosition} />
+              )}
             </div>
           </TabsContent>
         ))}
