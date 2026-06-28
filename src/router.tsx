@@ -5,7 +5,7 @@ import FloorSetupPage from './pages/FloorSetupPage.tsx';
 import SeatAssignPage from '@/pages/SeatAssignPage.tsx';
 import Layout from '@/components/Layout.tsx';
 import { IconSearch, IconArmchair2, IconLayoutDashboard, IconUsers } from '@tabler/icons-react';
-import SeatFindPage from '@/pages/SeatFindPage.tsx';
+import SeatViewPage from './pages/SeatViewPage.tsx';
 import LoginPage from '@/pages/LoginPage.tsx';
 import ProtectedRoute from '@/components/ProtectedRoute.tsx';
 
@@ -37,10 +37,10 @@ export const navRoutes: NavRoute[] = [
     element: <SeatAssignPage />,
   },
   {
-    path: '/seats/find',
-    title: '좌석찾기',
+    path: '/seats/view',
+    title: '좌석안내',
     Icon: IconSearch,
-    element: <SeatFindPage />,
+    element: <SeatViewPage />,
     isPublic: true,
   },
 ];

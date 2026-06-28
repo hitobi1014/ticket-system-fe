@@ -41,6 +41,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-y-3">
           <Input
             placeholder="아이디"
+            className="text-content-primary"
             aria-label="disabled"
             value={loginId}
             onChange={(e) => setLoginId(e.target.value)}
@@ -49,6 +50,7 @@ export default function LoginPage() {
           />
           <Input
             type="password"
+            className="text-content-primary"
             aria-label="disabled"
             placeholder="비밀번호"
             value={password}
