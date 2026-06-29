@@ -25,7 +25,7 @@ interface SeatGridProps {
 
 function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
   useTransformEffect((state) => {
-    onScaleChange?.(state.scale);
+    onScaleChange?.(state.state.scale);
   });
   return null;
 }
@@ -92,8 +92,7 @@ export default function SeatGrid({
                   const isPulsing =
                     seat.assignedMemberId != null &&
                     (pulsingMemberIds?.has(seat.assignedMemberId) ?? false);
-                  const isDimmed =
-                    isHighlightMode && seat.assignedMemberId != null && !isSelected;
+                  const isDimmed = isHighlightMode && seat.assignedMemberId != null && !isSelected;
 
                   return (
                     <div
@@ -129,11 +128,13 @@ export default function SeatGrid({
     </div>
   ));
 
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+
   return (
     <TabsContent value={String(floor.id)} className="h-screen flex flex-col gap-y-4">
       <div
         className={cn(
-          'flex gap-2 flex˚-1 overflow-hidden',
+          'flex gap-2 flex-1 overflow-hidden',
           stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
         )}
       >
@@ -148,7 +149,7 @@ export default function SeatGrid({
               initialScale={1}
               minScale={0.5}
               maxScale={2}
-              wheel={{ step: 0.1 }}
+              wheel={{ step: isMac ? 0.01 : 0.5, activationKeys: [isMac ? 'Meta' : 'Control'] }}
               panning={{ allowLeftClickPan: true }}
               doubleClick={{ disabled: true }}
             >
@@ -156,9 +157,7 @@ export default function SeatGrid({
               <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
                 <div className="flex flex-col gap-y-2 px-2 pb-4 w-max">{floorRows}</div>
               </TransformComponent>
-              {isActive && (
-                <SeatMinimap floor={floor} highlightColorMap={highlightColorMap} />
-              )}
+              {isActive && <SeatMinimap floor={floor} highlightColorMap={highlightColorMap} />}
             </TransformWrapper>
           </div>
         ) : (

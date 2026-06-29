@@ -52,11 +52,14 @@ export default function SeatViewPage() {
     return () => document.removeEventListener('mousedown', handler);
   }, [showZoomDropdown]);
 
-  const handleScaleChange = useCallback((scale: number) => {
-    if (selectedFloorIdRef.current === selectedFloorId) {
-      setCurrentScale(scale);
-    }
-  }, [selectedFloorId]);
+  const handleScaleChange = useCallback(
+    (scale: number) => {
+      if (selectedFloorIdRef.current === selectedFloorId) {
+        setCurrentScale(scale);
+      }
+    },
+    [selectedFloorId],
+  );
 
   const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
 
@@ -290,7 +293,9 @@ export default function SeatViewPage() {
                 pulsingMemberIds={pulsingMemberIds}
                 enableZoom
                 isActive={floor.id === selectedFloorId}
-                transformRef={(ref) => { transformRefs.current.set(floor.id, ref); }}
+                transformRef={(ref) => {
+                  transformRefs.current.set(floor.id, ref);
+                }}
                 onScaleChange={handleScaleChange}
               />
             ))}
