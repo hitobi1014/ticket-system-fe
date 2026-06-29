@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
 import SeatGrid from '@/components/seat/SeatGrid.tsx';
 import { Tabs } from '@/components/ui/tabs';
+import { getChoseong } from 'es-hangul';
 
 export default function SeatViewPage() {
   const { floors } = useFloorStore();
@@ -20,7 +21,16 @@ export default function SeatViewPage() {
 
   const highlightMemberIds = useMemo(() => {
     if (!searchQuery.trim()) return undefined;
-    const matched = members.filter((m) => m.name.includes(searchQuery.trim())).map((m) => m.id);
+
+    const matched = members
+      .filter((m) => {
+        const choseong = getChoseong(m.name);
+        return (
+          choseong.includes(searchQuery) || // 초성 검색: 'ㄱㅁㄴ'
+          m.name.includes(searchQuery.trim()) // 일반 검색: '김미나'
+        );
+      })
+      .map((m) => m.id);
     return matched.length > 0 ? new Set(matched) : undefined;
   }, [searchQuery, members]);
 
