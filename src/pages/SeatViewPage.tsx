@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { cn } from '@/lib/utils';
 import useFloorStore from '@/store/floorStore';
 import useVenueStore from '@/store/venueStore';
 import useMemberStore from '@/store/memberStore';
@@ -45,6 +46,29 @@ export default function SeatViewPage() {
     () => new Map(selectedMembers.map((m) => [m.id, m.color ?? '#4f46e5'])),
     [selectedMembers],
   );
+
+  const highlightedFloorIds = useMemo(() => {
+    if (!highlightColorMap.size) return new Set<number>();
+    return new Set(
+      floors
+        .filter((floor) =>
+          floor.rows.some((floorRow) =>
+            floorRow.items.some(
+              (item) =>
+                item.kind === 'section' &&
+                item.rows.some((row) =>
+                  row.seats.some(
+                    (seat) =>
+                      seat.assignedMemberId != null &&
+                      highlightColorMap.has(seat.assignedMemberId),
+                  ),
+                ),
+            ),
+          ),
+        )
+        .map((f) => f.id),
+    );
+  }, [floors, highlightColorMap]);
 
   const handleSelectMember = (memberIdStr: string | null) => {
     if (memberIdStr == null) return;
@@ -142,14 +166,20 @@ export default function SeatViewPage() {
                 <TabsTrigger
                   key={floor.id}
                   value={String(floor.id)}
-                  className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-                  hover:text-content-danger
-                  data-[state=active]:text-content-primary
-                  data-[state=active]:bg-transparent
-                  data-[state=active]:shadow-none
-                  data-[state=active]:border-b-white"
+                  className={cn(
+                    `cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
+                    hover:text-content-danger
+                    data-[state=active]:text-content-primary
+                    data-[state=active]:bg-transparent
+                    data-[state=active]:shadow-none
+                    data-[state=active]:border-b-white`,
+                    highlightedFloorIds.has(floor.id) && 'gap-x-1.5',
+                  )}
                 >
                   {floor.name}
+                  {highlightedFloorIds.has(floor.id) && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-content-primary shrink-0" />
+                  )}
                 </TabsTrigger>
               ))}
             </TabsList>

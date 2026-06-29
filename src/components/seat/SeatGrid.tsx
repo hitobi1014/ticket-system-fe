@@ -50,7 +50,18 @@ export default function SeatGrid({
                 ) : (
                   <div
                     key={item.id}
-                    className="bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4"
+                    className={cn(
+                      'bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4',
+                      (highlightColorMap?.size ?? 0) > 0 &&
+                        item.rows.some((row) =>
+                          row.seats.some(
+                            (seat) =>
+                              seat.assignedMemberId != null &&
+                              (highlightColorMap?.has(seat.assignedMemberId) ?? false),
+                          ),
+                        ) &&
+                        'ring-2 ring-content-primary',
+                    )}
                   >
                     <div className="flex justify-between items-center text-sm">
                       <span>{item.name}</span>
