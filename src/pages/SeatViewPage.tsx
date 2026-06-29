@@ -252,7 +252,7 @@ export default function SeatViewPage() {
               <div ref={zoomDropdownRef} className="relative">
                 <Button
                   variant="ghost"
-                  size="icon-xs"
+                  size="lg"
                   className="text-content-primary"
                   onClick={() => setShowZoomDropdown((v) => !v)}
                 >
@@ -263,18 +263,18 @@ export default function SeatViewPage() {
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-content-primary"
+                      className="text-content-accent"
                       onClick={() => activeTransform?.zoomOut(0.25)}
                     >
                       <IconMinus stroke={2} size={14} />
                     </Button>
-                    <span className="text-content-secondary text-xs w-10 text-center tabular-nums">
+                    <span className="text-content-accent text-xs w-10 text-center tabular-nums">
                       {Math.round(currentScale * 100)}%
                     </span>
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-content-primary"
+                      className="text-content-accent"
                       onClick={() => activeTransform?.zoomIn(0.25)}
                     >
                       <IconPlus stroke={2} size={14} />

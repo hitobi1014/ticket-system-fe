@@ -131,7 +131,10 @@ export default function SeatGrid({
   const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   return (
-    <TabsContent value={String(floor.id)} className="flex-1 min-h-0 flex flex-col gap-y-4">
+    <TabsContent
+      value={String(floor.id)}
+      className="flex-1 min-h-0 flex flex-col gap-y-4 cursor-grab active:cursor-grabbing"
+    >
       <div
         className={cn(
           'flex gap-2 flex-1 overflow-hidden',
