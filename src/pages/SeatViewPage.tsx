@@ -59,8 +59,7 @@ export default function SeatViewPage() {
                 item.rows.some((row) =>
                   row.seats.some(
                     (seat) =>
-                      seat.assignedMemberId != null &&
-                      highlightColorMap.has(seat.assignedMemberId),
+                      seat.assignedMemberId != null && highlightColorMap.has(seat.assignedMemberId),
                   ),
                 ),
             ),
@@ -117,12 +116,42 @@ export default function SeatViewPage() {
           onInputValueChange={(v) => setSearchQuery(v)}
           filter={() => true}
         >
-          <ComboboxInput
-            showTrigger={false}
-            placeholder="회원 이름으로 좌석 찾기"
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full text-content-primary"
-          />
+          <div className="flex items-center gap-x-2">
+            <ComboboxInput
+              showTrigger={false}
+              placeholder="회원 이름으로 좌석 찾기"
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-60 text-content-primary"
+            />
+            {/* 선택된 회원 목록
+            간략하게 color 이름 표기
+            ex) o 김안나
+            */}
+            <div className="flex gap-x-2">
+              {selectedMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex justify-center items-center gap-x-1 rounded-md bg-surface-accent px-2"
+                >
+                  <div
+                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: member.color ?? '#cccccc' }}
+                  />
+                  <span className="text-content-primary text-sm flex-1 truncate">
+                    {member.name}
+                  </span>
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    className="shrink-0 text-content-primary"
+                    onClick={() => handleRemoveMember(member.id)}
+                  >
+                    <IconX stroke={2} size={14} />
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
           {
             <ComboboxContent>
               <ComboboxList>
@@ -193,36 +222,6 @@ export default function SeatViewPage() {
               />
             ))}
           </Tabs>
-
-          {/* 선택된 회원 목록 */}
-          <div className="w-52 shrink-0 flex flex-col gap-y-2 overflow-y-auto no-scrollbar pt-1">
-            {selectedMembers.length === 0 ? (
-              <p className="text-content-secondary text-sm">선택된 회원 없음</p>
-            ) : (
-              selectedMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex items-center gap-x-2 bg-surface-secondary rounded-md px-3 py-2"
-                >
-                  <div
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: member.color ?? '#cccccc' }}
-                  />
-                  <span className="text-content-primary text-sm flex-1 truncate">
-                    {member.name}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className="shrink-0 text-content-primary"
-                    onClick={() => handleRemoveMember(member.id)}
-                  >
-                    <IconX stroke={2} size={14} />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
         </div>
       </div>
     </div>

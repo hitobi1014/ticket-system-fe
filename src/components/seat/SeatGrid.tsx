@@ -29,7 +29,7 @@ export default function SeatGrid({
     <TabsContent value={String(floor.id)} className="h-screen flex flex-col gap-y-4">
       <div
         className={cn(
-          'flex gap-2 flex-1 overflow-hidden',
+          'flex gap-2 flex˚-1 overflow-hidden',
           stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
         )}
       >
