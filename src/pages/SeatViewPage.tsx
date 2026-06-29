@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import useFloorStore from '@/store/floorStore';
 import useVenueStore from '@/store/venueStore';
@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { IconMapPin, IconX } from '@tabler/icons-react';
+import { IconMapPin, IconMinus, IconPlus, IconX, IconZoomIn } from '@tabler/icons-react';
 import { getChoseong } from 'es-hangul';
 import {
   Combobox,
@@ -16,6 +16,7 @@ import {
   ComboboxItem,
   ComboboxList,
 } from '@/components/ui/combobox';
+import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 
 export default function SeatViewPage() {
   const { floors } = useFloorStore();
@@ -28,6 +29,36 @@ export default function SeatViewPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
+  const [currentScale, setCurrentScale] = useState(1);
+  const [showZoomDropdown, setShowZoomDropdown] = useState(false);
+
+  const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
+  const zoomDropdownRef = useRef<HTMLDivElement>(null);
+  const selectedFloorIdRef = useRef(selectedFloorId);
+
+  useEffect(() => {
+    selectedFloorIdRef.current = selectedFloorId;
+    setCurrentScale(1);
+  }, [selectedFloorId]);
+
+  useEffect(() => {
+    if (!showZoomDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (!zoomDropdownRef.current?.contains(e.target as Node)) {
+        setShowZoomDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showZoomDropdown]);
+
+  const handleScaleChange = useCallback((scale: number) => {
+    if (selectedFloorIdRef.current === selectedFloorId) {
+      setCurrentScale(scale);
+    }
+  }, [selectedFloorId]);
+
+  const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery.trim()) return members;
@@ -190,28 +221,66 @@ export default function SeatViewPage() {
             value={String(selectedFloorId)}
             onValueChange={(v) => setSelectedFloorId(Number(v))}
           >
-            <TabsList className="bg-transparent flex gap-x-2">
-              {floors.map((floor) => (
-                <TabsTrigger
-                  key={floor.id}
-                  value={String(floor.id)}
-                  className={cn(
-                    `cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-                    hover:text-content-danger
-                    data-[state=active]:text-content-primary
-                    data-[state=active]:bg-transparent
-                    data-[state=active]:shadow-none
-                    data-[state=active]:border-b-white`,
-                    highlightedFloorIds.has(floor.id) && 'gap-x-1.5',
-                  )}
+            <div className="flex items-center justify-between">
+              <TabsList className="bg-transparent flex gap-x-2">
+                {floors.map((floor) => (
+                  <TabsTrigger
+                    key={floor.id}
+                    value={String(floor.id)}
+                    className={cn(
+                      `cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
+                      hover:text-content-danger
+                      data-[state=active]:text-content-primary
+                      data-[state=active]:bg-transparent
+                      data-[state=active]:shadow-none
+                      data-[state=active]:border-b-white`,
+                      highlightedFloorIds.has(floor.id) && 'gap-x-1.5',
+                    )}
+                  >
+                    {floor.name}
+                    {highlightedFloorIds.has(floor.id) && (
+                      <span className="w-1.5 h-1.5 rounded-full bg-content-primary shrink-0" />
+                    )}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
+
+              {/* Zoom controls */}
+              <div ref={zoomDropdownRef} className="relative">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="text-content-primary"
+                  onClick={() => setShowZoomDropdown((v) => !v)}
                 >
-                  {floor.name}
-                  {highlightedFloorIds.has(floor.id) && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-content-primary shrink-0" />
-                  )}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+                  <IconZoomIn stroke={1.5} size={18} />
+                </Button>
+                {showZoomDropdown && (
+                  <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-surface-accent">
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-content-primary"
+                      onClick={() => activeTransform?.zoomOut(0.25)}
+                    >
+                      <IconMinus stroke={2} size={14} />
+                    </Button>
+                    <span className="text-content-secondary text-xs w-10 text-center tabular-nums">
+                      {Math.round(currentScale * 100)}%
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      className="text-content-primary"
+                      onClick={() => activeTransform?.zoomIn(0.25)}
+                    >
+                      <IconPlus stroke={2} size={14} />
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {floors.map((floor) => (
               <SeatGrid
                 key={floor.id}
@@ -219,6 +288,10 @@ export default function SeatViewPage() {
                 stagePosition={venue?.stagePosition ?? 'front'}
                 highlightColorMap={highlightColorMap}
                 pulsingMemberIds={pulsingMemberIds}
+                enableZoom
+                isActive={floor.id === selectedFloorId}
+                transformRef={(ref) => { transformRefs.current.set(floor.id, ref); }}
+                onScaleChange={handleScaleChange}
               />
             ))}
           </Tabs>
