@@ -8,10 +8,10 @@ import { getContrastTextColor } from '@/lib/uiUtils';
 interface SeatGridProps {
   floor: Floor;
   stagePosition: StagePosition;
-  highlightMemberIds?: Set<number>;
+  highlightColorMap?: Map<number, string>; // 회원id, color
 }
 
-export default function SeatGrid({ floor, stagePosition, highlightMemberIds }: SeatGridProps) {
+export default function SeatGrid({ floor, stagePosition, highlightColorMap }: SeatGridProps) {
   const { members } = useMemberStore();
 
   const getMemberColor = (memberId: number) =>
@@ -54,27 +54,32 @@ export default function SeatGrid({ floor, stagePosition, highlightMemberIds }: S
                       <div key={row.id} className="flex items-center gap-x-1.5">
                         <p>{row.rowName}</p>
                         {row.seats.map((seat) => {
-                          const isHighlighted =
-                            highlightMemberIds &&
-                            seat.assignedMemberId != null &&
-                            highlightMemberIds.has(seat.assignedMemberId);
+                          const bgColor =
+                            seat.assignedMemberId != null
+                              ? getMemberColor(seat.assignedMemberId)
+                              : undefined;
+                          const highlightColor =
+                            seat.assignedMemberId != null
+                              ? highlightColorMap?.get(seat.assignedMemberId)
+                              : undefined;
                           return (
                             <div
                               key={seat.id}
-                              className={cn(
-                                'w-10 h-10 flex items-center justify-center rounded-md border text-sm bg-surface-primary text-content-primary',
-                                isHighlighted && 'ring-2 ring-content-accent ring-offset-1',
-                              )}
-                              style={
-                                seat.assignedMemberId != null
+                              className="w-10 h-10 flex items-center justify-center rounded-md border text-sm bg-surface-primary text-content-primary"
+                              style={{
+                                ...(bgColor
                                   ? {
-                                      backgroundColor: getMemberColor(seat.assignedMemberId),
-                                      color: getContrastTextColor(
-                                        getMemberColor(seat.assignedMemberId),
-                                      ),
+                                      backgroundColor: bgColor,
+                                      color: getContrastTextColor(bgColor),
                                     }
-                                  : undefined
-                              }
+                                  : {}),
+                                ...(highlightColor
+                                  ? {
+                                      outline: `2px solid ${highlightColor}`,
+                                      outlineOffset: '1px',
+                                    }
+                                  : {}),
+                              }}
                             >
                               <div className="text-center leading-tight">
                                 <p>{seat.seatNumber}</p>
