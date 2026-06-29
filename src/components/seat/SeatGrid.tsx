@@ -9,9 +9,15 @@ interface SeatGridProps {
   floor: Floor;
   stagePosition: StagePosition;
   highlightColorMap?: Map<number, string>; // 회원id, color
+  pulsingMemberIds?: Set<number>;
 }
 
-export default function SeatGrid({ floor, stagePosition, highlightColorMap }: SeatGridProps) {
+export default function SeatGrid({
+  floor,
+  stagePosition,
+  highlightColorMap,
+  pulsingMemberIds,
+}: SeatGridProps) {
   const { members } = useMemberStore();
 
   const getMemberColor = (memberId: number) =>
@@ -58,25 +64,29 @@ export default function SeatGrid({ floor, stagePosition, highlightColorMap }: Se
                             seat.assignedMemberId != null
                               ? getMemberColor(seat.assignedMemberId)
                               : undefined;
-                          const highlightColor =
-                            seat.assignedMemberId != null
-                              ? highlightColorMap?.get(seat.assignedMemberId)
-                              : undefined;
+                          const isHighlightMode = (highlightColorMap?.size ?? 0) > 0;
+                          const isSelected =
+                            seat.assignedMemberId != null &&
+                            (highlightColorMap?.has(seat.assignedMemberId) ?? false);
+                          const isPulsing =
+                            seat.assignedMemberId != null &&
+                            (pulsingMemberIds?.has(seat.assignedMemberId) ?? false);
+                          const isDimmed =
+                            isHighlightMode && seat.assignedMemberId != null && !isSelected;
+
                           return (
                             <div
                               key={seat.id}
-                              className="w-10 h-10 flex items-center justify-center rounded-md border text-sm bg-surface-primary text-content-primary"
+                              className={cn(
+                                'w-10 h-10 flex items-center justify-center rounded-md border text-sm bg-surface-primary text-content-primary',
+                                isPulsing && 'animate-pulse',
+                              )}
                               style={{
                                 ...(bgColor
                                   ? {
                                       backgroundColor: bgColor,
                                       color: getContrastTextColor(bgColor),
-                                    }
-                                  : {}),
-                                ...(highlightColor
-                                  ? {
-                                      outline: `2px solid ${highlightColor}`,
-                                      outlineOffset: '1px',
+                                      ...(isDimmed ? { filter: 'brightness(0.4)' } : {}),
                                     }
                                   : {}),
                               }}

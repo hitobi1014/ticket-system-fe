@@ -26,6 +26,7 @@ export default function SeatViewPage() {
   );
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
+  const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
 
   const filteredMembers = useMemo(() => {
     if (!searchQuery.trim()) return [];
@@ -50,6 +51,14 @@ export default function SeatViewPage() {
     const memberId = Number(memberIdStr);
     if (!selectedMemberIds.includes(memberId)) {
       setSelectedMemberIds((prev) => [...prev, memberId]);
+      setPulsingMemberIds((prev) => new Set(prev).add(memberId));
+      setTimeout(() => {
+        setPulsingMemberIds((prev) => {
+          const next = new Set(prev);
+          next.delete(memberId);
+          return next;
+        });
+      }, 1500);
     }
     setSearchQuery('');
   };
@@ -150,6 +159,7 @@ export default function SeatViewPage() {
                 floor={floor}
                 stagePosition={venue?.stagePosition ?? 'front'}
                 highlightColorMap={highlightColorMap}
+                pulsingMemberIds={pulsingMemberIds}
               />
             ))}
           </Tabs>
