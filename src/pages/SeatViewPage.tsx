@@ -11,7 +11,6 @@ import { getChoseong } from 'es-hangul';
 import {
   Combobox,
   ComboboxContent,
-  ComboboxEmpty,
   ComboboxInput,
   ComboboxItem,
   ComboboxList,
@@ -94,25 +93,28 @@ export default function SeatViewPage() {
           {searchQuery.trim() && (
             <ComboboxContent>
               <ComboboxList>
-                <ComboboxEmpty>검색 결과 없음</ComboboxEmpty>
-                {filteredMembers.map((member) => {
-                  const remain = getMemberRemainTicketsByMemberId(member.id);
-                  return (
-                    <ComboboxItem key={member.id} value={String(member.id)}>
-                      <div
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: member.color ?? '#cccccc' }}
-                      />
-                      <Badge variant="secondary" className="px-1.5 py-0 text-xs">
-                        {member.instrument.abbr}
-                      </Badge>
-                      <span className="flex-1 text-sm">{member.name}</span>
-                      <span className="text-muted-foreground text-xs ml-auto">
-                        {remain}/{member.allocatedTickets}
-                      </span>
-                    </ComboboxItem>
-                  );
-                })}
+                {filteredMembers.length === 0 ? (
+                  <p className="py-2 text-center text-sm text-muted-foreground">검색 결과 없음</p>
+                ) : (
+                  filteredMembers.map((member) => {
+                    const remain = getMemberRemainTicketsByMemberId(member.id);
+                    return (
+                      <ComboboxItem key={member.id} value={String(member.id)}>
+                        <div
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: member.color ?? '#cccccc' }}
+                        />
+                        <Badge variant="secondary" className="px-1.5 py-0 text-xs">
+                          {member.instrument.abbr}
+                        </Badge>
+                        <span className="flex-1 text-sm">{member.name}</span>
+                        <span className="text-muted-foreground text-xs ml-auto">
+                          {remain}/{member.allocatedTickets}
+                        </span>
+                      </ComboboxItem>
+                    );
+                  })
+                )}
               </ComboboxList>
             </ComboboxContent>
           )}
