@@ -29,7 +29,7 @@ export default function SeatViewPage() {
   const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
 
   const filteredMembers = useMemo(() => {
-    if (!searchQuery.trim()) return [];
+    if (!searchQuery.trim()) return members;
     return members.filter((m) => {
       const choseong = getChoseong(m.name);
       return choseong.includes(searchQuery) || m.name.includes(searchQuery.trim());
@@ -99,7 +99,7 @@ export default function SeatViewPage() {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full text-content-primary"
           />
-          {searchQuery.trim() && (
+          {
             <ComboboxContent>
               <ComboboxList>
                 {filteredMembers.length === 0 ? (
@@ -113,12 +113,12 @@ export default function SeatViewPage() {
                           className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: member.color ?? '#cccccc' }}
                         />
-                        <Badge variant="secondary" className="px-1.5 py-0 text-xs">
+                        <Badge variant="secondary" className="px-1.5 py-0 w-4 text-xs">
                           {member.instrument.abbr}
                         </Badge>
                         <span className="flex-1 text-sm">{member.name}</span>
                         <span className="text-muted-foreground text-xs ml-auto">
-                          {remain}/{member.allocatedTickets}
+                          잔여:{remain} / 배정:{member.allocatedTickets}
                         </span>
                       </ComboboxItem>
                     );
@@ -126,7 +126,7 @@ export default function SeatViewPage() {
                 )}
               </ComboboxList>
             </ComboboxContent>
-          )}
+          }
         </Combobox>
 
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
