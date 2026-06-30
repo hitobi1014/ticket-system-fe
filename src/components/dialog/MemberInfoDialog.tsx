@@ -30,7 +30,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     point: member?.point ?? 0,
     instrumentAbbr: member?.instrument.abbr ?? INSTRUMENTS[0].abbr,
     allocatedTickets: member?.allocatedTickets ?? 0,
-    color: member?.color,
+    color: member?.color ?? '#000000',
   });
 
   const isEditMode = member !== undefined;
