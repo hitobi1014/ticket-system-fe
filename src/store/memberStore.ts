@@ -39,10 +39,11 @@ const useMemberStore = create<MemberStore>((set, get) => ({
   syncFromSheet: async () => {
     set({ isLoading: true });
 
-    // TODO 2026년 06월 30일: 반환값으로 뭐 받을지 아직 결정x
     await fetchApi(`${memberURIPrefix}/async-sheet`, {
       method: 'POST',
     });
+
+    await get().fetchMembers();
     set({ isLoading: false });
   },
   // 배정된 좌석수: seat에 배정된 회원수 id length
