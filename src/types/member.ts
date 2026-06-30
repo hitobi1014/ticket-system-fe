@@ -4,17 +4,21 @@ export interface Instrument {
 }
 
 export const INSTRUMENTS: Instrument[] = [
+  { abbr: '지휘', name: '지휘' },
   { abbr: 'Fl', name: '플루트' },
   { abbr: 'Ob', name: '오보에' },
-  { abbr: 'Cl', name: '클라리넷' },
+  { abbr: 'Cla', name: '클라리넷' },
   { abbr: 'Fg', name: '파곳' },
   { abbr: 'Hn', name: '호른' },
-  { abbr: 'Tr', name: '트럼펫' },
+  { abbr: 'Tp', name: '트럼펫' },
   { abbr: 'Tb', name: '트롬본' },
-  { abbr: 'Vn', name: '바이올린' },
+  { abbr: 'Vn1', name: '퍼스트 바이올린' },
+  { abbr: 'Vn2', name: '세컨드 바이올린' },
   { abbr: 'Va', name: '비올라' },
   { abbr: 'Vc', name: '첼로' },
   { abbr: 'Cb', name: '콘트라베이스' },
+  { abbr: 'Sax', name: '색소폰' },
+  { abbr: 'Per', name: '퍼커션' },
 ];
 
 // 서버 응답용

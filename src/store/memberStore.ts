@@ -9,6 +9,7 @@ interface MemberStore {
   isLoading: boolean;
 
   fetchMembers: () => Promise<void>;
+  syncFromSheet: () => Promise<void>;
   getMemberAssignedTicketsByMemberId: (id: number) => number;
   getMemberRemainTicketsByMemberId: (id: number) => number;
   getAllocatedTickets: () => number;
@@ -35,6 +36,16 @@ const useMemberStore = create<MemberStore>((set, get) => ({
     set({ members, isLoading: false });
   },
 
+  syncFromSheet: async () => {
+    set({ isLoading: true });
+
+    await fetchApi(`${memberURIPrefix}/async-sheet`, {
+      method: 'POST',
+    });
+
+    await get().fetchMembers();
+    set({ isLoading: false });
+  },
   // 배정된 좌석수: seat에 배정된 회원수 id length
   getMemberAssignedTicketsByMemberId: (memberId) =>
     useFloorStore
