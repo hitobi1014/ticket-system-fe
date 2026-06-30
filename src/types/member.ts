@@ -36,6 +36,18 @@ export interface CreateMemberRequest {
   color?: string; // 좌석 배정 시 구분 색상 (hex 코드)
 }
 
+export interface SyncMemberResponse {
+  success: boolean;
+  stats: {
+    inserted: number; // 신규 추가된 회원 수
+    updated: number; // 수정된 회원 수
+    deleted: number; // 삭제된 회원 수
+    total: number; // 전체 처리 건수
+  };
+  members: Member[];
+  syncedAt: string;
+}
+
 /** 티켓 현황 요약 (파생 데이터) */
 export interface TicketSummary {
   memberId: number;

@@ -1,4 +1,4 @@
-import type { CreateMemberRequest, Member } from '@/types/member.ts';
+import type { CreateMemberRequest, Member, SyncMemberResponse } from '@/types/member.ts';
 import { create } from 'zustand/react';
 import useFloorStore from '@/store/floorStore.ts';
 import type { Section } from '@/types';
@@ -9,6 +9,7 @@ interface MemberStore {
   isLoading: boolean;
 
   fetchMembers: () => Promise<void>;
+  syncFromSheet: () => Promise<SyncMemberResponse>;
   getMemberAssignedTicketsByMemberId: (id: number) => number;
   getMemberRemainTicketsByMemberId: (id: number) => number;
   getAllocatedTickets: () => number;
@@ -35,6 +36,17 @@ const useMemberStore = create<MemberStore>((set, get) => ({
     set({ members, isLoading: false });
   },
 
+  syncFromSheet: async () => {
+    set({ isLoading: true });
+
+    const data = await fetchApi<SyncMemberResponse>(`${memberURIPrefix}/async-sheet`, {
+      method: 'POST',
+    });
+
+    set({ members: data.members, isLoading: false });
+
+    return data;
+  },
   // 배정된 좌석수: seat에 배정된 회원수 id length
   getMemberAssignedTicketsByMemberId: (memberId) =>
     useFloorStore

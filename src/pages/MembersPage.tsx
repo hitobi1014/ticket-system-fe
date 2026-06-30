@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
-import { IconTicket, IconUserPlus } from '@tabler/icons-react';
+import { IconCloudDown, IconTicket, IconUserPlus } from '@tabler/icons-react';
 import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
@@ -37,6 +37,7 @@ export default function MembersPage() {
   const {
     members,
     isLoading,
+    syncFromSheet,
     getMemberAssignedTicketsByMemberId,
     getMemberRemainTicketsByMemberId,
     distributeTickets,
@@ -73,6 +74,31 @@ export default function MembersPage() {
           isUpdate={venue?.id != null}
         />
       ),
+    },
+    {
+      text: '회원 목록 동기화',
+      icon: <IconCloudDown stroke={2} />,
+      confirm: {
+        title: '회원 목록 가져오기',
+        description: '스프레드 시트에 작성된 회원정보 가져오기',
+        actions: [
+          {
+            text: '가져오기',
+            onClick: async () => {
+              try {
+                const data = await syncFromSheet();
+                const status = data.stats;
+                toast.success(
+                  `동기화 완료: 추가 ${status.inserted}건, 수정: ${status.updated}건, 삭제: ${status.deleted}건, 총 처리건수: ${status.total}`,
+                );
+              } catch (e) {
+                toast.error(`회원 목록가져오기 실패: ${e}`);
+              }
+            },
+          },
+        ],
+        triggerText: '가져오기',
+      },
     },
     {
       text: '회원 추가',
