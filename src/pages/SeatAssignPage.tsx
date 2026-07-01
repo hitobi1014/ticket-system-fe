@@ -20,55 +20,49 @@ export default function SeatAssignPage() {
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
 
   return (
-    <div>
-      <div>
-        <div>
-          <div>
-            <Tabs
-              className="flex flex-col flex-1 overflow-hidden"
-              value={String(selectedFloorId)}
-              onValueChange={(v) => setSelectedFloorId(Number(v))}
-            >
-              <TabsList className="bg-transparent flex gap-x-2">
-                {floors.map((floor) => (
-                  <TabsTrigger
-                    key={floor.id}
-                    value={String(floor.id)}
-                    className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
+    <div className="h-full flex flex-col overflow-hidden">
+      <Tabs
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+        value={String(selectedFloorId)}
+        onValueChange={(v) => setSelectedFloorId(Number(v))}
+      >
+        <TabsList className="bg-transparent flex gap-x-2">
+          {floors.map((floor) => (
+            <TabsTrigger
+              key={floor.id}
+              value={String(floor.id)}
+              className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
                     hover:text-content-danger
                     data-[state=active]:text-content-primary
                     data-[state=active]:bg-transparent
                     data-[state=active]:shadow-none
                     data-[state=active]:border-b-white
                     "
-                  >
-                    {floor.name}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            >
+              {floor.name}
+            </TabsTrigger>
+          ))}
+        </TabsList>
 
-              <div className="flex gap-x-4">
-                {/* 좌측 메인 */}
-                <div className="flex-1 overflow-x-auto">
-                  {floors.map((floor) => (
-                    <SeatAssignGrid
-                      key={floor.id}
-                      floor={floor}
-                      stagePosition={venue?.stagePosition ?? 'front'}
-                      isBulkEditMode={isBulkEditMode}
-                      setIsBulkEditMode={setIsBulkEditMode}
-                      selectedSeatIds={selectedSeatIds}
-                      setSelectedSeatIds={setSelectedSeatIds}
-                      setIsModalOpen={setIsModalOpen}
-                    />
-                  ))}
-                </div>
-                <SeatAssignSidebar />
-              </div>
-            </Tabs>
+        <div className="flex gap-x-4 flex-1 min-h-0">
+          {/* 좌측 메인 */}
+          <div className="flex-1 overflow-x-auto no-scrollbar">
+            {floors.map((floor) => (
+              <SeatAssignGrid
+                key={floor.id}
+                floor={floor}
+                stagePosition={venue?.stagePosition ?? 'front'}
+                isBulkEditMode={isBulkEditMode}
+                setIsBulkEditMode={setIsBulkEditMode}
+                selectedSeatIds={selectedSeatIds}
+                setSelectedSeatIds={setSelectedSeatIds}
+                setIsModalOpen={setIsModalOpen}
+              />
+            ))}
           </div>
+          <SeatAssignSidebar />
         </div>
-      </div>
+      </Tabs>
 
       {/* 회원 좌석 배정 모달 => 모달은 페이지(최상위)레벨에 배치 */}
       <Dialog

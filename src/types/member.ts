@@ -29,6 +29,8 @@ export interface Member {
   point: number;
   allocatedTickets: number; // 배정된 티켓 수
   color?: string; // 좌석 배정 시 구분 색상 (hex 코드)
+  seq: number; // 정렬 우선순위 번호
+  rank: number; // 출석점수 기반 순위
 }
 
 // 생성 요청용 (id 없음)

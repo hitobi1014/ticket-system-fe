@@ -23,7 +23,7 @@ import { toast } from 'sonner';
 import useVenueStore from '@/store/venueStore.ts';
 import { VenueInfoDialog } from '@/components/dialog/VenueInfoDialog.tsx';
 
-const COL_WIDTHS = ['15%', '12%', '14%', '14%', '14%', '12%'];
+const COL_WIDTHS = ['5%', '14%', '11%', '10%', '10%', '10%', '10%', '11%'];
 const ColGroup = () => (
   <colgroup>
     {COL_WIDTHS.map((w, i) => (
@@ -31,7 +31,16 @@ const ColGroup = () => (
     ))}
   </colgroup>
 );
-const TABLE_HEADS = ['이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '회원 색상']; // 6개
+const TABLE_HEADS = [
+  '순위',
+  '이름',
+  '파트',
+  '출석점수',
+  '배정 티켓',
+  '잔여 티켓',
+  '배정된 좌석 수',
+  '회원 색상',
+]; // 8개
 
 export default function MembersPage() {
   const {
@@ -182,10 +191,12 @@ export default function MembersPage() {
                         setIsModalOpen(true);
                       }}
                     >
+                      <TableCell>{member.seq}</TableCell>
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
                         <Badge className="bg-mist-500 text-white">{member.instrument.abbr}</Badge>
                       </TableCell>
+                      <TableCell>{member.point}</TableCell>
                       {/* 배정티켓 */}
                       <TableCell>{member.allocatedTickets}</TableCell>
                       {/* 잔여티켓 */}
