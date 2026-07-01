@@ -154,13 +154,13 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       {/* ✅ 회원 목록: 잔여 좌석이 남은 회원만 표기 */}
       <Separator className="bg-surface-accent" />
       <div
-        className={clsx('-mx-4 max-h-[50vh] overflow-hidden px-4', {
+        className={clsx('flex flex-col -mx-4 max-h-[50vh] overflow-hidden px-4', {
           'ring-2 ring-red-400': hasMemberEmpty,
         })}
       >
         {/*검색 기능?*/}
         <h5 className="text-sm mb-2 font-bold text-content-secondary">회원 목록</h5>
-        <div className="flex flex-col h-full no-scrollbar overflow-y-auto">
+        <div className="flex flex-col flex-1 min-h-0 no-scrollbar overflow-y-auto">
           {getAssignableMember(members).map((mem) => (
             // 선택된 좌석보다 회원 잔여석이 적으면 클릭 비활성화
             <div
