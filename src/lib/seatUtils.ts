@@ -32,11 +32,18 @@ export function findSeatContextByRowId(floors: Floor[], rowId: number) {
   return null;
 }
 
-export function getAssignableMember(members: Member[]): Member[] {
+export function getAssignableMember(
+  members: Member[],
+  assignedCountMap: Record<number, number>,
+): Member[] {
   return [...members].sort((a, b) => {
-    const aEmpty = a.allocatedTickets === 0 ? 1 : 0;
-    const bEmpty = b.allocatedTickets === 0 ? 1 : 0;
-    if (aEmpty !== bEmpty) return aEmpty - bEmpty;
-    return a.seq - b.seq;
+    const aRemain = a.allocatedTickets - (assignedCountMap[a.id] ?? 0);
+    const bRemain = b.allocatedTickets - (assignedCountMap[b.id] ?? 0);
+
+    const aEmpty = aRemain === 0 ? 1 : 0;
+    const bEmpty = bRemain === 0 ? 1 : 0;
+
+    if (aEmpty !== bEmpty) return aEmpty - bEmpty; // 잔여 0이면 후순위
+    return a.seq - b.seq; // 기본 정렬은 seq
   });
 }

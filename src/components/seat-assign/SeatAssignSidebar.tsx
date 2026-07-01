@@ -7,20 +7,14 @@ import { getAssignableMember } from '@/lib/seatUtils.ts';
 
 export default function SeatAssignSidebar() {
   const { getRemainSeatCount } = useFloorStore();
-  const { members } = useMemberStore();
+  const { members, getMemberRemainTicketsByMemberId, getAssignedCountMap } = useMemberStore();
 
-  // const sortingMember = members.sort((a, b) => {
-  //   // 잔여티켓 내림차순
-  //   if (b.allocatedTickets !== a.allocatedTickets) {
-  //     return b.allocatedTickets - a.allocatedTickets;
-  //   }
-  //   // 같으면 이름 가나다순
-  //   return a.name.localeCompare(b.name, 'ko');
-  // });
-
-  const isAllowTicketZero = (allocatedTickets: number): boolean => {
-    return allocatedTickets == 0;
+  const isRemainTicketZero = (memberId: number): boolean => {
+    const remainTicket = getMemberRemainTicketsByMemberId(memberId);
+    return remainTicket == 0;
   };
+
+  const sortedMemberFromRemainSeat = getAssignableMember(members, getAssignedCountMap());
 
   return (
     <div className="w-44 flex flex-col h-full border-l border-surface-accent pl-4 p-y">
@@ -32,8 +26,7 @@ export default function SeatAssignSidebar() {
         <h3 className="text-content-secondary text-sm shrink-0">회원별 잔여 티켓</h3>
         <Separator className="shrink-0" />
         <div className="flex flex-col flex-1 min-h-0 no-scrollbar overflow-y-auto gap-y-1.5">
-          {/*{sortingMember.map((member) => (*/}
-          {getAssignableMember(members).map((member) => (
+          {sortedMemberFromRemainSeat.map((member) => (
             <div key={member.id} className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 text-content-primary">
                 <p className="w-6 text-xs">{member.seq}</p>
@@ -52,7 +45,7 @@ export default function SeatAssignSidebar() {
                 </p>
                 <p
                   className={clsx('text-sm text-content-primary', {
-                    'text-mist-500': isAllowTicketZero(member.allocatedTickets),
+                    'text-mist-500': isRemainTicketZero(member.id),
                   })}
                 >
                   {member.name}
@@ -60,15 +53,12 @@ export default function SeatAssignSidebar() {
               </div>
               <p
                 className={clsx('px-2 py-0.5 rounded text-sm min-w-6 text-center', {
-                  'bg-surface-danger text-content-danger': isAllowTicketZero(
-                    member.allocatedTickets,
-                  ),
-                  'bg-surface-secondary text-content-primary': !isAllowTicketZero(
-                    member.allocatedTickets,
-                  ),
+                  'bg-surface-danger text-content-danger': isRemainTicketZero(member.id),
+                  'bg-surface-secondary text-content-primary': !isRemainTicketZero(member.id),
                 })}
               >
-                {member.allocatedTickets}
+                {/*잔여티켓*/}
+                {getMemberRemainTicketsByMemberId(member.id)}
               </p>
             </div>
           ))}

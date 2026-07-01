@@ -33,7 +33,7 @@ interface AssignMemberModalProps {
 
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
   const { floors, assignSeat, unAssignSeat } = useFloorStore();
-  const { members, updateTickets } = useMemberStore();
+  const { members, getMemberRemainTicketsByMemberId, getAssignedCountMap } = useMemberStore();
   const memberListRef = useRef<HTMLDivElement>(null);
   const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
   const [isAssignMemberSelected, setIsAssignMemberSelected] = useState<number | null>(null);
@@ -85,15 +85,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       return;
     }
     const findMember = members.find((m) => m.id === isAssignMemberSelected);
-    if (findMember) {
-      updateTickets(findMember.id, findMember.allocatedTickets - seatIds.size);
-    }
     toast(`${findMember?.name} > ${seatIds.size}석 배정 완료`);
     onClose();
   };
 
   const hasEnoughRemainingTickets = (member: Member): boolean => {
-    return member.allocatedTickets >= seatIds.size;
+    return getMemberRemainTicketsByMemberId(member.id) >= seatIds.size;
   };
 
   const handleCancel = async () => {
@@ -109,6 +106,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     toast('배정이 취소되었습니다.');
     onClose();
   };
+
+  const sortedMemberFromRemainSeat = getAssignableMember(members, getAssignedCountMap());
 
   return (
     <DialogContent className="bg-surface-secondary text-content-primary">
@@ -161,7 +160,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
         {/*검색 기능?*/}
         <h5 className="text-sm mb-2 font-bold text-content-secondary">회원 목록</h5>
         <div className="flex flex-col flex-1 min-h-0 no-scrollbar overflow-y-auto">
-          {getAssignableMember(members).map((mem) => (
+          {sortedMemberFromRemainSeat.map((mem) => (
             // 선택된 좌석보다 회원 잔여석이 적으면 클릭 비활성화
             <div
               className={clsx('flex justify-between items-center px-2 py-0.5 mb-1', {
@@ -184,7 +183,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                 <p>{mem.name}</p>
               </div>
               <p className="w-14 h-7 flex justify-center items-center text-sm bg-surface-accent text-content-primary rounded-lg">
-                잔여 {mem.allocatedTickets}
+                잔여 {getMemberRemainTicketsByMemberId(mem.id)}
               </p>
             </div>
           ))}

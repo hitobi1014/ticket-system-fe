@@ -11,6 +11,7 @@ interface MemberStore {
   fetchMembers: () => Promise<void>;
   syncFromSheet: () => Promise<SyncMemberResponse>;
   getMemberAssignedTicketsByMemberId: (id: number) => number;
+  getAssignedCountMap: () => Record<number, number>;
   getMemberRemainTicketsByMemberId: (id: number) => number;
   getAllocatedTickets: () => number;
 
@@ -18,9 +19,7 @@ interface MemberStore {
   updateMember: (id: number, req: CreateMemberRequest) => Promise<void>;
   removeMember: (id: number) => Promise<void>;
 
-  updateTickets: (id: number, tickets: number) => void;
   distributeTickets: () => Promise<void>;
-
   updateMemberColor: (id: number, color: string) => void;
 }
 
@@ -56,6 +55,22 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       .flatMap((s) => s.rows)
       .flatMap((r) => r.seats)
       .filter((seat) => seat.assignedMemberId === memberId).length,
+
+  getAssignedCountMap: () => {
+    const seats = useFloorStore
+      .getState()
+      .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
+      .filter((item): item is Section => item.kind === 'section')
+      .flatMap((s) => s.rows)
+      .flatMap((r) => r.seats)
+      .filter((seat) => seat.assignedMemberId != null);
+
+    return seats.reduce<Record<number, number>>((acc, seat) => {
+      const id = seat.assignedMemberId!;
+      acc[id] = (acc[id] ?? 0) + 1;
+      return acc;
+    }, {});
+  },
 
   // 잔여티켓: 배정티켓 - 배정된 좌석수
   getMemberRemainTicketsByMemberId: (memberId) => {
@@ -98,11 +113,6 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       undefined,
     );
   },
-
-  updateTickets: (id, tickets) =>
-    set((state) => ({
-      members: state.members.map((m) => (m.id === id ? { ...m, allocatedTickets: tickets } : m)),
-    })),
 
   distributeTickets: async () => {
     await fetchApi<void>(`${memberURIPrefix}/distribute`, {
