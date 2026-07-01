@@ -3,18 +3,20 @@ import useMemberStore from '@/store/memberStore.ts';
 import { Separator } from '@/components/ui/separator.tsx';
 import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { clsx } from 'clsx';
-import { getAssignableMember } from '@/lib/seatUtils.ts';
+import { getAssignableMember, getRemainTickets } from '@/lib/seatUtils.ts';
+import type { Member } from '@/types';
 
 export default function SeatAssignSidebar() {
   const { getRemainSeatCount } = useFloorStore();
-  const { members, getMemberRemainTicketsByMemberId, getAssignedCountMap } = useMemberStore();
+  const { members, getAssignedCountMap } = useMemberStore();
 
-  const isRemainTicketZero = (memberId: number): boolean => {
-    const remainTicket = getMemberRemainTicketsByMemberId(memberId);
-    return remainTicket == 0;
+  const assignedCountMap = getAssignedCountMap();
+
+  const isRemainTicketZero = (member: Member): boolean => {
+    return getRemainTickets(member, assignedCountMap) === 0;
   };
 
-  const sortedMemberFromRemainSeat = getAssignableMember(members, getAssignedCountMap());
+  const sortedMemberFromRemainSeat = getAssignableMember(members, assignedCountMap);
 
   return (
     <div className="w-44 flex flex-col h-full border-l border-surface-accent pl-4 p-y">
@@ -45,7 +47,7 @@ export default function SeatAssignSidebar() {
                 </p>
                 <p
                   className={clsx('text-sm text-content-primary', {
-                    'text-mist-500': isRemainTicketZero(member.id),
+                    'text-mist-500': isRemainTicketZero(member),
                   })}
                 >
                   {member.name}
@@ -53,12 +55,11 @@ export default function SeatAssignSidebar() {
               </div>
               <p
                 className={clsx('px-2 py-0.5 rounded text-sm min-w-6 text-center', {
-                  'bg-surface-danger text-content-danger': isRemainTicketZero(member.id),
-                  'bg-surface-secondary text-content-primary': !isRemainTicketZero(member.id),
+                  'bg-surface-danger text-content-danger': isRemainTicketZero(member),
+                  'bg-surface-secondary text-content-primary': !isRemainTicketZero(member),
                 })}
               >
-                {/*잔여티켓*/}
-                {getMemberRemainTicketsByMemberId(member.id)}
+                {getRemainTickets(member, assignedCountMap)}
               </p>
             </div>
           ))}

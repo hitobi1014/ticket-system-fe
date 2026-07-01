@@ -32,13 +32,18 @@ export function findSeatContextByRowId(floors: Floor[], rowId: number) {
   return null;
 }
 
+// 잔여티켓: 배정티켓 - 배정된 좌석수 (assignedCountMap 기반, 단일 계산식)
+export function getRemainTickets(member: Member, assignedCountMap: Record<number, number>): number {
+  return member.allocatedTickets - (assignedCountMap[member.id] ?? 0);
+}
+
 export function getAssignableMember(
   members: Member[],
   assignedCountMap: Record<number, number>,
 ): Member[] {
   return [...members].sort((a, b) => {
-    const aRemain = a.allocatedTickets - (assignedCountMap[a.id] ?? 0);
-    const bRemain = b.allocatedTickets - (assignedCountMap[b.id] ?? 0);
+    const aRemain = getRemainTickets(a, assignedCountMap);
+    const bRemain = getRemainTickets(b, assignedCountMap);
 
     const aEmpty = aRemain === 0 ? 1 : 0;
     const bEmpty = bRemain === 0 ? 1 : 0;

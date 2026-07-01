@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import useFloorStore from '@/store/floorStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
-import { findSeatContext, getAssignableMember } from '@/lib/seatUtils.ts';
+import { findSeatContext, getAssignableMember, getRemainTickets } from '@/lib/seatUtils.ts';
 import type {
   AssignSeatRequest,
   Floor,
@@ -33,7 +33,7 @@ interface AssignMemberModalProps {
 
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
   const { floors, assignSeat, unAssignSeat } = useFloorStore();
-  const { members, getMemberRemainTicketsByMemberId, getAssignedCountMap } = useMemberStore();
+  const { members, getAssignedCountMap } = useMemberStore();
   const memberListRef = useRef<HTMLDivElement>(null);
   const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
   const [isAssignMemberSelected, setIsAssignMemberSelected] = useState<number | null>(null);
@@ -90,7 +90,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   };
 
   const hasEnoughRemainingTickets = (member: Member): boolean => {
-    return getMemberRemainTicketsByMemberId(member.id) >= seatIds.size;
+    return getRemainTickets(member, assignedCountMap) >= seatIds.size;
   };
 
   const handleCancel = async () => {
@@ -107,7 +107,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     onClose();
   };
 
-  const sortedMemberFromRemainSeat = getAssignableMember(members, getAssignedCountMap());
+  const assignedCountMap = getAssignedCountMap();
+  const sortedMemberFromRemainSeat = getAssignableMember(members, assignedCountMap);
 
   return (
     <DialogContent className="bg-surface-secondary text-content-primary">
@@ -183,7 +184,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                 <p>{mem.name}</p>
               </div>
               <p className="w-14 h-7 flex justify-center items-center text-sm bg-surface-accent text-content-primary rounded-lg">
-                잔여 {getMemberRemainTicketsByMemberId(mem.id)}
+                잔여 {getRemainTickets(mem, assignedCountMap)}
               </p>
             </div>
           ))}

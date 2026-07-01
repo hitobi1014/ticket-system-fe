@@ -3,6 +3,7 @@ import { create } from 'zustand/react';
 import useFloorStore from '@/store/floorStore.ts';
 import type { Section } from '@/types';
 import fetchApi from '@/lib/api.ts';
+import { getRemainTickets } from '@/lib/seatUtils.ts';
 
 interface MemberStore {
   members: Member[];
@@ -63,20 +64,22 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       .filter((item): item is Section => item.kind === 'section')
       .flatMap((s) => s.rows)
       .flatMap((r) => r.seats)
-      .filter((seat) => seat.assignedMemberId != null);
+      .filter(
+        (seat): seat is typeof seat & { assignedMemberId: number } =>
+          seat.assignedMemberId !== undefined,
+      );
 
     return seats.reduce<Record<number, number>>((acc, seat) => {
-      const id = seat.assignedMemberId!;
-      acc[id] = (acc[id] ?? 0) + 1;
+      acc[seat.assignedMemberId] = (acc[seat.assignedMemberId] ?? 0) + 1;
       return acc;
     }, {});
   },
 
-  // 잔여티켓: 배정티켓 - 배정된 좌석수
+  // 잔여티켓: 배정티켓 - 배정된 좌석수 (getRemainTickets 공식 재사용)
   getMemberRemainTicketsByMemberId: (memberId) => {
-    const allowTickets = get().members.find((m) => m.id === memberId)?.allocatedTickets ?? 0;
-    const assignedTickets = get().getMemberAssignedTicketsByMemberId(memberId);
-    return allowTickets - assignedTickets;
+    const member = get().members.find((m) => m.id === memberId);
+    if (!member) return 0;
+    return getRemainTickets(member, get().getAssignedCountMap());
   },
 
   getAllocatedTickets: () => get().members.reduce((sum, m) => sum + m.allocatedTickets, 0),
