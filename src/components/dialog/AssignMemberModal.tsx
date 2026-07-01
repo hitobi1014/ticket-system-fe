@@ -177,6 +177,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
               }}
             >
               <div className="flex items-center gap-2">
+                <p className="w-6">{mem.seq}</p>
                 <p className="w-8 h-5 flex justify-center items-center text-xs rounded bg-surface-accent text-content-primary">
                   {mem.instrument.abbr}
                 </p>

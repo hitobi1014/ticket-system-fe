@@ -33,5 +33,10 @@ export function findSeatContextByRowId(floors: Floor[], rowId: number) {
 }
 
 export function getAssignableMember(members: Member[]): Member[] {
-  return members.filter((m) => m.allocatedTickets > 0);
+  return [...members].sort((a, b) => {
+    const aEmpty = a.allocatedTickets === 0 ? 1 : 0;
+    const bEmpty = b.allocatedTickets === 0 ? 1 : 0;
+    if (aEmpty !== bEmpty) return aEmpty - bEmpty;
+    return a.seq - b.seq;
+  });
 }
