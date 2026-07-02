@@ -38,7 +38,7 @@ const TABLE_HEADS = [
   '출석점수',
   '배정 티켓',
   '잔여 티켓',
-  '배정된 좌석 수',
+  '좌석 배정 완료',
   '회원 색상',
 ]; // 8개
 
@@ -66,7 +66,7 @@ export default function MembersPage() {
       textPostFix: '석',
     },
     {
-      title: '배정 좌석',
+      title: '배정 완료 좌석',
       boldText: getAssignedSeatCount(),
       textPostFix: '석',
     },
