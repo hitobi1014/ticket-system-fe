@@ -37,7 +37,6 @@ export interface Member {
 export interface CreateMemberRequest {
   name: string; // 회원 이름
   instrumentAbbr: string;
-  point: number;
   allocatedTickets: number; // 배정된 티켓 수
   color?: string; // 좌석 배정 시 구분 색상 (hex 코드)
 }

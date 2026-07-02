@@ -27,7 +27,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   const { addMember, updateMember, removeMember, isLoading } = useMemberStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
-    point: member?.point ?? 0,
     instrumentAbbr: member?.instrument.abbr ?? INSTRUMENTS[0].abbr,
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color ?? '#000000',
@@ -64,7 +63,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   };
 
   return (
-    <DialogContent className="sm:max-w-106.25 bg-surface-secondary" onInteractOutside={onClose}>
+    <DialogContent
+      className="sm:max-w-106.25 bg-surface-secondary border border-content-primary"
+      onInteractOutside={onClose}
+    >
       <DialogHeader>
         {/* 회원 등록/수정 */}
         <DialogTitle className="text-content-primary flex items-center gap-x-2">
@@ -113,20 +115,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
           </Select>
         </Field>
 
-        {/* 상점 */}
-        <Field className="max-w-sm">
-          <FieldLabel htmlFor="point-input">상점</FieldLabel>
-          <Input
-            id="point-input"
-            aria-label="instrumentAbbr"
-            className="bg-surface-primary border-0 no-spinners"
-            type="number"
-            value={form?.point}
-            placeholder="상점을 입력하세요."
-            onChange={(e) => handleChange('point', Number(e.target.value))}
-          />
-        </Field>
-
         {/*  배정 티켓수 */}
         <Field className="max-w-sm">
           <FieldLabel htmlFor="allow-ticket-input">배정티켓</FieldLabel>
@@ -161,7 +149,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         </Field>
       </div>
 
-      <DialogFooter className="flex justify-between! bg-surface-secondary border border-t-surface-accent pb-2.5">
+      <DialogFooter className="flex justify-between! bg-surface-secondary pb-2.5">
         <AlertDialogCustom
           variant="dialog"
           size="sm"
