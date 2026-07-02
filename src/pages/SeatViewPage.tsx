@@ -38,7 +38,6 @@ export default function SeatViewPage() {
 
   useEffect(() => {
     selectedFloorIdRef.current = selectedFloorId;
-    setCurrentScale(1);
   }, [selectedFloorId]);
 
   useEffect(() => {
@@ -115,7 +114,7 @@ export default function SeatViewPage() {
           next.delete(memberId);
           return next;
         });
-      }, 1500);
+      }, 3000);
     }
     setSearchQuery('');
   };
@@ -200,7 +199,7 @@ export default function SeatViewPage() {
                           className="w-2.5 h-2.5 rounded-full shrink-0"
                           style={{ backgroundColor: member.color ?? '#cccccc' }}
                         />
-                        <Badge variant="secondary" className="px-1.5 py-0 w-4 text-xs">
+                        <Badge variant="secondary" className="px-1.5 py-0 w-8 text-xs">
                           {member.instrument.abbr}
                         </Badge>
                         <span className="flex-1 text-sm">{member.name}</span>
