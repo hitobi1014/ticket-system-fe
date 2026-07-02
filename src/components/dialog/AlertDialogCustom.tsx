@@ -52,7 +52,7 @@ export default function AlertDialogCustom({
       <AlertDialogContent className="bg-surface-primary">
         <AlertDialogHeader className="text-content-primary">
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-content-secondary">
+          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
             {description}
           </AlertDialogDescription>
         </AlertDialogHeader>

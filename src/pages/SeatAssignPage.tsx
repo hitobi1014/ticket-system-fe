@@ -1,7 +1,7 @@
 import useFloorStore from '@/store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { AssignMemberModal } from '@/components/dialog/AssignMemberModal.tsx';
 import SeatAssignSidebar from '@/components/seat-assign/SeatAssignSidebar.tsx';
@@ -12,12 +12,17 @@ export default function SeatAssignPage() {
   const { venue } = useVenueStore();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
-    floors.length > 0 ? floors[0].id : null,
-  );
+  const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
-
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
+
+  useEffect(() => {
+    if (floors.length > 0 && selectedFloorId == undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedFloorId(floors[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [floors]);
 
   return (
     <div className="h-full flex flex-col overflow-hidden">

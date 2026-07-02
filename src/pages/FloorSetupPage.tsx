@@ -1,6 +1,6 @@
 import useFloorStore from '../store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Aisle, ButtonItem, CreateAisleRequest, CreateFloorRequest, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -17,13 +17,19 @@ export default function FloorSetupPage() {
   const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
   const { venue } = useVenueStore();
   const stagePosition = venue?.stagePosition ?? 'front';
-  const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
-    floors.length > 0 ? floors[0].id : null,
-  );
+  const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
   const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [addSectionDialogKey, setAddSectionDialogKey] = useState<number>(0);
+
+  useEffect(() => {
+    if (floors.length > 0 && selectedFloorId == undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedFloorId(floors[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [floors]);
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const selectedSection =
@@ -63,7 +69,7 @@ export default function FloorSetupPage() {
     toast('층 삭제 성공했습니다.');
     // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
     const remaining = floors.filter((f) => f.id !== selectedFloorId);
-    setSelectedFloorId(remaining.length > 0 ? remaining[0].id : null);
+    setSelectedFloorId(remaining.length > 0 ? remaining[0].id : undefined);
   };
 
   const handleRemoveSection = async () => {
@@ -106,7 +112,7 @@ export default function FloorSetupPage() {
     }
   };
 
-  const handleRemoveAisle = () => {
+  const handleRemoveAisle = async () => {
     if (selectedAisleId === null) return;
 
     const findItem = selectedFloor?.rows
@@ -117,7 +123,7 @@ export default function FloorSetupPage() {
     const isRemove = window.confirm(`${findItem.label} 통로 정말 삭제하시겠습니까?`);
     if (!isRemove) return;
 
-    removeAisle(findItem.id);
+    await removeAisle(findItem.id);
   };
 
   const floorButtons: ButtonItem[] = [
