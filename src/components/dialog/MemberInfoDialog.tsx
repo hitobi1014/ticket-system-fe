@@ -24,7 +24,7 @@ interface MemberInfoModalProps {
 }
 
 export default function MemberInfoDialog({ member, onClose }: MemberInfoModalProps) {
-  const { addMember, updateMember, removeMember } = useMemberStore();
+  const { addMember, updateMember, removeMember, isLoading } = useMemberStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     point: member?.point ?? 0,
@@ -169,12 +169,17 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
           title={'확인'}
           description={`[${form.name}]님을 목록에서 제거 하시겠습니까?`}
           actions={[{ text: '확인', onClick: () => handleRemoveMember() }]}
+          disabled={isLoading.remove}
         />
         <div className="flex gap-2">
           <Button variant="dialog" onClick={() => onClose()}>
             닫기
           </Button>
-          <Button variant="dialog" onClick={() => handleSave()}>
+          <Button
+            variant="dialog"
+            onClick={() => handleSave()}
+            disabled={isEditMode ? isLoading.update : isLoading.add}
+          >
             {isEditMode ? '수정' : '등록'}
           </Button>
         </div>

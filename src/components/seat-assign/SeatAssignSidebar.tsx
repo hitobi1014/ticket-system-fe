@@ -25,7 +25,7 @@ export default function SeatAssignSidebar() {
   ]);
 
   return (
-    <div className="w-44 flex flex-col h-full border-l border-surface-accent pl-4 p-y">
+    <div className="w-44 flex-none flex flex-col h-full border-l border-surface-accent pl-4 p-y">
       <div className="bg-surface-secondary rounded-lg pl-3 py-2 shrink-0">
         <h5 className="text-content-secondary">잔여 좌석</h5>
         <h3 className="text-content-primary font-bold">{getRemainSeatCount()}</h3>

@@ -5,9 +5,18 @@ import type { Section } from '@/types';
 import fetchApi from '@/lib/api.ts';
 import { getRemainTickets } from '@/lib/seatUtils.ts';
 
+interface MemberLoadingState {
+  fetch: boolean;
+  add: boolean;
+  update: boolean;
+  remove: boolean;
+  distribute: boolean;
+  sync: boolean;
+}
+
 interface MemberStore {
   members: Member[];
-  isLoading: boolean;
+  isLoading: MemberLoadingState;
 
   fetchMembers: () => Promise<void>;
   syncFromSheet: () => Promise<SyncMemberResponse>;
@@ -28,24 +37,36 @@ const memberURIPrefix = '/members';
 
 const useMemberStore = create<MemberStore>((set, get) => ({
   members: [],
-  isLoading: false,
+  isLoading: {
+    fetch: false,
+    add: false,
+    update: false,
+    remove: false,
+    distribute: false,
+    sync: false,
+  },
 
   fetchMembers: async () => {
-    set({ isLoading: true });
-    const members = await fetchApi<Member[]>(memberURIPrefix);
-    set({ members, isLoading: false });
+    set((state) => ({ isLoading: { ...state.isLoading, fetch: true } }));
+    try {
+      const members = await fetchApi<Member[]>(memberURIPrefix);
+      set({ members });
+    } finally {
+      set((state) => ({ isLoading: { ...state.isLoading, fetch: false } }));
+    }
   },
 
   syncFromSheet: async () => {
-    set({ isLoading: true });
-
-    const data = await fetchApi<SyncMemberResponse>(`${memberURIPrefix}/async-sheet`, {
-      method: 'POST',
-    });
-
-    set({ members: data.members, isLoading: false });
-
-    return data;
+    set((state) => ({ isLoading: { ...state.isLoading, sync: true } }));
+    try {
+      const data = await fetchApi<SyncMemberResponse>(`${memberURIPrefix}/async-sheet`, {
+        method: 'POST',
+      });
+      set({ members: data.members });
+      return data;
+    } finally {
+      set((state) => ({ isLoading: { ...state.isLoading, sync: false } }));
+    }
   },
   // 배정된 좌석수: seat에 배정된 회원수 id length
   getMemberAssignedTicketsByMemberId: (memberId) =>
@@ -85,46 +106,63 @@ const useMemberStore = create<MemberStore>((set, get) => ({
   getAllocatedTickets: () => get().members.reduce((sum, m) => sum + m.allocatedTickets, 0),
 
   addMember: async (req) => {
-    const newMember = await fetchApi<Member>(memberURIPrefix, {
-      method: 'POST',
-      body: JSON.stringify(req),
-    });
-    set((state) => ({
-      members: [...state.members, newMember],
-    }));
+    set((state) => ({ isLoading: { ...state.isLoading, add: true } }));
+    try {
+      const newMember = await fetchApi<Member>(memberURIPrefix, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      });
+      set((state) => ({
+        members: [...state.members, newMember],
+      }));
+    } finally {
+      set((state) => ({ isLoading: { ...state.isLoading, add: false } }));
+    }
   },
 
   updateMember: async (id, req) => {
-    await fetchApi<void>(`${memberURIPrefix}/${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(req),
-    });
-    set((state) => ({
-      members: state.members.map((m) => (m.id === id ? { ...m, ...req } : m)),
-    }));
+    set((state) => ({ isLoading: { ...state.isLoading, update: true } }));
+    try {
+      await fetchApi<void>(`${memberURIPrefix}/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(req),
+      });
+      set((state) => ({
+        members: state.members.map((m) => (m.id === id ? { ...m, ...req } : m)),
+      }));
+    } finally {
+      set((state) => ({ isLoading: { ...state.isLoading, update: false } }));
+    }
   },
 
   removeMember: async (id) => {
-    await fetchApi<void>(`${memberURIPrefix}/${id}`, {
-      method: 'DELETE',
-    });
+    set((state) => ({ isLoading: { ...state.isLoading, remove: true } }));
+    try {
+      await fetchApi<void>(`${memberURIPrefix}/${id}`, {
+        method: 'DELETE',
+      });
 
-    set(
-      (state) => ({
+      set((state) => ({
         members: state.members.filter((m) => m.id !== id),
-      }),
-      undefined,
-    );
+      }));
+    } finally {
+      set((state) => ({ isLoading: { ...state.isLoading, remove: false } }));
+    }
   },
 
   distributeTickets: async () => {
-    await fetchApi<void>(`${memberURIPrefix}/distribute`, {
-      method: 'POST',
-    });
+    set((state) => ({ isLoading: { ...state.isLoading, distribute: true } }));
+    try {
+      await fetchApi<void>(`${memberURIPrefix}/distribute`, {
+        method: 'POST',
+      });
 
-    // 배분 후 최신 목록 재조회
-    const members = await fetchApi<Member[]>(memberURIPrefix);
-    set({ members }, undefined);
+      // 배분 후 최신 목록 재조회
+      const members = await fetchApi<Member[]>(memberURIPrefix);
+      set({ members });
+    } finally {
+      set((state) => ({ isLoading: { ...state.isLoading, distribute: false } }));
+    }
   },
 
   updateMemberColor: (id, color) =>
