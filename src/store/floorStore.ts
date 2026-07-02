@@ -37,8 +37,6 @@ interface FloorStore {
   addFloor: (req: CreateFloorRequest) => Promise<Floor>;
   removeFloor: (id: number) => Promise<void>;
 
-  // TODO 초기 사용하던 함수 미사용 삭제 예정
-
   // ====== Section ======
   syncSection: (floor: Floor) => void;
   addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => Promise<void>;

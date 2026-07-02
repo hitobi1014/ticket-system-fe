@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/select.tsx';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
 import { HexColorPicker } from 'react-colorful';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
@@ -24,17 +24,38 @@ interface MemberInfoModalProps {
 }
 
 export default function MemberInfoDialog({ member, onClose }: MemberInfoModalProps) {
-  const { addMember, updateMember, removeMember, isLoading } = useMemberStore();
+  const { addMember, updateMember, removeMember, getAssignedCountMap, isLoading } =
+    useMemberStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     instrumentAbbr: member?.instrument.abbr ?? INSTRUMENTS[0].abbr,
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color ?? '#000000',
   });
+  const [assignedSeatCount, setAssignedSeatsCount] = useState<number | null>(null);
 
   const isEditMode = member !== undefined;
 
+  useEffect(() => {
+    if (member?.id) {
+      // [수정 일때] 좌석 배정 완료건
+      const map = getAssignedCountMap();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setAssignedSeatsCount(map[member.id]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [member]);
+
   const handleChange = <K extends keyof typeof form>(field: K, value: (typeof form)[K]) => {
+    if (field === 'allocatedTickets') {
+      const numValue = value as number; // 타입 단언
+      if (assignedSeatCount != null && numValue < assignedSeatCount) {
+        toast.error(
+          `변경한 배정티켓 수량(${numValue})이 좌석 배정 완료된수(${assignedSeatCount})보다 적을 수 없습니다.`,
+        );
+        return;
+      }
+    }
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -115,19 +136,31 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
           </Select>
         </Field>
 
-        {/*  배정 티켓수 */}
-        <Field className="max-w-sm">
-          <FieldLabel htmlFor="allow-ticket-input">배정티켓</FieldLabel>
-          <Input
-            id="allow-ticket-input"
-            aria-label="allow-ticket-input"
-            type="number"
-            className="bg-surface-primary border-0 no-spinners"
-            value={form?.allocatedTickets}
-            placeholder="배정할 티켓 수량을 입력하세요."
-            onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
-          />
-        </Field>
+        <div className="flex gap-x-4">
+          {/*  배정 티켓수 */}
+          <Field className="max-w-sm">
+            <FieldLabel htmlFor="allow-ticket-input">배정티켓</FieldLabel>
+            <Input
+              id="allow-ticket-input"
+              aria-label="allow-ticket-input"
+              type="number"
+              className="bg-surface-primary border-0 no-spinners"
+              value={form?.allocatedTickets}
+              placeholder="배정할 티켓 수량을 입력하세요."
+              onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
+            />
+          </Field>
+          <Field className="max-w-sm">
+            <FieldLabel htmlFor="assigned-ticket-input">좌석 배정 완료</FieldLabel>
+            <Input
+              id="assigned-ticket-input"
+              aria-label="assigned-ticket-input"
+              readOnly={true}
+              value={assignedSeatCount ?? 0}
+              className="bg-surface-accent border-0"
+            />
+          </Field>
+        </div>
 
         {/* 회원 색상 */}
         <Field className="max-w-sm">
