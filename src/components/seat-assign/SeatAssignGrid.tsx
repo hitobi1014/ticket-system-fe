@@ -63,7 +63,12 @@ export default function SeatAssignGrid({
         </Toggle>
         {isBulkEditMode && (
           <>
-            <Button variant="primary" size="base" onClick={() => setIsModalOpen(true)}>
+            <Button
+              variant="primary"
+              size="base"
+              onClick={() => setIsModalOpen(true)}
+              disabled={selectedSeatIds.size === 0}
+            >
               좌석배정
             </Button>
             <span className="text-content-primary">선택된 좌석: {selectedSeatIds.size}</span>
