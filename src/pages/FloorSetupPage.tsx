@@ -1,10 +1,16 @@
 import useFloorStore from '../store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Aisle, ButtonItem, CreateAisleRequest, CreateFloorRequest, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { IconLayoutColumns, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
+import {
+  IconLayoutColumns,
+  IconMinus,
+  IconPlus,
+  IconTrash,
+  IconZoomIn,
+} from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
@@ -12,6 +18,19 @@ import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
+import {
+  TransformWrapper,
+  TransformComponent,
+  useTransformEffect,
+  type ReactZoomPanPinchContentRef,
+} from 'react-zoom-pan-pinch';
+
+function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
+  useTransformEffect((state) => {
+    onScaleChange?.(state.state.scale);
+  });
+  return null;
+}
 
 export default function FloorSetupPage() {
   const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
@@ -22,6 +41,8 @@ export default function FloorSetupPage() {
   const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
   const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
   const [addSectionDialogKey, setAddSectionDialogKey] = useState<number>(0);
+  const [currentScale, setCurrentScale] = useState(1);
+  const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
   useEffect(() => {
     if (floors.length > 0 && selectedFloorId == undefined) {
@@ -30,6 +51,39 @@ export default function FloorSetupPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [floors]);
+
+  const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
+  const zoomDropdownRef = useRef<HTMLDivElement>(null);
+  const selectedFloorIdRef = useRef(selectedFloorId);
+
+  useEffect(() => {
+    selectedFloorIdRef.current = selectedFloorId;
+  }, [selectedFloorId]);
+
+  useEffect(() => {
+    if (!showZoomDropdown) return;
+    const handler = (e: MouseEvent) => {
+      if (!zoomDropdownRef.current?.contains(e.target as Node)) {
+        setShowZoomDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showZoomDropdown]);
+
+  const handleScaleChange = useCallback(
+    (scale: number) => {
+      if (selectedFloorIdRef.current === selectedFloorId) {
+        setCurrentScale(scale);
+      }
+    },
+    [selectedFloorId],
+  );
+
+  // eslint-disable-next-line react-hooks/refs
+  const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
   const selectedSection =
@@ -148,9 +202,9 @@ export default function FloorSetupPage() {
   return (
     <div className="bg-surface-primary h-full flex flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
-      <FunctionButtons buttons={floorButtons} />;
+      <FunctionButtons buttons={floorButtons} />
       <Tabs
-        className="flex flex-col flex-1 overflow-hidden"
+        className="flex flex-col flex-1 min-h-0 overflow-hidden"
         value={String(selectedFloorId)}
         onValueChange={(v) => setSelectedFloorId(Number(v))}
         onClick={() => {
@@ -158,31 +212,68 @@ export default function FloorSetupPage() {
           setSelectedRowId(null);
         }}
       >
-        {/* 1층 탭바 */}
-        <TabsList className="bg-transparent flex gap-x-2">
-          {floors.map((floor) => (
-            <TabsTrigger
-              key={floor.id}
-              value={String(floor.id)}
-              className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-              hover:text-amber-300
-              data-[state=active]:text-content-primary
-              data-[state=active]:bg-transparent
-              data-[state=active]:shadow-none
-              data-[state=active]:border-b-white
-              "
+        <div className="flex items-center justify-between">
+          {/* 1층 탭바 */}
+          <TabsList className="bg-transparent flex gap-x-2">
+            {floors.map((floor) => (
+              <TabsTrigger
+                key={floor.id}
+                value={String(floor.id)}
+                className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
+                hover:text-amber-300
+                data-[state=active]:text-content-primary
+                data-[state=active]:bg-transparent
+                data-[state=active]:shadow-none
+                data-[state=active]:border-b-white
+                "
+              >
+                {floor.name}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+
+          {/* Zoom controls */}
+          <div ref={zoomDropdownRef} className="relative">
+            <Button
+              variant="ghost"
+              size="lg"
+              className="text-content-primary"
+              onClick={() => setShowZoomDropdown((v) => !v)}
             >
-              {floor.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+              <IconZoomIn stroke={1.5} size={18} />
+            </Button>
+            {showZoomDropdown && (
+              <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-surface-accent">
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="text-content-accent"
+                  onClick={() => activeTransform?.zoomOut(0.25)}
+                >
+                  <IconMinus stroke={2} size={14} />
+                </Button>
+                <span className="text-content-accent text-xs w-10 text-center tabular-nums">
+                  {Math.round(currentScale * 100)}%
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon-xs"
+                  className="text-content-accent"
+                  onClick={() => activeTransform?.zoomIn(0.25)}
+                >
+                  <IconPlus stroke={2} size={14} />
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* 2) 메인 영역 - 선택한 층의 구역/좌석 */}
         {floors.map((floor) => (
           <TabsContent
             key={floor.id}
             value={String(floor.id)}
-            className="flex flex-col flex-1 overflow-hidden p-0"
+            className="flex flex-col flex-1 min-h-0 overflow-hidden p-0"
           >
             {/* ✅ 구역 기능 버튼 그룹 */}
             <div className="flex gap-x-2 shrink-0">
@@ -237,30 +328,47 @@ export default function FloorSetupPage() {
             {/* 구역 컨텐츠 시작: 구역/통로 */}
             <div
               className={cn(
-                'flex mt-4 gap-2 flex-1 overflow-hidden',
+                'flex mt-4 gap-2 flex-1 min-h-0 overflow-hidden',
                 stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
               )}
             >
               {(stagePosition === 'front' || stagePosition === 'left') && (
                 <StageBar position={stagePosition} />
               )}
-              <div className="flex flex-col gap-y-4 flex-1 overflow-auto no-scrollbar pt-1 px-2">
-                {floor.rows.map((floorRow) => (
-                  <div key={floorRow.id} className="flex gap-x-4">
-                    {floorRow.items.map((item) => (
-                      <SectionCard
-                        key={item.id}
-                        item={item}
-                        selectedSectionId={selectedSectionId}
-                        selectedAisleId={selectedAisleId}
-                        selectedRowId={selectedRowId}
-                        onSelectedSectionId={setSelectedSectionId}
-                        onSelectedAisleId={setSelectedAisleId}
-                        onSelectedRowId={setSelectedRowId}
-                      />
-                    ))}
-                  </div>
-                ))}
+              <div className="flex-1 min-h-0 overflow-hidden cursor-grab active:cursor-grabbing">
+                <TransformWrapper
+                  ref={(ref) => {
+                    transformRefs.current.set(floor.id, ref);
+                  }}
+                  initialScale={1}
+                  minScale={0.5}
+                  maxScale={2}
+                  wheel={{ step: isMac ? 0.01 : 0.5, activationKeys: [isMac ? 'Meta' : 'Control'] }}
+                  panning={{ allowLeftClickPan: true }}
+                  doubleClick={{ disabled: true }}
+                >
+                  <ScaleTracker onScaleChange={handleScaleChange} />
+                  <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
+                    <div className="flex flex-col gap-y-4 pt-1 px-2 pb-4 w-max">
+                      {floor.rows.map((floorRow) => (
+                        <div key={floorRow.id} className="flex gap-x-4">
+                          {floorRow.items.map((item) => (
+                            <SectionCard
+                              key={item.id}
+                              item={item}
+                              selectedSectionId={selectedSectionId}
+                              selectedAisleId={selectedAisleId}
+                              selectedRowId={selectedRowId}
+                              onSelectedSectionId={setSelectedSectionId}
+                              onSelectedAisleId={setSelectedAisleId}
+                              onSelectedRowId={setSelectedRowId}
+                            />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  </TransformComponent>
+                </TransformWrapper>
               </div>
               {(stagePosition === 'back' || stagePosition === 'right') && (
                 <StageBar position={stagePosition} />
