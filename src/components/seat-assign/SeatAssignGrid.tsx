@@ -7,6 +7,12 @@ import type { Floor, StagePosition } from '@/types';
 import { clsx } from 'clsx';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
+import {
+  TransformWrapper,
+  TransformComponent,
+  useTransformEffect,
+  type ReactZoomPanPinchContentRef,
+} from 'react-zoom-pan-pinch';
 
 interface SeatAssignGridProps {
   floor: Floor;
@@ -16,6 +22,15 @@ interface SeatAssignGridProps {
   selectedSeatIds: Set<number>;
   setSelectedSeatIds: (selectedSeatIds: Set<number>) => void;
   setIsModalOpen: (isModalOpen: boolean) => void;
+  transformRef?: React.Ref<ReactZoomPanPinchContentRef>;
+  onScaleChange?: (scale: number) => void;
+}
+
+function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
+  useTransformEffect((state) => {
+    onScaleChange?.(state.state.scale);
+  });
+  return null;
 }
 
 export default function SeatAssignGrid({
@@ -26,6 +41,8 @@ export default function SeatAssignGrid({
   selectedSeatIds,
   setSelectedSeatIds,
   setIsModalOpen,
+  transformRef,
+  onScaleChange,
 }: SeatAssignGridProps) {
   const handleSeatClick = (seatId: number) => {
     if (isBulkEditMode) {
@@ -45,8 +62,10 @@ export default function SeatAssignGrid({
     }
   };
 
+  const isMac = navigator.platform.toUpperCase().includes('MAC');
+
   return (
-    <TabsContent value={String(floor.id)} className="h-screen flex flex-col gap-y-4">
+    <TabsContent value={String(floor.id)} className="flex-1 min-h-0 flex flex-col gap-y-4">
       <div className="flex gap-x-4 items-center">
         <Toggle
           className={clsx('bg-surface-secondary text-content-primary cursor-pointer', {
@@ -84,29 +103,44 @@ export default function SeatAssignGrid({
         {(stagePosition === 'front' || stagePosition === 'left') && (
           <StageBar position={stagePosition} />
         )}
-        <div className="flex flex-col gap-y-2 flex-1 no-scrollbar overflow-auto px-2">
-          {floor.rows.map((floorRow) => (
-            <div key={floorRow.id} className="flex gap-x-4">
-              {floorRow.items.map((item) =>
-                item.kind === 'aisle' ? (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
-                  >
-                    <div className="w-px h-2/4 bg-surface-accent" />
+        <div className="flex-1 overflow-hidden min-h-0 cursor-grab active:cursor-grabbing">
+          <TransformWrapper
+            ref={transformRef}
+            initialScale={1}
+            minScale={0.5}
+            maxScale={2}
+            wheel={{ step: isMac ? 0.01 : 0.5, activationKeys: [isMac ? 'Meta' : 'Control'] }}
+            panning={{ allowLeftClickPan: true }}
+            doubleClick={{ disabled: true }}
+          >
+            <ScaleTracker onScaleChange={onScaleChange} />
+            <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
+              <div className="flex flex-col gap-y-2 px-2 pb-4 w-max">
+                {floor.rows.map((floorRow) => (
+                  <div key={floorRow.id} className="flex gap-x-4">
+                    {floorRow.items.map((item) =>
+                      item.kind === 'aisle' ? (
+                        <div
+                          key={item.id}
+                          className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
+                        >
+                          <div className="w-px h-2/4 bg-surface-accent" />
+                        </div>
+                      ) : (
+                        <AssignRow
+                          key={item.id}
+                          section={item}
+                          isBulkEditMode={isBulkEditMode}
+                          selectedSeatIds={selectedSeatIds}
+                          onSeatClick={handleSeatClick}
+                        />
+                      ),
+                    )}
                   </div>
-                ) : (
-                  <AssignRow
-                    key={item.id}
-                    section={item}
-                    isBulkEditMode={isBulkEditMode}
-                    selectedSeatIds={selectedSeatIds}
-                    onSeatClick={handleSeatClick}
-                  />
-                ),
-              )}
-            </div>
-          ))}
+                ))}
+              </div>
+            </TransformComponent>
+          </TransformWrapper>
         </div>
         {(stagePosition === 'back' || stagePosition === 'right') && (
           <StageBar position={stagePosition} />
