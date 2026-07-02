@@ -1,6 +1,9 @@
 아래 지침에 따라 코드 리뷰를 수행해줘.
 - 코드리뷰는 ai/code-review.md에 작성
 
+## 리뷰 제외대상 
+- .md 파일 (문서, 지침, 결과 등)
+
 ## 리뷰 대상 결정
 - ARGUMENTS `$ARGUMENTS` 가 제공된 경우: 해당 파일(들)을 Read 도구로 읽어서 리뷰
 - ARGUMENTS가 없는 경우: `git diff --staged` 로 현재 staged 변경사항을 확인하여 리뷰

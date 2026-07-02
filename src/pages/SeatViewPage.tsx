@@ -149,28 +149,29 @@ export default function SeatViewPage() {
           onInputValueChange={(v) => setSearchQuery(v)}
           filter={() => true}
         >
-          <div className="flex items-center gap-x-2">
-            <ComboboxInput
-              showTrigger={false}
-              placeholder="회원 이름으로 좌석 찾기"
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-60 text-content-primary"
-            />
-            {/* 선택된 회원 목록
+          <ComboboxInput
+            showTrigger={false}
+            placeholder="회원 이름으로 좌석 찾기"
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-60 text-content-primary"
+          />
+          {/* 선택된 회원 목록
             간략하게 color 이름 표기
             ex) o 김안나
+            화면 범위를 넘어가면 잘리지 않고 가로 스크롤되도록 처리
             */}
-            <div className="flex gap-x-2">
+          {selectedMembers.length > 0 && (
+            <div className="flex gap-x-2 overflow-x-auto no-scrollbar py-1">
               {selectedMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="flex justify-center items-center gap-x-1 rounded-md bg-surface-accent px-2"
+                  className="flex justify-center items-center gap-x-1 rounded-md bg-surface-accent px-2 shrink-0"
                 >
                   <div
                     className="w-2.5 h-2.5 rounded-full shrink-0"
                     style={{ backgroundColor: member.color ?? '#cccccc' }}
                   />
-                  <span className="text-content-primary text-sm flex-1 truncate">
+                  <span className="text-content-primary text-sm whitespace-nowrap">
                     {member.name}
                   </span>
                   <Button
@@ -184,7 +185,7 @@ export default function SeatViewPage() {
                 </div>
               ))}
             </div>
-          </div>
+          )}
           {
             <ComboboxContent>
               <ComboboxList>
