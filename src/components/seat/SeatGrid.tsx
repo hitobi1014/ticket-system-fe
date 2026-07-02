@@ -48,7 +48,7 @@ export default function SeatGrid({
   const getMemberName = (memberId: number) => members.find((m) => m.id === memberId)?.name ?? '';
 
   const floorRows = floor.rows.map((floorRow) => (
-    <div key={floorRow.id} className="flex gap-x-4">
+    <div key={floorRow.id} className="flex gap-x-4 py-2">
       {floorRow.items.map((item) =>
         item.kind === 'aisle' ? (
           <div
