@@ -87,6 +87,7 @@ export default function MembersPage() {
     {
       text: '회원 목록 동기화',
       icon: <IconCloudDown stroke={2} />,
+      disabled: isLoading.sync,
       confirm: {
         title: '회원 목록 가져오기',
         description:
@@ -129,11 +130,11 @@ export default function MembersPage() {
           toast.error(e instanceof Error ? e.message : '티켓 배분에 실패했습니다.');
         }
       },
-      disabled: members.length === 0 || getTotalSeatCount() === 0,
+      disabled: members.length === 0 || getTotalSeatCount() === 0 || isLoading.distribute,
     },
   ];
 
-  if (isLoading) {
+  if (isLoading.fetch) {
     return <CustomSpinner text="로딩중" />;
   }
 
