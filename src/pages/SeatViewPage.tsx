@@ -23,14 +23,20 @@ export default function SeatViewPage() {
   const { venue } = useVenueStore();
   const { members, getMemberRemainTicketsByMemberId } = useMemberStore();
 
-  const [selectedFloorId, setSelectedFloorId] = useState<number | null>(
-    floors.length > 0 ? floors[0].id : null,
-  );
+  const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
   const [currentScale, setCurrentScale] = useState(1);
   const [showZoomDropdown, setShowZoomDropdown] = useState(false);
+
+  useEffect(() => {
+    if (floors.length > 0 && selectedFloorId == undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setSelectedFloorId(floors[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [floors]);
 
   const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
   const zoomDropdownRef = useRef<HTMLDivElement>(null);
@@ -60,6 +66,7 @@ export default function SeatViewPage() {
     [selectedFloorId],
   );
 
+  // eslint-disable-next-line react-hooks/refs
   const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
 
   const filteredMembers = useMemo(() => {
