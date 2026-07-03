@@ -55,6 +55,9 @@ interface FloorStore {
 
   assignSeat: (req: AssignSeatRequest) => Promise<void>;
   unAssignSeat: (req: UnAssignSeatRequest) => Promise<void>;
+
+  // ====== Member Seat Management ======
+  clearMemberSeats: (memberId: number) => void;
 }
 
 const FLOOR_API_PREFIX = '/floors';
@@ -264,6 +267,38 @@ const useFloorStore = create<FloorStore>()(
         body: JSON.stringify(req),
       });
       get().syncSection(floor);
+    },
+
+    /**
+     * 특정 회원에게 배정된 모든 좌석 해제
+     * @param memberId - 해제할 회원 ID
+     *
+     * 주의: 서버에서 이미 처리되었으므로 store만 동기화
+     * 만약 서버 로직이 변경되면 이 부분도 함께 수정 필요
+     */
+    clearMemberSeats: (memberId: number) => {
+      set((state) => ({
+        floors: state.floors.map((floor) => ({
+          ...floor,
+          rows: floor.rows.map((floorRow) => ({
+            ...floorRow,
+            items: floorRow.items.map((item) => {
+              if (item.kind !== 'section') return item;
+              return {
+                ...item,
+                rows: item.rows.map((row) => ({
+                  ...row,
+                  seats: row.seats.map((seat) =>
+                    seat.assignedMemberId === memberId
+                      ? { ...seat, assignedMemberId: undefined }
+                      : seat,
+                  ),
+                })),
+              };
+            }),
+          })),
+        })),
+      }));
     },
 
     // END
