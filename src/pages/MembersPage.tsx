@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import useFloorStore from '@/store/floorStore.ts';
-import { INSTRUMENTS, type Member } from '@/types/member.ts';
+import { INSTRUMENTS, type Member, type SyncMemberResponse } from '@/types/member.ts';
 import {
   Table,
   TableBody,
@@ -17,12 +17,14 @@ import { IconCloudDown, IconTicket, IconUserPlus } from '@tabler/icons-react';
 import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
+import SyncResultDialog from '@/components/dialog/SyncResultDialog.tsx';
 
 import type { ButtonItem } from '@/types/index';
 import CustomSpinner from '@/components/common/CustomSpinner.tsx';
 import { toast } from 'sonner';
 import useVenueStore from '@/store/venueStore.ts';
 import { VenueInfoDialog } from '@/components/dialog/VenueInfoDialog.tsx';
+import { cn } from '@/lib/utils.ts';
 
 const COL_WIDTHS = ['5%', '14%', '11%', '10%', '10%', '10%', '10%', '11%'];
 const ColGroup = () => (
@@ -57,6 +59,9 @@ export default function MembersPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [syncResultDialogOpen, setSyncResultDialogOpen] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncMemberResponse | null>(null);
+  const [highlightedMemberIds, setHighlightedMemberIds] = useState<Set<number>>(new Set());
 
   const memberInfoCards: MemberInfoCardProps[] = [
     { title: '총 좌석', boldText: getTotalSeatCount(), textPostFix: '석' },
@@ -101,11 +106,11 @@ export default function MembersPage() {
             text: '가져오기',
             onClick: async () => {
               try {
+                setHighlightedMemberIds(new Set()); // 이전 하이라이트 초기화
                 const data = await syncFromSheet();
-                const status = data.stats;
-                toast.success(
-                  `동기화 완료: 추가 ${status.inserted}건, 수정: ${status.updated}건, 삭제: ${status.deleted}건, 총 처리건수: ${status.total}`,
-                );
+                // SyncResultDialog로 결과 표시
+                setSyncResult(data);
+                setSyncResultDialogOpen(true);
               } catch (e) {
                 toast.error(`회원 목록가져오기 실패: ${e}`);
               }
@@ -188,11 +193,16 @@ export default function MembersPage() {
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
                 {/* 회원 목록 */}
                 {members.map((member) => {
+                  const isHighlighted = highlightedMemberIds.has(member.id);
                   return (
                     <TableRow
                       key={member.id}
-                      className="cursor-pointer text-center"
+                      className={cn(
+                        'cursor-pointer text-center',
+                        isHighlighted && 'bg-surface-danger text-content-danger font-bold',
+                      )}
                       onClick={() => {
+                        highlightedMemberIds.delete(member.id);
                         setSelectedMember(member);
                         setIsModalOpen(true);
                       }}
@@ -236,6 +246,12 @@ export default function MembersPage() {
           }}
         />
       </Dialog>
+      <SyncResultDialog
+        open={syncResultDialogOpen}
+        onOpenChange={setSyncResultDialogOpen}
+        syncResult={syncResult}
+        onHighlightMembers={(memberIds) => setHighlightedMemberIds(new Set(memberIds))}
+      />
     </div>
   );
 }

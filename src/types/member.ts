@@ -22,7 +22,7 @@ export const INSTRUMENTS = {
 } as const;
 
 export type InstrumentAbbr = keyof typeof INSTRUMENTS;
-export type InstrumentName = typeof INSTRUMENTS[InstrumentAbbr];
+export type InstrumentName = (typeof INSTRUMENTS)[InstrumentAbbr];
 
 // 서버 응답용
 export interface Member {
@@ -54,6 +54,13 @@ export interface SyncMemberResponse {
   };
   members: Member[];
   syncedAt: string;
+  // 동기화 스킵 (배분 티켓만)하는 경우
+  skippedAllocations?: {
+    memberId: number;
+    name: string;
+    instrumentAbbr: string;
+    reason: string; // ex) 시트 확정좌석(20) < 배정완료좌석(30)
+  }[];
 }
 
 /** 티켓 현황 요약 (파생 데이터) */
