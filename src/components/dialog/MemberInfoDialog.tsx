@@ -1,7 +1,7 @@
 import { type CreateMemberRequest, INSTRUMENTS, type Member } from '@/types';
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
-import { Field, FieldLabel } from '@/components/ui/field.tsx';
+import { Field, FieldDescription, FieldLabel } from '@/components/ui/field.tsx';
 import {
   Select,
   SelectContent,
@@ -28,7 +28,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     useMemberStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
-    instrumentAbbr: member?.instrument.abbr ?? INSTRUMENTS[0].abbr,
+    instrumentAbbr: member?.instrument.abbr ?? '지휘',
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color ?? '#000000',
   });
@@ -40,11 +40,9 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     if (member?.id) {
       // [수정 일때] 좌석 배정 완료건
       const map = getAssignedCountMap();
-
       setAssignedSeatsCount(map[member.id]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [member]);
+  }, [member?.id, getAssignedCountMap]);
 
   const handleChange = <K extends keyof typeof form>(field: K, value: (typeof form)[K]) => {
     if (field === 'allocatedTickets') {
@@ -120,8 +118,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             <Select
               value={form?.instrumentAbbr}
               onValueChange={(v) => {
-                const find = INSTRUMENTS.find((i) => i.abbr === v)!;
-                handleChange('instrumentAbbr', find.abbr);
+                handleChange('instrumentAbbr', v);
               }}
             >
               <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
@@ -129,10 +126,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               </SelectTrigger>
               <SelectContent className="bg-surface-primary text-content-primary">
                 <SelectGroup>
-                  {INSTRUMENTS.map((i) => (
-                    <SelectItem key={i.abbr} value={i.abbr}>
-                      <p className="w-8">{i.abbr}</p>
-                      <p>[{i.name}]</p>
+                  {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
+                    <SelectItem key={abbr} value={abbr}>
+                      <p className="w-8">{abbr}</p>
+                      <p>[{name}]</p>
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -169,10 +166,16 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               aria-label="allow-ticket-input"
               type="number"
               className="bg-surface-primary border-0 no-spinners"
+              min={0}
               value={form?.allocatedTickets}
               placeholder="배정할 티켓 수량을 입력하세요."
               onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
             />
+            {assignedSeatCount != null && assignedSeatCount > 0 && (
+              <FieldDescription className="text-xs text-surface-danger">
+                이미 배정된 좌석({assignedSeatCount})보다 적게 설정할 수 없습니다.
+              </FieldDescription>
+            )}
           </Field>
           <Field className="max-w-sm">
             <FieldLabel htmlFor="assigned-ticket-input">좌석 배정 완료</FieldLabel>

@@ -3,22 +3,26 @@ export interface Instrument {
   name: string;
 }
 
-export const INSTRUMENTS: Instrument[] = [
-  { abbr: '지휘', name: '지휘' },
-  { abbr: 'Fl', name: '플루트' },
-  { abbr: 'Ob', name: '오보에' },
-  { abbr: 'Cla', name: '클라리넷' },
-  { abbr: 'Hn', name: '호른' },
-  { abbr: 'Tp', name: '트럼펫' },
-  { abbr: 'Tb', name: '트롬본' },
-  { abbr: 'Vn1', name: '1st 바이올린' },
-  { abbr: 'Vn2', name: '2nd 바이올린' },
-  { abbr: 'Va', name: '비올라' },
-  { abbr: 'Vc', name: '첼로' },
-  { abbr: 'Cb', name: '콘트라베이스' },
-  { abbr: 'Sax', name: '색소폰' },
-  { abbr: 'Per', name: '퍼커션' },
-];
+export const INSTRUMENTS = {
+  지휘: '지휘',
+  Pf: '피아노',
+  Fl: '플루트',
+  Ob: '오보에',
+  Cla: '클라리넷',
+  Hn: '호른',
+  Tp: '트럼펫',
+  Trb: '트롬본',
+  Vn1: '1st 바이올린',
+  Vn2: '2nd 바이올린',
+  Va: '비올라',
+  Vc: '첼로',
+  Cb: '콘트라베이스',
+  Sax: '색소폰',
+  Per: '퍼커션',
+} as const;
+
+export type InstrumentAbbr = keyof typeof INSTRUMENTS;
+export type InstrumentName = typeof INSTRUMENTS[InstrumentAbbr];
 
 // 서버 응답용
 export interface Member {
@@ -35,7 +39,7 @@ export interface Member {
 // 생성 요청용 (id 없음)
 export interface CreateMemberRequest {
   name: string; // 회원 이름
-  instrumentAbbr: string;
+  instrumentAbbr: InstrumentAbbr;
   allocatedTickets: number; // 배정된 티켓 수
   color?: string; // 좌석 배정 시 구분 색상 (hex 코드)
 }

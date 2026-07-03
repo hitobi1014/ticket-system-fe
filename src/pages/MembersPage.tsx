@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import useFloorStore from '@/store/floorStore.ts';
-import { type Member } from '@/types/member.ts';
+import { INSTRUMENTS, type Member } from '@/types/member.ts';
 import {
   Table,
   TableBody,
@@ -197,8 +197,7 @@ export default function MembersPage() {
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
                         <Badge className="bg-mist-500 text-white">
-                          <p className="w-8">{member.instrument.abbr}</p>
-                          <p className="w-8">/ 수정예정</p>
+                          {member.instrument.abbr} / {INSTRUMENTS[member.instrument.abbr as keyof typeof INSTRUMENTS] ?? '알 수 없음'}
                         </Badge>
                       </TableCell>
                       <TableCell>{member.point}</TableCell>
