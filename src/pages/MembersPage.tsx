@@ -139,7 +139,7 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden gap-y-4">
+    <div className="flex h-full flex-col gap-y-4 overflow-hidden">
       <FunctionButtons buttons={functionButtons} />
       <div className="flex gap-3">
         {memberInfoCards.map((card) => (
@@ -156,17 +156,17 @@ export default function MembersPage() {
         <p>등록된 회원이 없습니다.</p>
       ) : (
         /* 테이블 wrapper - flex-col로 테이블 헤더/바디 분리 */
-        <div className="flex flex-col flex-1 overflow-hidden rounded-lg ">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-lg">
           {/*헤더 고정*/}
           <div className="shrink-0">
             <Table className="bg-surface-secondary">
               <ColGroup />
-              <TableHeader className="w-25 ">
+              <TableHeader className="w-25">
                 <TableRow>
                   {TABLE_HEADS.map((head) => (
                     <TableHead
                       key={head}
-                      className="text-center text-gray-300 border-b border-b-mist-300"
+                      className="border-b border-b-mist-300 text-center text-gray-300"
                     >
                       {head}
                     </TableHead>
@@ -177,9 +177,9 @@ export default function MembersPage() {
           </div>
 
           {/* 바디만 스크롤 */}
-          <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="no-scrollbar flex-1 overflow-y-auto">
             <Table className="bg-surface-secondary text-content-primary">
-              <ColGroup />
+            <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
                 {/* 회원 목록 */}
@@ -187,7 +187,7 @@ export default function MembersPage() {
                   return (
                     <TableRow
                       key={member.id}
-                      className="text-center cursor-pointer "
+                      className="cursor-pointer text-center"
                       onClick={() => {
                         setSelectedMember(member);
                         setIsModalOpen(true);
@@ -197,7 +197,9 @@ export default function MembersPage() {
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
                         <Badge className="bg-mist-500 text-white">
-                          {member.instrument.abbr} / {INSTRUMENTS[member.instrument.abbr as keyof typeof INSTRUMENTS] ?? '알 수 없음'}
+                          {member.instrument.abbr} /{' '}
+                          {INSTRUMENTS[member.instrument.abbr as keyof typeof INSTRUMENTS] ??
+                            '알 수 없음'}
                         </Badge>
                       </TableCell>
                       <TableCell>{member.point}</TableCell>
@@ -209,7 +211,7 @@ export default function MembersPage() {
                       <TableCell>{getMemberAssignedTicketsByMemberId(member.id)}</TableCell>
                       <TableCell>
                         <button
-                          className="w-6 h-6 rounded-full"
+                          className="h-6 w-6 rounded-full"
                           style={{ backgroundColor: member.color }}
                         />
                       </TableCell>
