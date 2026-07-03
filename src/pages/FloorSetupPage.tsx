@@ -15,6 +15,7 @@ import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
@@ -193,7 +194,11 @@ export default function FloorSetupPage() {
       confirm: {
         triggerText: '층 삭제',
         title: '층 삭제 확인',
-        description: `선택한 층 [${selectedFloor?.name}]을 삭제하시겠습니까?`,
+        description: (
+          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+            선택한 층 [{selectedFloor?.name}]을 삭제하시겠습니까?
+          </AlertDialogDescription>
+        ),
         actions: [{ text: '삭제', onClick: handleRemoveFloor }],
       },
     },
@@ -306,7 +311,11 @@ export default function FloorSetupPage() {
                   size="base"
                   title="통로 추가"
                   triggerText="통로 추가"
-                  description={`선택한 [${selectedSection?.name}] 기준으로 통로를 추가합니다.`}
+                  description={
+                    <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                      선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
+                    </AlertDialogDescription>
+                  }
                   actions={[
                     { text: '← 좌측', onClick: () => handleAddAisle('left') },
                     { text: '우측 →', onClick: () => handleAddAisle('right') },

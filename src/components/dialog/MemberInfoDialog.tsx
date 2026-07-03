@@ -2,6 +2,7 @@ import { type CreateMemberRequest, INSTRUMENTS, type Member } from '@/types';
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field.tsx';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
 import {
   Select,
   SelectContent,
@@ -83,7 +84,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
 
   return (
     <DialogContent
-      className="sm:max-w-106.25 bg-surface-secondary border border-content-primary"
+      className="bg-surface-secondary border-content-primary border sm:max-w-106.25"
       onInteractOutside={onClose}
     >
       <DialogHeader>
@@ -95,9 +96,9 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       {/*등록수정항목*/}
 
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
-      <div className="flex flex-col gap-y-2 text-content-primary">
+      <div className="text-content-primary flex flex-col gap-y-2">
         {/* 이름, 악기, 색상*/}
-        <div className="flex gap-x-2 items-center">
+        <div className="flex items-center gap-x-2">
           {/*  이름 */}
           <Field className="max-w-sm">
             <FieldLabel htmlFor="name-input">이름</FieldLabel>
@@ -121,7 +122,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
                 handleChange('instrumentAbbr', v);
               }}
             >
-              <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
+              <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
               <SelectContent className="bg-surface-primary text-content-primary">
@@ -138,12 +139,12 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
           </Field>
 
           {/* 회원 색상 */}
-          <div className="flex flex-col w-16 shrink-0 items-center gap-y-2">
+          <div className="flex w-16 shrink-0 flex-col items-center gap-y-2">
             <p>색상</p>
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  className="w-8 h-8 shrink-0 rounded-full border border-surface-accent cursor-pointer"
+                  className="border-surface-accent h-8 w-8 shrink-0 cursor-pointer rounded-full border"
                   style={{ backgroundColor: form?.color }}
                 />
               </PopoverTrigger>
@@ -165,14 +166,14 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               id="allow-ticket-input"
               aria-label="allow-ticket-input"
               type="number"
-              className="bg-surface-primary border-0 no-spinners"
+              className="bg-surface-primary no-spinners border-0"
               min={0}
               value={form?.allocatedTickets}
               placeholder="배정할 티켓 수량을 입력하세요."
               onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
             />
             {assignedSeatCount != null && assignedSeatCount > 0 && (
-              <FieldDescription className="text-xs text-surface-danger">
+              <FieldDescription className="text-surface-danger text-xs">
                 이미 배정된 좌석({assignedSeatCount})보다 적게 설정할 수 없습니다.
               </FieldDescription>
             )}
@@ -190,13 +191,25 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         </div>
       </div>
 
-      <DialogFooter className="flex justify-between! bg-surface-secondary pb-2.5">
+      <DialogFooter className="bg-surface-secondary flex justify-between! pb-2.5">
         <AlertDialogCustom
           variant="dialog"
           size="sm"
           triggerText={'회원삭제'}
           title={'확인'}
-          description={`[${form.name}]님을 목록에서 제거 하시겠습니까?`}
+          description={
+            <>
+              <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                [{form.name}]님을 목록에서 제거 하시겠습니까?
+              </AlertDialogDescription>
+              <AlertDialogDescription className="text-surface-danger mt-2">
+                <p className="font-bold">⚠️ 주의: 이 작업은 되돌릴 수 없습니다.</p>
+                {assignedSeatCount != null && assignedSeatCount > 0 && (
+                  <p className="text-xs">배정 완료된 좌석({assignedSeatCount}석)도 삭제됩니다.</p>
+                )}
+              </AlertDialogDescription>
+            </>
+          }
           actions={[{ text: '확인', onClick: () => handleRemoveMember() }]}
           disabled={isLoading.remove}
         />

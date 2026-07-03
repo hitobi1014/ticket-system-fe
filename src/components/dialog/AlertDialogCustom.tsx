@@ -25,7 +25,7 @@ interface Props {
   size: VariantProps<typeof buttonVariants>['size'];
   title: string;
   triggerText: string;
-  description: string;
+  description: React.ReactNode;
   actions: DialogAction[];
   disabled?: boolean;
   icon?: React.ReactNode;
@@ -52,9 +52,7 @@ export default function AlertDialogCustom({
       <AlertDialogContent className="bg-surface-primary">
         <AlertDialogHeader className="text-content-primary">
           <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
-            {description}
-          </AlertDialogDescription>
+          {description}
         </AlertDialogHeader>
         <AlertDialogFooter className="bg-surface-primary border-t-surface-secondary">
           <AlertDialogCancel variant={variant} size={size}>

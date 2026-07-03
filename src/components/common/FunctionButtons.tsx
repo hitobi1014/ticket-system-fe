@@ -19,7 +19,7 @@ export interface ButtonItem {
   confirm?: {
     triggerText: string;
     title: string;
-    description: string;
+    description: React.ReactNode;
     actions: DialogAction[];
   };
 

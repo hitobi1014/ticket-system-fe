@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
 import { IconCloudDown, IconTicket, IconUserPlus } from '@tabler/icons-react';
 import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
@@ -90,8 +91,11 @@ export default function MembersPage() {
       disabled: isLoading.sync,
       confirm: {
         title: '회원 목록 가져오기',
-        description:
-          '출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. \n💡목록에 없는 회원은 삭제됩니다.',
+        description: (
+          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+            출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. {'\n'}💡목록에 없는 회원은 삭제됩니다.
+          </AlertDialogDescription>
+        ),
         actions: [
           {
             text: '가져오기',
