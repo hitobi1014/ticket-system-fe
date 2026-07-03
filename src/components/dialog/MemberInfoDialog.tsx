@@ -40,7 +40,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     if (member?.id) {
       // [수정 일때] 좌석 배정 완료건
       const map = getAssignedCountMap();
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+
       setAssignedSeatsCount(map[member.id]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -95,46 +95,70 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         </DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
+
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
       <div className="flex flex-col gap-y-2 text-content-primary">
-        {/*  이름 */}
-        <Field className="max-w-sm">
-          <FieldLabel htmlFor="name-input">이름</FieldLabel>
-          <Input
-            id="name-input"
-            aria-label="name"
-            value={form?.name}
-            type="triggerText"
-            className="bg-surface-primary border-0"
-            placeholder="이름을 입력하세요"
-            onChange={(e) => handleChange('name', e.target.value)}
-          />
-        </Field>
+        {/* 이름, 악기, 색상*/}
+        <div className="flex gap-x-2 items-center">
+          {/*  이름 */}
+          <Field className="max-w-sm">
+            <FieldLabel htmlFor="name-input">이름</FieldLabel>
+            <Input
+              id="name-input"
+              aria-label="name"
+              value={form?.name}
+              type="triggerText"
+              className="bg-surface-primary border-0"
+              placeholder="이름을 입력하세요"
+              onChange={(e) => handleChange('name', e.target.value)}
+            />
+          </Field>
 
-        {/*  악기 */}
-        <Field className="max-w-sm">
-          <FieldLabel htmlFor="inline-end-input">악기</FieldLabel>
-          <Select
-            value={form?.instrumentAbbr}
-            onValueChange={(v) => {
-              const find = INSTRUMENTS.find((i) => i.abbr === v)!;
-              handleChange('instrumentAbbr', find.abbr);
-            }}
-          >
-            <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
-              <SelectValue placeholder="선택" />
-            </SelectTrigger>
-            <SelectContent className="bg-surface-primary text-content-primary">
-              <SelectGroup>
-                {INSTRUMENTS.map((i) => (
-                  <SelectItem key={i.abbr} value={i.abbr}>
-                    {i.abbr}
-                  </SelectItem>
-                ))}
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-        </Field>
+          {/*  악기 */}
+          <Field className="max-w-sm">
+            <FieldLabel htmlFor="inline-end-input">악기</FieldLabel>
+            <Select
+              value={form?.instrumentAbbr}
+              onValueChange={(v) => {
+                const find = INSTRUMENTS.find((i) => i.abbr === v)!;
+                handleChange('instrumentAbbr', find.abbr);
+              }}
+            >
+              <SelectTrigger className="w-45 bg-surface-primary text-content-primary border-0">
+                <SelectValue placeholder="선택" />
+              </SelectTrigger>
+              <SelectContent className="bg-surface-primary text-content-primary">
+                <SelectGroup>
+                  {INSTRUMENTS.map((i) => (
+                    <SelectItem key={i.abbr} value={i.abbr}>
+                      <p className="w-8">{i.abbr}</p>
+                      <p>[{i.name}]</p>
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </Field>
+
+          {/* 회원 색상 */}
+          <div className="flex flex-col w-16 shrink-0 items-center gap-y-2">
+            <p>색상</p>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="w-8 h-8 shrink-0 rounded-full border border-surface-accent cursor-pointer"
+                  style={{ backgroundColor: form?.color }}
+                />
+              </PopoverTrigger>
+              <PopoverContent>
+                <HexColorPicker
+                  color={form?.color}
+                  onChange={(color) => handleChange('color', color)}
+                />
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
 
         <div className="flex gap-x-4">
           {/*  배정 티켓수 */}
@@ -161,25 +185,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             />
           </Field>
         </div>
-
-        {/* 회원 색상 */}
-        <Field className="max-w-sm">
-          <FieldLabel htmlFor="inline-end-input">색상</FieldLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                className="w-6 h-6 rounded-full border border-surface-accent"
-                style={{ backgroundColor: form?.color }}
-              />
-            </PopoverTrigger>
-            <PopoverContent>
-              <HexColorPicker
-                color={form?.color}
-                onChange={(color) => handleChange('color', color)}
-              />
-            </PopoverContent>
-          </Popover>
-        </Field>
       </div>
 
       <DialogFooter className="flex justify-between! bg-surface-secondary pb-2.5">

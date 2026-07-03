@@ -196,7 +196,10 @@ export default function MembersPage() {
                       <TableCell>{member.seq}</TableCell>
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
-                        <Badge className="bg-mist-500 text-white">{member.instrument.abbr}</Badge>
+                        <Badge className="bg-mist-500 text-white">
+                          <p className="w-8">{member.instrument.abbr}</p>
+                          <p className="w-8">/ 수정예정</p>
+                        </Badge>
                       </TableCell>
                       <TableCell>{member.point}</TableCell>
                       {/* 배정티켓 */}
