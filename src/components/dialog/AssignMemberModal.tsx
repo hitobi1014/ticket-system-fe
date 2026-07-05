@@ -23,6 +23,15 @@ import type {
 import { clsx } from 'clsx';
 import { TriangleAlert } from 'lucide-react';
 import { useRef, useState } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { cn } from '@/lib/utils.ts';
 
 // 모달에서 일괄/단건 회원 좌석 할당 가능하도록
 
@@ -31,6 +40,15 @@ interface AssignMemberModalProps {
   onClose: () => void;
 }
 
+const COL_WIDTHS = ['13%', '13%', '20%', '20%', '13%'];
+const ColGroup = () => (
+  <colgroup>
+    {COL_WIDTHS.map((w, i) => (
+      <col key={i} style={{ width: w }} />
+    ))}
+  </colgroup>
+);
+
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
   const { floors, assignSeat, unAssignSeat } = useFloorStore();
   const { members, getAssignedCountMap } = useMemberStore();
@@ -38,7 +56,6 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const [hasMemberEmpty, setHasMemberEmpty] = useState<boolean>(false);
   const [isAssignMemberSelected, setIsAssignMemberSelected] = useState<number | null>(null);
 
-  // TODO 상태 분기 어떻게 할지?
   const modalTitle = {
     N: '배정할 회원을 선택하세요.',
     U: '현재 배정된 인원을 변경하거나 배정을 취소합니다.',
@@ -132,7 +149,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
             <span
               key={seatId}
               className={clsx(
-                'flex items-center gap-1 text-xs rounded px-2 py-1 whitespace-nowrap',
+                'flex items-center gap-1 rounded px-2 py-1 text-xs whitespace-nowrap',
                 {
                   'bg-surface-danger text-content-danger font-bold': memberName,
                   'bg-surface-accent text-content-primary': !memberName,
@@ -145,7 +162,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           );
         })}
         {overwriteCount > 0 && (
-          <div className="flex items-center gap-2 text-xs font-bold text-amber-800 bg-amber-100 rounded px-3 py-2">
+          <div className="flex items-center gap-2 rounded bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800">
             <TriangleAlert size={14} />
             배정된 좌석 {overwriteCount}개가 포함되어 있습니다. 덮어씁니다.
           </div>
@@ -154,45 +171,76 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       {/* ✅ 회원 목록: 잔여 좌석이 남은 회원만 표기 */}
       <Separator className="bg-surface-accent" />
       <div
-        className={clsx('flex flex-col -mx-4 max-h-[50vh] overflow-hidden px-4', {
+        className={clsx('-mx-4 flex max-h-[50vh] flex-col overflow-hidden', {
           'ring-2 ring-red-400': hasMemberEmpty,
         })}
       >
-        {/*검색 기능?*/}
-        <h5 className="text-sm mb-2 font-bold text-content-secondary">회원 목록</h5>
-        <div className="flex flex-col flex-1 min-h-0 no-scrollbar overflow-y-auto">
-          {sortedMemberFromRemainSeat.map((mem) => (
-            // 선택된 좌석보다 회원 잔여석이 적으면 클릭 비활성화
-            <div
-              className={clsx('flex justify-between items-center px-2 py-0.5 mb-1', {
-                'bg-surface-accent text-content-primary rounded-md ':
-                  isAssignMemberSelected === mem.id,
-                'cursor-pointer hover:bg-surface-accent': hasEnoughRemainingTickets(mem),
-                'opacity-40 cursor-not-allowed': !hasEnoughRemainingTickets(mem),
-              })}
-              key={mem.id}
-              onClick={() => {
-                if (!hasEnoughRemainingTickets(mem)) return;
-                setIsAssignMemberSelected(mem.id);
-              }}
+        <h5 className="text-content-secondary mb-2 px-4 text-sm font-bold">회원 목록</h5>
+        {/* 테이블 wrapper - flex-col로 헤더/바디 분리 */}
+        <div className="flex flex-1 flex-col overflow-hidden">
+          {/* 헤더 고정 */}
+          <div className="shrink-0 overflow-hidden">
+            <Table className="bg-surface-secondary" style={{ tableLayout: 'fixed' }}>
+              <ColGroup />
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                    순서
+                  </TableHead>
+                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                    순위
+                  </TableHead>
+                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                    파트
+                  </TableHead>
+                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                    이름
+                  </TableHead>
+                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                    잔여티켓
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+            </Table>
+          </div>
+
+          {/* 바디만 스크롤 */}
+          <div className="no-scrollbar flex-1 overflow-y-auto">
+            <Table
+              className="bg-surface-secondary text-content-primary"
+              style={{ tableLayout: 'fixed' }}
             >
-              <div className="flex items-center gap-2">
-                <p className="w-6">{mem.seq}</p>
-                <p className="w-8 h-5 flex justify-center items-center text-xs rounded bg-surface-accent text-content-primary">
-                  {mem.instrument.abbr}
-                </p>
-                <p>{mem.name}</p>
-              </div>
-              <p className="w-14 h-7 flex justify-center items-center text-sm bg-surface-accent text-content-primary rounded-lg">
-                잔여 {getRemainTickets(mem, assignedCountMap)}
-              </p>
-            </div>
-          ))}
+              <ColGroup />
+              <TableBody className="divide-y divide-mist-300">
+                {sortedMemberFromRemainSeat.map((mem) => (
+                  <TableRow
+                    key={mem.id}
+                    className={cn(
+                      'cursor-pointer text-center',
+                      isAssignMemberSelected === mem.id && 'bg-surface-accent text-content-primary',
+                      hasEnoughRemainingTickets(mem) && 'hover:bg-surface-accent',
+                      !hasEnoughRemainingTickets(mem) && 'cursor-not-allowed opacity-40',
+                    )}
+                    onClick={() => {
+                      if (!hasEnoughRemainingTickets(mem)) return;
+                      setIsAssignMemberSelected(mem.id);
+                    }}
+                  >
+                    <TableCell>{mem.seq}</TableCell>
+                    <TableCell>{mem.rank}</TableCell>
+                    <TableCell>{mem.instrument.abbr}</TableCell>
+                    <TableCell>{mem.name}</TableCell>
+                    <TableCell>{getRemainTickets(mem, assignedCountMap)}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
       <DialogFooter className="bg-surface-secondary border-t-surface-accent">
         <div
-          className={clsx('flex gap-2 w-full', {
+          className={clsx('flex w-full gap-2', {
             'justify-between': isVisibleCancelButton,
             'justify-end': !isVisibleCancelButton,
           })}
