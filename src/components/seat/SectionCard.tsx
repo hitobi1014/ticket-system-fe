@@ -1,12 +1,13 @@
 import type { ButtonItem, CreateRowsRequest, CreateSeatRequest, FloorItem } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
-import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconArmchair, IconEyeOff, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { clsx } from 'clsx';
 import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
+import { useState } from 'react';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -28,7 +29,8 @@ export default function SectionCard({
   onSelectedAisleId,
   onSelectedRowId,
 }: SectionCardProps) {
-  const { floors, addRow, removeRow, addSeat, removeSeat } = useFloorStore();
+  const { floors, addRow, removeRow, addSeat, removeSeat, toggleSeatVisible } = useFloorStore();
+  const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
 
   const handleSelectSection = (sectionId: number) => {
     if (selectedSectionId === sectionId) return;
@@ -110,6 +112,36 @@ export default function SectionCard({
     }
   };
 
+  const handleToggleSeatVisible = async () => {
+    if (selectedSeatIds.size === 0) {
+      toast.error('선택된 좌석이 없습니다.');
+      return;
+    }
+
+    try {
+      await toggleSeatVisible([...selectedSeatIds]);
+      setSelectedSeatIds(new Set()); // 선택 초기화
+      toast.success(`${selectedSeatIds.size}개 좌석의 표시 상태가 변경되었습니다.`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '좌석 표시 상태 변경에 실패했습니다.');
+    }
+  };
+
+  const handleSeatClick = (seatId: number) => {
+    // row 선택 모드가 아닐 때만 좌석 선택 가능
+    if (selectedRowId === null) return;
+
+    setSelectedSeatIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(seatId)) {
+        newSet.delete(seatId);
+      } else {
+        newSet.add(seatId);
+      }
+      return newSet;
+    });
+  };
+
   // 열 편집 버튼
   const sectionEditButtons: ButtonItem[] = [
     {
@@ -157,6 +189,14 @@ export default function SectionCard({
           onConfirm={handleRemoveSeat}
         />
       ),
+    },
+    {
+      variant: 'secondary',
+      text: `빈 좌석 ${selectedSeatIds.size > 0 ? `(${selectedSeatIds.size})` : '설정'}`,
+      size: 'xs',
+      icon: <IconEyeOff stroke={2} />,
+      disabled: selectedSeatIds.size === 0,
+      onClick: handleToggleSeatVisible,
     },
   ];
 
@@ -216,6 +256,9 @@ export default function SectionCard({
               handleSelectSection(item.id);
               onSelectedRowId(rowId);
             }}
+            selectedSeatIds={selectedSeatIds}
+            onSeatClick={handleSeatClick}
+            isEditMode={selectedRowId === row.id}
           />
         ))}
       </div>

@@ -81,6 +81,7 @@ export default function SeatGrid({
               <div key={row.id} className="flex items-center gap-x-1.5">
                 <p>{row.rowName}</p>
                 {row.seats.map((seat) => {
+                  const isVisible = seat.visible;
                   const bgColor =
                     seat.assignedMemberId != null
                       ? getMemberColor(seat.assignedMemberId)
@@ -98,11 +99,13 @@ export default function SeatGrid({
                     <div
                       key={seat.id}
                       className={cn(
-                        'w-10 h-10 flex items-center justify-center rounded-md border text-sm bg-surface-primary text-content-primary',
+                        'w-10 h-10 flex items-center justify-center rounded-md text-sm',
+                        isVisible && 'border bg-surface-primary text-content-primary',
+                        !isVisible && 'border-0 bg-transparent text-transparent pointer-events-none',
                         isPulsing && 'animate-pulse',
                       )}
                       style={{
-                        ...(bgColor
+                        ...(isVisible && bgColor
                           ? {
                               backgroundColor: bgColor,
                               color: getContrastTextColor(bgColor),
@@ -111,12 +114,14 @@ export default function SeatGrid({
                           : {}),
                       }}
                     >
-                      <div className="text-center leading-tight">
-                        <p>{seat.seatNumber}</p>
-                        {seat.assignedMemberId != null && (
-                          <p className="text-xs">{getMemberName(seat.assignedMemberId)}</p>
-                        )}
-                      </div>
+                      {isVisible && (
+                        <div className="text-center leading-tight">
+                          <p>{seat.seatNumber}</p>
+                          {seat.assignedMemberId != null && (
+                            <p className="text-xs">{getMemberName(seat.assignedMemberId)}</p>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
