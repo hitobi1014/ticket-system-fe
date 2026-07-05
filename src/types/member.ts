@@ -1,8 +1,3 @@
-export interface Instrument {
-  abbr: string;
-  name: string;
-}
-
 export const INSTRUMENTS = {
   지휘: '지휘',
   Pf: '피아노',
@@ -23,6 +18,11 @@ export const INSTRUMENTS = {
 
 export type InstrumentAbbr = keyof typeof INSTRUMENTS;
 export type InstrumentName = (typeof INSTRUMENTS)[InstrumentAbbr];
+
+export interface Instrument {
+  abbr: InstrumentAbbr;
+  name: InstrumentName;
+}
 
 // 서버 응답용
 export interface Member {

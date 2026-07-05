@@ -1,4 +1,4 @@
-import { type CreateMemberRequest, INSTRUMENTS, type Member } from '@/types';
+import { type CreateMemberRequest, INSTRUMENTS, type InstrumentAbbr, type Member } from '@/types';
 import { DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog.tsx';
 import { Button } from '@/components/ui/button.tsx';
 import { Field, FieldDescription, FieldLabel } from '@/components/ui/field.tsx';
@@ -41,6 +41,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     if (member?.id) {
       // [수정 일때] 좌석 배정 완료건
       const map = getAssignedCountMap();
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAssignedSeatsCount(map[member.id]);
     }
   }, [member?.id, getAssignedCountMap]);
@@ -119,7 +120,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             <Select
               value={form?.instrumentAbbr}
               onValueChange={(v) => {
-                handleChange('instrumentAbbr', v);
+                handleChange('instrumentAbbr', v as InstrumentAbbr);
               }}
             >
               <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
