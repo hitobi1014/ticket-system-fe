@@ -268,56 +268,72 @@ export default function FloorSetupPage() {
             className="flex min-h-0 flex-1 flex-col overflow-hidden p-0"
           >
             {/* ✅ 구역 기능 버튼 그룹 */}
-            <div className="flex shrink-0 gap-x-2">
-              <div className="flex justify-end gap-x-2">
-                <AddSectionDialog
-                  key={addSectionDialogKey}
-                  floorId={floor.id}
-                  onConfirm={() => {
-                    // 구역 추가 완료 시 선택 상태 초기화
-                    setSelectedSectionId(null);
-                    setSelectedRowId(null);
-                    setAddSectionDialogKey((prev) => prev + 1);
-                  }}
-                />
+            <div className="flex items-center justify-between gap-x-2">
+              <div className="flex shrink-0">
+                <div className="flex justify-end gap-x-2">
+                  <AddSectionDialog
+                    key={addSectionDialogKey}
+                    floorId={floor.id}
+                    onConfirm={() => {
+                      // 구역 추가 완료 시 선택 상태 초기화
+                      setSelectedSectionId(null);
+                      setSelectedRowId(null);
+                      setAddSectionDialogKey((prev) => prev + 1);
+                    }}
+                  />
 
-                <Button
-                  size="base"
-                  variant="secondary"
-                  onClick={handleRemoveSection}
-                  disabled={selectedSectionId === null}
-                >
-                  <IconMinus stroke={2} />
-                  구역 삭제
-                </Button>
+                  <Button
+                    size="base"
+                    variant="secondary"
+                    onClick={handleRemoveSection}
+                    disabled={selectedSectionId === null}
+                  >
+                    <IconMinus stroke={2} />
+                    구역 삭제
+                  </Button>
+                </div>
+                <div className="mx-1 my-1.5 w-0.5 self-stretch bg-mist-400" />
+                <div className="flex justify-end gap-x-2">
+                  <AlertDialogCustom
+                    variant="secondary"
+                    size="base"
+                    title="통로 추가"
+                    triggerText="통로 추가"
+                    description={
+                      <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                        선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
+                      </AlertDialogDescription>
+                    }
+                    actions={[
+                      { text: '← 좌측', onClick: () => handleAddAisle('left') },
+                      { text: '우측 →', onClick: () => handleAddAisle('right') },
+                    ]}
+                    icon={<IconLayoutColumns stroke={2} />}
+                    disabled={selectedSectionId === null}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="base"
+                    onClick={handleRemoveAisle}
+                    disabled={selectedAisleId === null}
+                  >
+                    <IconTrash stroke={2} /> 통로 삭제
+                  </Button>
+                </div>
               </div>
-              <div className="mx-1 my-1.5 w-0.5 self-stretch bg-mist-400" />
-              <div className="flex justify-end gap-x-2">
-                <AlertDialogCustom
-                  variant="secondary"
-                  size="base"
-                  title="통로 추가"
-                  triggerText="통로 추가"
-                  description={
-                    <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
-                      선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
-                    </AlertDialogDescription>
-                  }
-                  actions={[
-                    { text: '← 좌측', onClick: () => handleAddAisle('left') },
-                    { text: '우측 →', onClick: () => handleAddAisle('right') },
-                  ]}
-                  icon={<IconLayoutColumns stroke={2} />}
-                  disabled={selectedSectionId === null}
-                />
-                <Button
-                  variant="secondary"
-                  size="base"
-                  onClick={handleRemoveAisle}
-                  disabled={selectedAisleId === null}
-                >
-                  <IconTrash stroke={2} /> 통로 삭제
-                </Button>
+              <div className="bg-surface-secondary flex gap-x-4 p-2">
+                <div className="flex items-center gap-x-2">
+                  <span className="flex h-6 w-6 shrink-0 rounded-md bg-red-400" />
+                  <span className="text-content-primary">배정 완료 석</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="bg-surface-danger flex h-6 w-6 shrink-0 rounded-md border-0 text-transparent opacity-15" />
+                  <span className="text-content-primary">숨긴 좌석</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="bg-surface-primary flex h-6 w-6 shrink-0 rounded-md" />
+                  <span className="text-content-primary">배정 가능 석</span>
+                </div>
               </div>
             </div>
 

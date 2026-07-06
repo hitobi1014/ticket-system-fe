@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogClose,
@@ -13,6 +13,9 @@ import type { VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 import { DialogDescription } from '@/components/ui/dialog';
 import { IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
+import { toast } from 'sonner';
+import useFloorStore from '@/store/floorStore.ts';
+import type { Section } from '@/types';
 
 interface Props {
   title: string;
@@ -43,8 +46,29 @@ export function RemoveSeatDialog({
 }: Props) {
   const [open, setOpen] = useState(false);
   const [deleteCount, setDeleteCount] = useState(1);
+  const [enabledRemoveCount, setEnabledRemoveCount] = useState(0);
+  const { floors } = useFloorStore();
 
   const remaining = currentSeatCount - deleteCount;
+
+  useEffect(() => {
+    const assignedSeats = floors
+      .flatMap((f) => f.rows.flatMap((r) => r.items))
+      .filter((item): item is Section => item.kind === 'section')
+      .flatMap((s) => s.rows)
+      .filter((r) => r.id === rowId)
+      .flatMap((r) => r.seats)
+      .filter(
+        (seat): seat is typeof seat & { assignedMemberId: number } => seat.assignedMemberId != null,
+      );
+
+    const maxSeatNumber = Math.max(...assignedSeats.map((seat) => seat.seatNumber), 0);
+
+    console.log(`currentSeatCount: ${currentSeatCount}, maxSeatNumber: ${maxSeatNumber}`);
+    // 삭제가능좌석 = row 총 좌석 - 배정된 좌석 중 가장 큰 번호
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setEnabledRemoveCount(currentSeatCount - maxSeatNumber);
+  }, [rowId, floors, currentSeatCount]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -54,7 +78,7 @@ export function RemoveSeatDialog({
           e.stopPropagation();
           if (rowId == null) {
             e.preventDefault();
-            alert('먼저 열을 선택해주세요.');
+            toast.error('선택된 열이 없습니다. 먼저 열을 선택해주세요');
           }
         }}
       >
@@ -69,13 +93,17 @@ export function RemoveSeatDialog({
             <IconTrash className="danger-color" stroke={1.5} />
             <p>{title}</p>
           </DialogTitle>
-          <DialogDescription className="text-content-secondary">
-            끝 번호부터 삭제 됩니다.
+          <DialogDescription>
+            <span className="text-content-secondary">끝 번호부터 삭제 됩니다.</span>
+            <br />
+            <span className="text-surface-danger">
+              배정되어 있는 회원이 있는경우 삭제가 불가능합니다. 배정해제를 먼저 진행해주세요
+            </span>
           </DialogDescription>
         </DialogHeader>
 
         {/* 구역/열 정보 */}
-        <div className="bg-surface-primary flex justify-between px-4 py-2 rounded-md">
+        <div className="bg-surface-primary flex justify-between rounded-md px-4 py-2">
           <div>
             <p className="text-mist-400">구역</p>
             <p className="text-content-primary">
@@ -94,28 +122,34 @@ export function RemoveSeatDialog({
           <div className="flex items-center justify-center gap-x-2">
             <Button
               variant="dialog"
-              className="w-8 h-8"
-              onClick={() => setDeleteCount(deleteCount - 1)}
+              className="h-8 w-8"
+              onClick={() => setDeleteCount(Math.max(deleteCount - 1, 1))}
             >
               <IconMinus stroke={2} />
             </Button>
             <input
               type="number"
-              className="bg-surface-primary w-full h-8 rounded-lg text-center text-mist-50 no-spinners"
+              className="bg-surface-primary no-spinners h-8 w-full rounded-lg text-center text-mist-50"
               min={1}
-              max={currentSeatCount}
+              max={enabledRemoveCount}
               value={deleteCount}
               onChange={(e) => setDeleteCount(Number(e.target.value))}
             />
             <Button
               variant="dialog"
-              className="w-8 h-8"
-              onClick={() => setDeleteCount(deleteCount + 1)}
+              className="h-8 w-8"
+              onClick={() => setDeleteCount(Math.min(deleteCount + 1, enabledRemoveCount))}
             >
               <IconPlus stroke={2} />
             </Button>
           </div>
-          <p className="text-amber-300">삭제 후 {remaining}석이 남습니다.</p>
+          {deleteCount > enabledRemoveCount ? (
+            <p className="text-surface-danger">
+              배정된 좌석이 있어 최대 {enabledRemoveCount}석까지만 삭제할 수 있습니다.
+            </p>
+          ) : (
+            <p className="text-amber-300">삭제 후 {remaining}석이 남습니다.</p>
+          )}
         </div>
 
         {/* 미리 보기 */}
@@ -125,7 +159,12 @@ export function RemoveSeatDialog({
           </DialogClose>
           <Button
             className="border border-mist-500"
-            disabled={remaining < 0}
+            disabled={
+              isNaN(deleteCount) ||
+              deleteCount < 1 ||
+              deleteCount > enabledRemoveCount ||
+              remaining < 0
+            }
             onClick={() => {
               onConfirm(deleteCount);
               setOpen(false);

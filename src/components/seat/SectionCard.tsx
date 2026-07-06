@@ -4,7 +4,7 @@ import useFloorStore from '@/store/floorStore.ts';
 import { IconArmchair, IconEyeOff, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { clsx } from 'clsx';
-import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
+import { findSeatContextByRowId, findVisibleSeatCountByRowId } from '@/lib/seatUtils.ts';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 import { useState } from 'react';
@@ -77,7 +77,7 @@ export default function SectionCard({
    */
   const handleAddSeat = async () => {
     if (selectedRowId === null) {
-      alert('선택된 row가 없습니다.');
+      toast.error('선택된 row가 없습니다.');
       return;
     }
     const addSeatCount = Number(window.prompt('추가하실 좌석 수를 입력해주세요'));
@@ -101,7 +101,7 @@ export default function SectionCard({
 
   const handleRemoveSeat = async (removeSeatCnt: number) => {
     if (selectedRowId == null) {
-      alert('값 없음');
+      toast.error('선택된 row가 없습니다. 열을 선택하고 다시시도해주세요.');
       return;
     }
 
@@ -177,6 +177,7 @@ export default function SectionCard({
     {
       dialog: (
         <RemoveSeatDialog
+          key={selectedRowId}
           title="좌석 삭제"
           buttonText="좌석 삭제"
           icon={<IconTrash stroke={2} />}
@@ -185,7 +186,7 @@ export default function SectionCard({
           disabled={selectedRowId === undefined}
           rowId={selectedRowId ?? undefined}
           rowName={findSeatContextByRowId(floors, selectedRowId!)?.row.rowName ?? '열 설정x'}
-          currentSeatCount={findSeatContextByRowId(floors, selectedRowId!)?.row.seats.length ?? 0}
+          currentSeatCount={findVisibleSeatCountByRowId(floors, selectedRowId!) ?? 0}
           sectionName={findSeatContextByRowId(floors, selectedRowId!)?.section.name ?? '구역 설정x'}
           onConfirm={handleRemoveSeat}
         />
