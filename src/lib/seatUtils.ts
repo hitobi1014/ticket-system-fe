@@ -17,6 +17,13 @@ export function findSeatContext(floors: Floor[], seatId: number) {
   return null;
 }
 
+export function findVisibleSeatCountByRowId(floors: Floor[], rowId: number) {
+  const find = findSeatContextByRowId(floors, rowId);
+  if (find == null) return null;
+
+  return find.row.seats.filter((seat) => seat.visible).length;
+}
+
 export function findSeatContextByRowId(floors: Floor[], rowId: number) {
   for (const floor of floors) {
     for (const floorRow of floor.rows) {

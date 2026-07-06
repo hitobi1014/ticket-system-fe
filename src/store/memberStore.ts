@@ -142,9 +142,13 @@ const useMemberStore = create<MemberStore>((set, get) => ({
         method: 'DELETE',
       });
 
+      // 회원 목록에서 제거
       set((state) => ({
         members: state.members.filter((m) => m.id !== id),
       }));
+
+      // 좌석 배정 해제 (floorStore에 위임)
+      useFloorStore.getState().clearMemberSeats(id);
     } finally {
       set((state) => ({ isLoading: { ...state.isLoading, remove: false } }));
     }

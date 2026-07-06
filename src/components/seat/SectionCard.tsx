@@ -1,12 +1,13 @@
 import type { ButtonItem, CreateRowsRequest, CreateSeatRequest, FloorItem } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
-import { IconArmchair, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
+import { IconArmchair, IconEyeOff, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { clsx } from 'clsx';
-import { findSeatContextByRowId } from '@/lib/seatUtils.ts';
+import { findSeatContextByRowId, findVisibleSeatCountByRowId } from '@/lib/seatUtils.ts';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
+import { useState } from 'react';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -28,7 +29,8 @@ export default function SectionCard({
   onSelectedAisleId,
   onSelectedRowId,
 }: SectionCardProps) {
-  const { floors, addRow, removeRow, addSeat, removeSeat } = useFloorStore();
+  const { floors, addRow, removeRow, addSeat, removeSeat, toggleSeatVisible } = useFloorStore();
+  const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
 
   const handleSelectSection = (sectionId: number) => {
     if (selectedSectionId === sectionId) return;
@@ -75,7 +77,7 @@ export default function SectionCard({
    */
   const handleAddSeat = async () => {
     if (selectedRowId === null) {
-      alert('선택된 row가 없습니다.');
+      toast.error('선택된 row가 없습니다.');
       return;
     }
     const addSeatCount = Number(window.prompt('추가하실 좌석 수를 입력해주세요'));
@@ -99,7 +101,7 @@ export default function SectionCard({
 
   const handleRemoveSeat = async (removeSeatCnt: number) => {
     if (selectedRowId == null) {
-      alert('값 없음');
+      toast.error('선택된 row가 없습니다. 열을 선택하고 다시시도해주세요.');
       return;
     }
 
@@ -108,6 +110,37 @@ export default function SectionCard({
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '좌석 삭제에 실패했습니다.');
     }
+  };
+
+  const handleToggleSeatVisible = async () => {
+    if (selectedSeatIds.size === 0) {
+      toast.error('선택된 좌석이 없습니다.');
+      return;
+    }
+
+    try {
+      await toggleSeatVisible([...selectedSeatIds]);
+      setSelectedSeatIds(new Set()); // 선택 초기화
+      toast.success(`${selectedSeatIds.size}개 좌석의 표시 상태가 변경되었습니다.`);
+    } catch (e) {
+      console.error(e);
+      toast.error(e instanceof Error ? e.message : '좌석 표시 상태 변경에 실패했습니다.');
+    }
+  };
+
+  const handleSeatClick = (seatId: number) => {
+    // row 선택 모드가 아닐 때만 좌석 선택 가능
+    if (selectedRowId === null) return;
+
+    setSelectedSeatIds((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(seatId)) {
+        newSet.delete(seatId);
+      } else {
+        newSet.add(seatId);
+      }
+      return newSet;
+    });
   };
 
   // 열 편집 버튼
@@ -144,6 +177,7 @@ export default function SectionCard({
     {
       dialog: (
         <RemoveSeatDialog
+          key={selectedRowId}
           title="좌석 삭제"
           buttonText="좌석 삭제"
           icon={<IconTrash stroke={2} />}
@@ -152,11 +186,19 @@ export default function SectionCard({
           disabled={selectedRowId === undefined}
           rowId={selectedRowId ?? undefined}
           rowName={findSeatContextByRowId(floors, selectedRowId!)?.row.rowName ?? '열 설정x'}
-          currentSeatCount={findSeatContextByRowId(floors, selectedRowId!)?.row.seats.length ?? 0}
+          currentSeatCount={findVisibleSeatCountByRowId(floors, selectedRowId!) ?? 0}
           sectionName={findSeatContextByRowId(floors, selectedRowId!)?.section.name ?? '구역 설정x'}
           onConfirm={handleRemoveSeat}
         />
       ),
+    },
+    {
+      variant: 'secondary',
+      text: `빈 좌석 ${selectedSeatIds.size > 0 ? `(${selectedSeatIds.size})` : '설정'}`,
+      size: 'xs',
+      icon: <IconEyeOff stroke={2} />,
+      disabled: selectedSeatIds.size === 0,
+      onClick: handleToggleSeatVisible,
     },
   ];
 
@@ -168,13 +210,13 @@ export default function SectionCard({
           handleSelectAisle(item.id);
         }}
         className={clsx(
-          'text-content-primary bg-surface-secondary rounded-md flex items-center justify-center self-stretch px-3 cursor-pointer',
+          'text-content-primary bg-surface-secondary flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
           {
-            'ring-2 ring-text-content-primary': selectedAisleId === item.id,
+            'ring-text-content-primary ring-2': selectedAisleId === item.id,
           },
         )}
       >
-        <div className="w-px h-2/4 bg-mist-500" />
+        <div className="h-2/4 w-px bg-mist-500" />
       </div>
     );
   }
@@ -188,14 +230,14 @@ export default function SectionCard({
         handleSelectSection(item.id);
       }}
       className={clsx(
-        'bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4',
+        'bg-surface-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4',
         {
-          'ring-2 ring-text-content-primary': selectedSectionId === item.id,
+          'ring-text-content-primary ring-2': selectedSectionId === item.id,
         },
       )}
     >
       <div
-        className="flex justify-between items-center"
+        className="flex items-center justify-between"
         onClick={(e) => {
           e.stopPropagation();
           handleSelectSection(item.id);
@@ -216,6 +258,9 @@ export default function SectionCard({
               handleSelectSection(item.id);
               onSelectedRowId(rowId);
             }}
+            selectedSeatIds={selectedSeatIds}
+            onSeatClick={handleSeatClick}
+            isEditMode={selectedRowId === row.id}
           />
         ))}
       </div>

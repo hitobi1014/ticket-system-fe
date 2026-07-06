@@ -1,19 +1,30 @@
 import { Button } from '@/components/ui/button.tsx';
 import type { Rows } from '@/types';
 import { clsx } from 'clsx';
+import { cn } from '@/lib/utils.ts';
 
 interface RowProps {
   row: Rows;
   isSelected: boolean;
   onClick: (rowId: number) => void;
+  selectedSeatIds?: Set<number>;
+  onSeatClick?: (seatId: number) => void;
+  isEditMode?: boolean;
 }
 
-export default function Row({ row, isSelected, onClick }: RowProps) {
+export default function Row({
+  row,
+  isSelected,
+  onClick,
+  selectedSeatIds,
+  onSeatClick,
+  isEditMode,
+}: RowProps) {
   return (
     <div
       key={row.id}
       className={clsx('flex items-center gap-x-2', {
-        'bg-mist-500 rounded-lg': isSelected,
+        'rounded-lg bg-mist-500': isSelected,
       })}
       onClick={(e) => {
         e.stopPropagation();
@@ -21,17 +32,36 @@ export default function Row({ row, isSelected, onClick }: RowProps) {
       }}
     >
       <div className="flex">
-        <span className={clsx('flex justify-center items-center w-6 text-sm', {})}>
+        <span className={clsx('flex w-6 items-center justify-center text-sm', {})}>
           {row.rowName}
         </span>
-        {/*<div className="flex gap-x-1" onClick={(e) => e.stopPropagation()}>*/}
         <div className="flex gap-x-1">
           {row.seats.map((seat) => {
+            const isSeatSelected = selectedSeatIds?.has(seat.id) ?? false;
+            const isVisible = seat.visible;
+
             return (
-              // 분리
               <div key={seat.id} className="flex items-center">
-                <Button className="bg-surface-primary text-content-primary border-0 w-8 h-8 text-sm">
-                  {seat.seatNumber}
+                <Button
+                  className={cn(
+                    'h-8 w-8 border-0 text-sm',
+                    !isVisible && 'bg-surface-danger border-0 text-transparent opacity-15',
+                    isVisible && 'bg-surface-primary text-content-primary',
+                    seat.assignedMemberId != null && 'pointer-events-none bg-red-400',
+                    isSeatSelected && isEditMode && isVisible && 'ring-2 ring-blue-500',
+                    isSeatSelected &&
+                      isEditMode &&
+                      !isVisible &&
+                      'ring-content-danger opacity-80 ring-2',
+                  )}
+                  onClick={(e) => {
+                    if (isEditMode && onSeatClick && seat.assignedMemberId == null) {
+                      e.stopPropagation();
+                      onSeatClick(seat.id);
+                    }
+                  }}
+                >
+                  {isVisible ? seat.seatNumber : ''}
                 </Button>
               </div>
             );

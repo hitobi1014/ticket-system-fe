@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import useFloorStore from '@/store/floorStore.ts';
-import { type Member } from '@/types/member.ts';
+import { INSTRUMENTS, type Member, type SyncMemberResponse } from '@/types/member.ts';
 import {
   Table,
   TableBody,
@@ -12,16 +12,19 @@ import {
 } from '@/components/ui/table';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
 import { IconCloudDown, IconTicket, IconUserPlus } from '@tabler/icons-react';
 import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
+import SyncResultDialog from '@/components/dialog/SyncResultDialog.tsx';
 
 import type { ButtonItem } from '@/types/index';
 import CustomSpinner from '@/components/common/CustomSpinner.tsx';
 import { toast } from 'sonner';
 import useVenueStore from '@/store/venueStore.ts';
 import { VenueInfoDialog } from '@/components/dialog/VenueInfoDialog.tsx';
+import { cn } from '@/lib/utils.ts';
 
 const COL_WIDTHS = ['5%', '14%', '11%', '10%', '10%', '10%', '10%', '11%'];
 const ColGroup = () => (
@@ -56,6 +59,9 @@ export default function MembersPage() {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedMember, setSelectedMember] = useState<Member | undefined>(undefined);
+  const [syncResultDialogOpen, setSyncResultDialogOpen] = useState(false);
+  const [syncResult, setSyncResult] = useState<SyncMemberResponse | null>(null);
+  const [highlightedMemberIds, setHighlightedMemberIds] = useState<Set<number>>(new Set());
 
   const memberInfoCards: MemberInfoCardProps[] = [
     { title: '총 좌석', boldText: getTotalSeatCount(), textPostFix: '석' },
@@ -90,18 +96,21 @@ export default function MembersPage() {
       disabled: isLoading.sync,
       confirm: {
         title: '회원 목록 가져오기',
-        description:
-          '출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. \n💡목록에 없는 회원은 삭제됩니다.',
+        description: (
+          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+            출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. {'\n'}💡목록에 없는 회원은 삭제됩니다.
+          </AlertDialogDescription>
+        ),
         actions: [
           {
             text: '가져오기',
             onClick: async () => {
               try {
+                setHighlightedMemberIds(new Set()); // 이전 하이라이트 초기화
                 const data = await syncFromSheet();
-                const status = data.stats;
-                toast.success(
-                  `동기화 완료: 추가 ${status.inserted}건, 수정: ${status.updated}건, 삭제: ${status.deleted}건, 총 처리건수: ${status.total}`,
-                );
+                // SyncResultDialog로 결과 표시
+                setSyncResult(data);
+                setSyncResultDialogOpen(true);
               } catch (e) {
                 toast.error(`회원 목록가져오기 실패: ${e}`);
               }
@@ -139,7 +148,7 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="flex flex-col h-full overflow-hidden gap-y-4">
+    <div className="flex h-full flex-col gap-y-4 overflow-hidden">
       <FunctionButtons buttons={functionButtons} />
       <div className="flex gap-3">
         {memberInfoCards.map((card) => (
@@ -156,17 +165,17 @@ export default function MembersPage() {
         <p>등록된 회원이 없습니다.</p>
       ) : (
         /* 테이블 wrapper - flex-col로 테이블 헤더/바디 분리 */
-        <div className="flex flex-col flex-1 overflow-hidden rounded-lg ">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-lg">
           {/*헤더 고정*/}
           <div className="shrink-0">
             <Table className="bg-surface-secondary">
               <ColGroup />
-              <TableHeader className="w-25 ">
+              <TableHeader className="w-25">
                 <TableRow>
                   {TABLE_HEADS.map((head) => (
                     <TableHead
                       key={head}
-                      className="text-center text-gray-300 border-b border-b-mist-300"
+                      className="border-b border-b-mist-300 text-center text-gray-300"
                     >
                       {head}
                     </TableHead>
@@ -177,18 +186,23 @@ export default function MembersPage() {
           </div>
 
           {/* 바디만 스크롤 */}
-          <div className="flex-1 overflow-y-auto no-scrollbar">
+          <div className="no-scrollbar flex-1 overflow-y-auto">
             <Table className="bg-surface-secondary text-content-primary">
               <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
                 {/* 회원 목록 */}
                 {members.map((member) => {
+                  const isHighlighted = highlightedMemberIds.has(member.id);
                   return (
                     <TableRow
                       key={member.id}
-                      className="text-center cursor-pointer "
+                      className={cn(
+                        'cursor-pointer text-center',
+                        isHighlighted && 'bg-surface-danger text-content-danger font-bold',
+                      )}
                       onClick={() => {
+                        highlightedMemberIds.delete(member.id);
                         setSelectedMember(member);
                         setIsModalOpen(true);
                       }}
@@ -196,7 +210,11 @@ export default function MembersPage() {
                       <TableCell>{member.seq}</TableCell>
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
-                        <Badge className="bg-mist-500 text-white">{member.instrument.abbr}</Badge>
+                        <Badge className="bg-mist-500 text-white">
+                          {member.instrument.abbr} /{' '}
+                          {INSTRUMENTS[member.instrument.abbr as keyof typeof INSTRUMENTS] ??
+                            '알 수 없음'}
+                        </Badge>
                       </TableCell>
                       <TableCell>{member.point}</TableCell>
                       {/* 배정티켓 */}
@@ -207,7 +225,7 @@ export default function MembersPage() {
                       <TableCell>{getMemberAssignedTicketsByMemberId(member.id)}</TableCell>
                       <TableCell>
                         <button
-                          className="w-6 h-6 rounded-full"
+                          className="h-6 w-6 rounded-full"
                           style={{ backgroundColor: member.color }}
                         />
                       </TableCell>
@@ -228,6 +246,12 @@ export default function MembersPage() {
           }}
         />
       </Dialog>
+      <SyncResultDialog
+        open={syncResultDialogOpen}
+        onOpenChange={setSyncResultDialogOpen}
+        syncResult={syncResult}
+        onHighlightMembers={(memberIds) => setHighlightedMemberIds(new Set(memberIds))}
+      />
     </div>
   );
 }

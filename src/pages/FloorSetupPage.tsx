@@ -4,17 +4,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Aisle, ButtonItem, CreateAisleRequest, CreateFloorRequest, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  IconLayoutColumns,
-  IconMinus,
-  IconPlus,
-  IconTrash,
-  IconZoomIn,
-} from '@tabler/icons-react';
+import { IconLayoutColumns, IconMinus, IconPlus, IconTrash, IconZoomIn } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
@@ -144,7 +139,6 @@ export default function FloorSetupPage() {
     }
   };
 
-  // TODO 좌/우측 값 받기
   const handleAddAisle = async (direction: 'left' | 'right') => {
     const floorRowId = selectedFloorRow?.id;
 
@@ -193,18 +187,22 @@ export default function FloorSetupPage() {
       confirm: {
         triggerText: '층 삭제',
         title: '층 삭제 확인',
-        description: `선택한 층 [${selectedFloor?.name}]을 삭제하시겠습니까?`,
+        description: (
+          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+            선택한 층 [{selectedFloor?.name}]을 삭제하시겠습니까?
+          </AlertDialogDescription>
+        ),
         actions: [{ text: '삭제', onClick: handleRemoveFloor }],
       },
     },
   ];
 
   return (
-    <div className="bg-surface-primary h-full flex flex-col overflow-hidden">
+    <div className="bg-surface-primary flex h-full flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />
       <Tabs
-        className="flex flex-col flex-1 min-h-0 overflow-hidden"
+        className="flex min-h-0 flex-1 flex-col overflow-hidden"
         value={String(selectedFloorId)}
         onValueChange={(v) => setSelectedFloorId(Number(v))}
         onClick={() => {
@@ -214,18 +212,12 @@ export default function FloorSetupPage() {
       >
         <div className="flex items-center justify-between">
           {/* 1층 탭바 */}
-          <TabsList className="bg-transparent flex gap-x-2">
+          <TabsList className="flex gap-x-2 bg-transparent">
             {floors.map((floor) => (
               <TabsTrigger
                 key={floor.id}
                 value={String(floor.id)}
-                className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-                hover:text-amber-300
-                data-[state=active]:text-content-primary
-                data-[state=active]:bg-transparent
-                data-[state=active]:shadow-none
-                data-[state=active]:border-b-white
-                "
+                className="text-content-primary data-[state=active]:text-content-primary cursor-pointer rounded-none border-b-2 border-transparent text-base hover:text-amber-300 data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 {floor.name}
               </TabsTrigger>
@@ -243,7 +235,7 @@ export default function FloorSetupPage() {
               <IconZoomIn stroke={1.5} size={18} />
             </Button>
             {showZoomDropdown && (
-              <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-surface-accent">
+              <div className="bg-popover border-surface-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
                 <Button
                   variant="ghost"
                   size="icon-xs"
@@ -252,7 +244,7 @@ export default function FloorSetupPage() {
                 >
                   <IconMinus stroke={2} size={14} />
                 </Button>
-                <span className="text-content-accent text-xs w-10 text-center tabular-nums">
+                <span className="text-content-accent w-10 text-center text-xs tabular-nums">
                   {Math.round(currentScale * 100)}%
                 </span>
                 <Button
@@ -273,69 +265,89 @@ export default function FloorSetupPage() {
           <TabsContent
             key={floor.id}
             value={String(floor.id)}
-            className="flex flex-col flex-1 min-h-0 overflow-hidden p-0"
+            className="flex min-h-0 flex-1 flex-col overflow-hidden p-0"
           >
             {/* ✅ 구역 기능 버튼 그룹 */}
-            <div className="flex gap-x-2 shrink-0">
-              <div className="flex gap-x-2 justify-end">
-                <AddSectionDialog
-                  key={addSectionDialogKey}
-                  floorId={floor.id}
-                  onConfirm={() => {
-                    // 구역 추가 완료 시 선택 상태 초기화
-                    setSelectedSectionId(null);
-                    setSelectedRowId(null);
-                    setAddSectionDialogKey((prev) => prev + 1);
-                  }}
-                />
+            <div className="flex items-center justify-between gap-x-2">
+              <div className="flex shrink-0">
+                <div className="flex justify-end gap-x-2">
+                  <AddSectionDialog
+                    key={addSectionDialogKey}
+                    floorId={floor.id}
+                    onConfirm={() => {
+                      // 구역 추가 완료 시 선택 상태 초기화
+                      setSelectedSectionId(null);
+                      setSelectedRowId(null);
+                      setAddSectionDialogKey((prev) => prev + 1);
+                    }}
+                  />
 
-                <Button
-                  size="base"
-                  variant="secondary"
-                  onClick={handleRemoveSection}
-                  disabled={selectedSectionId === null}
-                >
-                  <IconMinus stroke={2} />
-                  구역 삭제
-                </Button>
+                  <Button
+                    size="base"
+                    variant="secondary"
+                    onClick={handleRemoveSection}
+                    disabled={selectedSectionId === null}
+                  >
+                    <IconMinus stroke={2} />
+                    구역 삭제
+                  </Button>
+                </div>
+                <div className="mx-1 my-1.5 w-0.5 self-stretch bg-mist-400" />
+                <div className="flex justify-end gap-x-2">
+                  <AlertDialogCustom
+                    variant="secondary"
+                    size="base"
+                    title="통로 추가"
+                    triggerText="통로 추가"
+                    description={
+                      <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                        선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
+                      </AlertDialogDescription>
+                    }
+                    actions={[
+                      { text: '← 좌측', onClick: () => handleAddAisle('left') },
+                      { text: '우측 →', onClick: () => handleAddAisle('right') },
+                    ]}
+                    icon={<IconLayoutColumns stroke={2} />}
+                    disabled={selectedSectionId === null}
+                  />
+                  <Button
+                    variant="secondary"
+                    size="base"
+                    onClick={handleRemoveAisle}
+                    disabled={selectedAisleId === null}
+                  >
+                    <IconTrash stroke={2} /> 통로 삭제
+                  </Button>
+                </div>
               </div>
-              <div className="w-0.5 self-stretch bg-mist-400 mx-1 my-1.5 " />
-              <div className="flex gap-x-2 justify-end">
-                <AlertDialogCustom
-                  variant="secondary"
-                  size="base"
-                  title="통로 추가"
-                  triggerText="통로 추가"
-                  description={`선택한 [${selectedSection?.name}] 기준으로 통로를 추가합니다.`}
-                  actions={[
-                    { text: '← 좌측', onClick: () => handleAddAisle('left') },
-                    { text: '우측 →', onClick: () => handleAddAisle('right') },
-                  ]}
-                  icon={<IconLayoutColumns stroke={2} />}
-                  disabled={selectedSectionId === null}
-                />
-                <Button
-                  variant="secondary"
-                  size="base"
-                  onClick={handleRemoveAisle}
-                  disabled={selectedAisleId === null}
-                >
-                  <IconTrash stroke={2} /> 통로 삭제
-                </Button>
+              <div className="bg-surface-secondary flex gap-x-4 p-2">
+                <div className="flex items-center gap-x-2">
+                  <span className="flex h-6 w-6 shrink-0 rounded-md bg-red-400" />
+                  <span className="text-content-primary">배정 완료 석</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="bg-surface-danger flex h-6 w-6 shrink-0 rounded-md border-0 text-transparent opacity-15" />
+                  <span className="text-content-primary">숨긴 좌석</span>
+                </div>
+                <div className="flex items-center gap-x-2">
+                  <span className="bg-surface-primary flex h-6 w-6 shrink-0 rounded-md" />
+                  <span className="text-content-primary">배정 가능 석</span>
+                </div>
               </div>
             </div>
 
             {/* 구역 컨텐츠 시작: 구역/통로 */}
             <div
               className={cn(
-                'flex mt-4 gap-2 flex-1 min-h-0 overflow-hidden',
+                'mt-4 flex min-h-0 flex-1 gap-2 overflow-hidden',
                 stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
               )}
             >
               {(stagePosition === 'front' || stagePosition === 'left') && (
                 <StageBar position={stagePosition} />
               )}
-              <div className="flex-1 min-h-0 overflow-hidden cursor-grab active:cursor-grabbing">
+              <div className="min-h-0 flex-1 cursor-grab overflow-hidden active:cursor-grabbing">
                 <TransformWrapper
                   ref={(ref) => {
                     transformRefs.current.set(floor.id, ref);
@@ -349,12 +361,12 @@ export default function FloorSetupPage() {
                 >
                   <ScaleTracker onScaleChange={handleScaleChange} />
                   <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
-                    <div className="flex flex-col gap-y-4 pt-1 px-2 pb-4 w-max">
+                    <div className="flex w-max flex-col gap-y-4 px-2 pt-1 pb-4">
                       {floor.rows.map((floorRow) => (
                         <div key={floorRow.id} className="flex gap-x-4">
                           {floorRow.items.map((item) => (
                             <SectionCard
-                              key={item.id}
+                              key={`${item.kind}-${item.id}`}
                               item={item}
                               selectedSectionId={selectedSectionId}
                               selectedAisleId={selectedAisleId}
