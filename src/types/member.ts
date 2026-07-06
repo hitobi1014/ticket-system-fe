@@ -1,28 +1,28 @@
-export const INSTRUMENTS = {
-  지휘: '지휘',
-  Pf: '피아노',
-  Fl: '플루트',
-  Ob: '오보에',
-  Cla: '클라리넷',
-  Hn: '호른',
-  Tp: '트럼펫',
-  Trb: '트롬본',
-  Vn1: '1st 바이올린',
-  Vn2: '2nd 바이올린',
-  Va: '비올라',
-  Vc: '첼로',
-  Cb: '콘트라베이스',
-  Sax: '색소폰',
-  Per: '퍼커션',
-} as const;
+  export const INSTRUMENTS = {
+    지휘: '지휘',
+    Pf: '피아노',
+    Fl: '플루트',
+    Ob: '오보에',
+    Cla: '클라리넷',
+    Hn: '호른',
+    Tp: '트럼펫',
+    Trb: '트롬본',
+    Vn1: '1st 바이올린',
+    Vn2: '2nd 바이올린',
+    Va: '비올라',
+    Vc: '첼로',
+    Cb: '콘트라베이스',
+    Sax: '색소폰',
+    Per: '퍼커션',
+  } as const;
 
-export type InstrumentAbbr = keyof typeof INSTRUMENTS;
-export type InstrumentName = (typeof INSTRUMENTS)[InstrumentAbbr];
+  export type InstrumentAbbr = keyof typeof INSTRUMENTS;
+  export type InstrumentName = (typeof INSTRUMENTS)[InstrumentAbbr];
 
-export interface Instrument {
-  abbr: InstrumentAbbr;
-  name: InstrumentName;
-}
+  export interface Instrument {
+    abbr: InstrumentAbbr;
+    name: InstrumentName;
+  }
 
 // 서버 응답용
 export interface Member {
