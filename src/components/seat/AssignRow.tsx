@@ -2,7 +2,6 @@ import type { Section } from '@/types';
 import { Button } from '@/components/ui/button.tsx';
 import useMemberStore from '@/store/memberStore.ts';
 import { useRef } from 'react';
-import { clsx } from 'clsx';
 import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { cn } from '@/lib/utils.ts';
 
@@ -28,8 +27,8 @@ export default function AssignRow({
     members.find((v) => v.id === id)?.name ?? '';
 
   return (
-    <div className="bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4">
-      <div className="flex justify-between items-center text-sm">
+    <div className="bg-surface-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4">
+      <div className="flex items-center justify-between text-sm">
         <span>{section.name}</span>
         <span>{section.rows.flatMap((r) => r.seats).length}석</span>
       </div>
@@ -48,10 +47,10 @@ export default function AssignRow({
                 key={seat.id}
                 ref={triggerRef}
                 className={cn(
-                  'w-10 h-10 text-sm',
+                  'h-10 w-10 text-sm',
                   isVisible && 'bg-surface-primary text-content-primary border-0',
-                  !isVisible && 'border-0 bg-transparent text-transparent pointer-events-none',
-                  selectedSeatIds.has(seat.id) && 'ring-2 ring-content-accent ring-offset-1',
+                  !isVisible && 'pointer-events-none border-0 bg-transparent text-transparent',
+                  selectedSeatIds.has(seat.id) && 'ring-content-accent ring-2 ring-offset-1',
                 )}
                 variant="outline"
                 style={
