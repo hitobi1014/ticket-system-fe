@@ -123,6 +123,7 @@ export default function SectionCard({
       setSelectedSeatIds(new Set()); // 선택 초기화
       toast.success(`${selectedSeatIds.size}개 좌석의 표시 상태가 변경되었습니다.`);
     } catch (e) {
+      console.error(e);
       toast.error(e instanceof Error ? e.message : '좌석 표시 상태 변경에 실패했습니다.');
     }
   };
@@ -208,13 +209,13 @@ export default function SectionCard({
           handleSelectAisle(item.id);
         }}
         className={clsx(
-          'text-content-primary bg-surface-secondary rounded-md flex items-center justify-center self-stretch px-3 cursor-pointer',
+          'text-content-primary bg-surface-secondary flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
           {
-            'ring-2 ring-text-content-primary': selectedAisleId === item.id,
+            'ring-text-content-primary ring-2': selectedAisleId === item.id,
           },
         )}
       >
-        <div className="w-px h-2/4 bg-mist-500" />
+        <div className="h-2/4 w-px bg-mist-500" />
       </div>
     );
   }
@@ -228,14 +229,14 @@ export default function SectionCard({
         handleSelectSection(item.id);
       }}
       className={clsx(
-        'bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4',
+        'bg-surface-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4',
         {
-          'ring-2 ring-text-content-primary': selectedSectionId === item.id,
+          'ring-text-content-primary ring-2': selectedSectionId === item.id,
         },
       )}
     >
       <div
-        className="flex justify-between items-center"
+        className="flex items-center justify-between"
         onClick={(e) => {
           e.stopPropagation();
           handleSelectSection(item.id);

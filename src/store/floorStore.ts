@@ -311,35 +311,11 @@ const useFloorStore = create<FloorStore>()(
     toggleSeatVisible: async (seatIds: number[]) => {
       set({ isLoading: true });
       try {
-        await fetchApi<void>(`${SEAT_API_PREFIX}/visible`, {
+        const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/visible`, {
           method: 'PATCH',
           body: JSON.stringify({ seatIds }),
         });
-
-        // 로컬 상태 업데이트 - seatIds에 포함된 좌석들의 visible 토글
-        set((state) => {
-          const seatIdSet = new Set(seatIds);
-          return {
-            floors: state.floors.map((floor) => ({
-              ...floor,
-              rows: floor.rows.map((floorRow) => ({
-                ...floorRow,
-                items: floorRow.items.map((item) => {
-                  if (item.kind !== 'section') return item;
-                  return {
-                    ...item,
-                    rows: item.rows.map((row) => ({
-                      ...row,
-                      seats: row.seats.map((seat) =>
-                        seatIdSet.has(seat.id) ? { ...seat, visible: !seat.visible } : seat,
-                      ),
-                    })),
-                  };
-                }),
-              })),
-            })),
-          };
-        });
+        get().syncSection(floor);
       } finally {
         set({ isLoading: false });
       }
