@@ -47,6 +47,7 @@ export default function Row({
                     'h-8 w-8 border-0 text-sm',
                     !isVisible && 'bg-surface-danger border-0 text-transparent opacity-15',
                     isVisible && 'bg-surface-primary text-content-primary',
+                    seat.assignedMemberId != null && 'pointer-events-none bg-red-400',
                     isSeatSelected && isEditMode && isVisible && 'ring-2 ring-blue-500',
                     isSeatSelected &&
                       isEditMode &&
@@ -54,7 +55,7 @@ export default function Row({
                       'ring-content-danger opacity-80 ring-2',
                   )}
                   onClick={(e) => {
-                    if (isEditMode && onSeatClick) {
+                    if (isEditMode && onSeatClick && seat.assignedMemberId == null) {
                       e.stopPropagation();
                       onSeatClick(seat.id);
                     }

@@ -65,8 +65,8 @@ export default function SeatAssignGrid({
   const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   return (
-    <TabsContent value={String(floor.id)} className="flex-1 min-h-0 flex flex-col gap-y-4">
-      <div className="flex gap-x-4 items-center">
+    <TabsContent value={String(floor.id)} className="flex min-h-0 flex-1 flex-col gap-y-4">
+      <div className="flex items-center gap-x-4">
         <Toggle
           className={clsx('bg-surface-secondary text-content-primary cursor-pointer', {
             'bg-white text-black': isBulkEditMode,
@@ -96,14 +96,14 @@ export default function SeatAssignGrid({
       </div>
       <div
         className={cn(
-          'flex gap-2 flex-1 overflow-hidden',
+          'flex flex-1 gap-2 overflow-hidden',
           stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
         )}
       >
         {(stagePosition === 'front' || stagePosition === 'left') && (
           <StageBar position={stagePosition} />
         )}
-        <div className="flex-1 overflow-hidden min-h-0 cursor-grab active:cursor-grabbing">
+        <div className="min-h-0 flex-1 cursor-grab overflow-hidden active:cursor-grabbing">
           <TransformWrapper
             ref={transformRef}
             initialScale={1}
@@ -115,16 +115,16 @@ export default function SeatAssignGrid({
           >
             <ScaleTracker onScaleChange={onScaleChange} />
             <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
-              <div className="flex flex-col gap-y-2 px-2 pb-4 w-max">
+              <div className="flex w-max flex-col gap-y-2 px-2 pb-4">
                 {floor.rows.map((floorRow) => (
                   <div key={floorRow.id} className="flex gap-x-4">
                     {floorRow.items.map((item) =>
                       item.kind === 'aisle' ? (
                         <div
-                          key={item.id}
-                          className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
+                          key={`${item.kind}-${item.id}`}
+                          className="text-content-primary bg-surface-secondary flex items-center justify-center self-stretch rounded-md px-3"
                         >
-                          <div className="w-px h-2/4 bg-surface-accent" />
+                          <div className="bg-surface-accent h-2/4 w-px" />
                         </div>
                       ) : (
                         <AssignRow

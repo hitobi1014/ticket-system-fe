@@ -52,16 +52,16 @@ export default function SeatGrid({
       {floorRow.items.map((item) =>
         item.kind === 'aisle' ? (
           <div
-            key={item.id}
-            className="flex items-center justify-center px-3 self-stretch text-content-primary bg-surface-secondary rounded-md"
+            key={`${item.kind}-${item.id}`}
+            className="text-content-primary bg-surface-secondary flex items-center justify-center self-stretch rounded-md px-3"
           >
-            <div className="w-px h-2/4 bg-surface-accent" />
+            <div className="bg-surface-accent h-2/4 w-px" />
           </div>
         ) : (
           <div
             key={item.id}
             className={cn(
-              'bg-surface-secondary rounded-md text-content-primary flex flex-col gap-y-2 p-4',
+              'bg-surface-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4',
               (highlightColorMap?.size ?? 0) > 0 &&
                 item.rows.some((row) =>
                   row.seats.some(
@@ -70,10 +70,10 @@ export default function SeatGrid({
                       (highlightColorMap?.has(seat.assignedMemberId) ?? false),
                   ),
                 ) &&
-                'ring-2 ring-content-primary',
+                'ring-content-primary ring-2',
             )}
           >
-            <div className="flex justify-between items-center text-sm">
+            <div className="flex items-center justify-between text-sm">
               <span>{item.name}</span>
               <span>{item.rows.flatMap((r) => r.seats).length}석</span>
             </div>
@@ -99,9 +99,10 @@ export default function SeatGrid({
                     <div
                       key={seat.id}
                       className={cn(
-                        'w-10 h-10 flex items-center justify-center rounded-md text-sm',
-                        isVisible && 'border bg-surface-primary text-content-primary',
-                        !isVisible && 'border-0 bg-transparent text-transparent pointer-events-none',
+                        'flex h-10 w-10 items-center justify-center rounded-md text-sm',
+                        isVisible && 'bg-surface-primary text-content-primary border',
+                        !isVisible &&
+                          'pointer-events-none border-0 bg-transparent text-transparent',
                         isPulsing && 'animate-pulse',
                       )}
                       style={{
@@ -138,11 +139,11 @@ export default function SeatGrid({
   return (
     <TabsContent
       value={String(floor.id)}
-      className="flex-1 min-h-0 flex flex-col gap-y-4 cursor-grab active:cursor-grabbing"
+      className="flex min-h-0 flex-1 cursor-grab flex-col gap-y-4 active:cursor-grabbing"
     >
       <div
         className={cn(
-          'flex gap-2 flex-1 overflow-hidden',
+          'flex flex-1 gap-2 overflow-hidden',
           stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
         )}
       >
@@ -151,7 +152,7 @@ export default function SeatGrid({
         )}
 
         {enableZoom ? (
-          <div className="flex-1 overflow-hidden min-h-0">
+          <div className="min-h-0 flex-1 overflow-hidden">
             <TransformWrapper
               ref={transformRef}
               initialScale={1}
@@ -163,13 +164,13 @@ export default function SeatGrid({
             >
               <ScaleTracker onScaleChange={onScaleChange} />
               <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
-                <div className="flex flex-col gap-y-2 px-2 pb-4 w-max">{floorRows}</div>
+                <div className="flex w-max flex-col gap-y-2 px-2 pb-4">{floorRows}</div>
               </TransformComponent>
               {isActive && <SeatMinimap floor={floor} highlightColorMap={highlightColorMap} />}
             </TransformWrapper>
           </div>
         ) : (
-          <div className="flex flex-col gap-y-2 flex-1 no-scrollbar overflow-auto px-2">
+          <div className="no-scrollbar flex flex-1 flex-col gap-y-2 overflow-auto px-2">
             {floorRows}
           </div>
         )}

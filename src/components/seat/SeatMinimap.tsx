@@ -90,10 +90,10 @@ function MinimapContent({ floor, highlightColorMap }: SeatMinimapProps) {
           <div key={floorRow.id} className="flex gap-1 flex-1 min-h-0">
             {floorRow.items.map((item) =>
               item.kind === 'aisle' ? (
-                <div key={item.id} className="w-1.5 shrink-0" />
+                <div key={`${item.kind}-${item.id}`} className="w-1.5 shrink-0" />
               ) : (
                 <div
-                  key={item.id}
+                  key={`${item.kind}-${item.id}`}
                   className={cn(
                     'relative flex-1 rounded-sm bg-surface-accent min-w-0',
                     sectionHasHighlight(item) && 'ring-1 ring-content-primary',

@@ -350,7 +350,7 @@ export default function FloorSetupPage() {
                         <div key={floorRow.id} className="flex gap-x-4">
                           {floorRow.items.map((item) => (
                             <SectionCard
-                              key={item.id}
+                              key={`${item.kind}-${item.id}`}
                               item={item}
                               selectedSectionId={selectedSectionId}
                               selectedAisleId={selectedAisleId}
