@@ -13,7 +13,7 @@ import {
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
-import { IconCloudDown, IconTicket, IconUserPlus } from '@tabler/icons-react';
+import { IconCloudDown, IconUserPlus } from '@tabler/icons-react';
 import MemberInfoDialog from '@/components/dialog/MemberInfoDialog.tsx';
 import MemberInfoCard, { type MemberInfoCardProps } from '@/components/member/MemberInfoCard.tsx';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
@@ -52,7 +52,6 @@ export default function MembersPage() {
     syncFromSheet,
     getMemberAssignedTicketsByMemberId,
     getMemberRemainTicketsByMemberId,
-    distributeTickets,
   } = useMemberStore();
   const { getRemainSeatCount, getAssignedSeatCount, getUnallocatedTickedCount } = useFloorStore();
   const { venue, getTotalSeatCount } = useVenueStore();
@@ -128,19 +127,20 @@ export default function MembersPage() {
       },
       icon: <IconUserPlus stroke={2} />,
     },
-    {
-      text: '티켓 균등 배분',
-      icon: <IconTicket stroke={2} />,
-      onClick: async () => {
-        try {
-          await distributeTickets();
-          toast.success('티켓 균등 배분이 완료되었습니다.');
-        } catch (e) {
-          toast.error(e instanceof Error ? e.message : '티켓 배분에 실패했습니다.');
-        }
-      },
-      disabled: members.length === 0 || getTotalSeatCount() === 0 || isLoading.distribute,
-    },
+    // TODD삭제 예정
+    // {
+    //   text: '티켓 균등 배분',
+    //   icon: <IconTicket stroke={2} />,
+    //   onClick: async () => {
+    //     try {
+    //       await distributeTickets();
+    //       toast.success('티켓 균등 배분이 완료되었습니다.');
+    //     } catch (e) {
+    //       toast.error(e instanceof Error ? e.message : '티켓 배분에 실패했습니다.');
+    //     }
+    //   },
+    //   disabled: members.length === 0 || getTotalSeatCount() === 0 || isLoading.distribute,
+    // },
   ];
 
   if (isLoading.fetch) {

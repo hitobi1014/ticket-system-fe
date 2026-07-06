@@ -18,6 +18,8 @@ import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils.ts';
+import useFloorStore from '@/store/floorStore.ts';
 
 interface MemberInfoModalProps {
   member?: Member; // 수정시 사용
@@ -27,6 +29,7 @@ interface MemberInfoModalProps {
 export default function MemberInfoDialog({ member, onClose }: MemberInfoModalProps) {
   const { addMember, updateMember, removeMember, getAssignedCountMap, isLoading } =
     useMemberStore();
+  const { getUnallocatedTickedCount } = useFloorStore();
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     instrumentAbbr: member?.instrument.abbr ?? '지휘',
@@ -53,6 +56,12 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         toast.error(
           `변경한 배정티켓 수량(${numValue})이 좌석 배정 완료된수(${assignedSeatCount})보다 적을 수 없습니다.`,
         );
+        return;
+      }
+
+      console.log(`입력한 value:${numValue}, 현재 미배분: ${getUnallocatedTickedCount()}`);
+      if (numValue > getUnallocatedTickedCount()) {
+        toast.error(`미배분 티켓(${getUnallocatedTickedCount()})보다 많이 배정할 수 없습니다.`);
         return;
       }
     }
@@ -86,7 +95,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   return (
     <DialogContent
       className="bg-surface-secondary border-content-primary border sm:max-w-106.25"
-      onInteractOutside={onClose}
+      // onInteractOutside={onClose}
     >
       <DialogHeader>
         {/* 회원 등록/수정 */}
@@ -169,6 +178,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               type="number"
               className="bg-surface-primary no-spinners border-0"
               min={0}
+              max={getUnallocatedTickedCount()}
               value={form?.allocatedTickets}
               placeholder="배정할 티켓 수량을 입력하세요."
               onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
@@ -192,28 +202,36 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         </div>
       </div>
 
-      <DialogFooter className="bg-surface-secondary flex justify-between! pb-2.5">
-        <AlertDialogCustom
-          variant="dialog"
-          size="sm"
-          triggerText={'회원삭제'}
-          title={'확인'}
-          description={
-            <>
-              <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
-                [{form.name}]님을 목록에서 제거 하시겠습니까?
-              </AlertDialogDescription>
-              <AlertDialogDescription className="text-surface-danger mt-2">
-                <p className="font-bold">⚠️ 주의: 이 작업은 되돌릴 수 없습니다.</p>
-                {assignedSeatCount != null && assignedSeatCount > 0 && (
-                  <p className="text-xs">배정 완료된 좌석({assignedSeatCount}석)도 삭제됩니다.</p>
-                )}
-              </AlertDialogDescription>
-            </>
-          }
-          actions={[{ text: '확인', onClick: () => handleRemoveMember() }]}
-          disabled={isLoading.remove}
-        />
+      <DialogFooter
+        className={cn(
+          'bg-surface-secondary flex pb-2.5',
+          isEditMode && 'justify-between!',
+          !isEditMode && 'justify-end!',
+        )}
+      >
+        {isEditMode && (
+          <AlertDialogCustom
+            variant="dialog"
+            size="sm"
+            triggerText={'회원삭제'}
+            title={'확인'}
+            description={
+              <>
+                <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                  [{form.name}]님을 목록에서 제거 하시겠습니까?
+                </AlertDialogDescription>
+                <AlertDialogDescription className="text-surface-danger mt-2">
+                  <p className="font-bold">⚠️ 주의: 이 작업은 되돌릴 수 없습니다.</p>
+                  {assignedSeatCount != null && assignedSeatCount > 0 && (
+                    <p className="text-xs">배정 완료된 좌석({assignedSeatCount}석)도 삭제됩니다.</p>
+                  )}
+                </AlertDialogDescription>
+              </>
+            }
+            actions={[{ text: '확인', onClick: () => handleRemoveMember() }]}
+            disabled={isLoading.remove}
+          />
+        )}
         <div className="flex gap-2">
           <Button variant="dialog" onClick={() => onClose()}>
             닫기

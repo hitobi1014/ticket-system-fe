@@ -135,32 +135,34 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
       </DialogHeader>
       <Separator className="bg-surface-accent" />
       {/* 선택한 좌석 */}
-      <div className="flex flex-wrap gap-1">
-        {[...seatIds].map((seatId) => {
-          const ctx = findSeatContext(floors, seatId);
-          if (!ctx) return null;
+      <div className="flex flex-col gap-2">
+        <div className="no-scrollbar flex max-h-24 flex-wrap gap-1 overflow-y-auto">
+          {[...seatIds].map((seatId) => {
+            const ctx = findSeatContext(floors, seatId);
+            if (!ctx) return null;
 
-          const memberName = ctx.seat?.assignedMemberId
-            ? members.find((m) => m.id === ctx.seat.assignedMemberId)?.name
-            : null;
+            const memberName = ctx.seat?.assignedMemberId
+              ? members.find((m) => m.id === ctx.seat.assignedMemberId)?.name
+              : null;
 
-          // ex) 1층 가구역-3번 (이민영)
-          return (
-            <span
-              key={seatId}
-              className={clsx(
-                'flex items-center gap-1 rounded px-2 py-1 text-xs whitespace-nowrap',
-                {
-                  'bg-surface-danger text-content-danger font-bold': memberName,
-                  'bg-surface-accent text-content-primary': !memberName,
-                },
-              )}
-            >
-              {memberName && <TriangleAlert size={12} />}
-              {formatSeatLabel(ctx, memberName)}
-            </span>
-          );
-        })}
+            // ex) 1층 가구역-3번 (이민영)
+            return (
+              <span
+                key={seatId}
+                className={clsx(
+                  'flex items-center gap-1 rounded px-2 py-1 text-xs whitespace-nowrap',
+                  {
+                    'bg-surface-danger text-content-danger font-bold': memberName,
+                    'bg-surface-accent text-content-primary': !memberName,
+                  },
+                )}
+              >
+                {memberName && <TriangleAlert size={12} />}
+                {formatSeatLabel(ctx, memberName)}
+              </span>
+            );
+          })}
+        </div>
         {overwriteCount > 0 && (
           <div className="flex items-center gap-2 rounded bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800">
             <TriangleAlert size={14} />
