@@ -257,11 +257,11 @@ const useFloorStore = create<FloorStore>()(
     },
 
     assignSeat: async (req: AssignSeatRequest) => {
-      const floor = await fetchApi<Floor>(`${SEAT_API_PREFIX}/assign`, {
+      const floors = await fetchApi<Floor[]>(`${SEAT_API_PREFIX}/assign`, {
         method: 'PATCH',
         body: JSON.stringify(req),
       });
-      get().syncSection(floor);
+      floors.map((f) => get().syncSection(f));
     },
 
     unAssignSeat: async (req: UnAssignSeatRequest) => {
