@@ -9,8 +9,8 @@ export function AppSidebar() {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <Sidebar collapsible="icon" className="bg-surface-secondary">
-      <SidebarHeader className="border-b border-b-surface-accent border-r border-r-surface-accent">
+    <Sidebar collapsible="icon" className="bg-secondary">
+      <SidebarHeader className="border-b border-b-accent border-r border-r-accent">
         <div className="flex items-center justify-between">
           <div className="text-content-secondary group-data-[collapsible=icon]:hidden">
             Orchestra

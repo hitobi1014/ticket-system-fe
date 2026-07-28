@@ -97,22 +97,22 @@ export default function SeatAssignPage() {
               <IconZoomIn stroke={1.5} size={18} />
             </Button>
             {showZoomDropdown && (
-              <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-surface-accent">
+              <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-accent">
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-content-accent"
+                  className="text-accent"
                   onClick={() => activeTransform?.zoomOut(0.25)}
                 >
                   <IconMinus stroke={2} size={14} />
                 </Button>
-                <span className="text-content-accent text-xs w-10 text-center tabular-nums">
+                <span className="text-accent text-xs w-10 text-center tabular-nums">
                   {Math.round(currentScale * 100)}%
                 </span>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-content-accent"
+                  className="text-accent"
                   onClick={() => activeTransform?.zoomIn(0.25)}
                 >
                   <IconPlus stroke={2} size={14} />

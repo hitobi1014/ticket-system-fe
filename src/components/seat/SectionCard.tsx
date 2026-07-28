@@ -210,7 +210,7 @@ export default function SectionCard({
           handleSelectAisle(item.id);
         }}
         className={clsx(
-          'text-content-primary bg-surface-secondary flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
+          'text-content-primary bg-secondary flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
           {
             'ring-text-content-primary ring-2': selectedAisleId === item.id,
           },
@@ -230,7 +230,7 @@ export default function SectionCard({
         handleSelectSection(item.id);
       }}
       className={clsx(
-        'bg-surface-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4',
+        'bg-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4',
         {
           'ring-text-content-primary ring-2': selectedSectionId === item.id,
         },

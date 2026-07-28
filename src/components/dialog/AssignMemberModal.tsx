@@ -128,12 +128,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const sortedMemberFromRemainSeat = getAssignableMember(members, assignedCountMap);
 
   return (
-    <DialogContent className="bg-surface-secondary text-content-primary">
+    <DialogContent className="bg-secondary text-content-primary">
       <DialogHeader>
         <DialogTitle className="text-lg">좌석배정</DialogTitle>
         <DialogDescription className="text-content-secondary">{modalTitle['N']}</DialogDescription>
       </DialogHeader>
-      <Separator className="bg-surface-accent" />
+      <Separator className="bg-accent" />
       {/* 선택한 좌석 */}
       <div className="flex flex-col gap-2">
         <div className="no-scrollbar flex max-h-24 flex-wrap gap-1 overflow-y-auto">
@@ -152,8 +152,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                 className={clsx(
                   'flex items-center gap-1 rounded px-2 py-1 text-xs whitespace-nowrap',
                   {
-                    'bg-surface-danger text-content-danger font-bold': memberName,
-                    'bg-surface-accent text-content-primary': !memberName,
+                    'bg-destructive text-content-danger font-bold': memberName,
+                    'bg-accent text-content-primary': !memberName,
                   },
                 )}
               >
@@ -171,7 +171,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
         )}
       </div>
       {/* ✅ 회원 목록: 잔여 좌석이 남은 회원만 표기 */}
-      <Separator className="bg-surface-accent" />
+      <Separator className="bg-accent" />
       <div
         className={clsx('-mx-4 flex max-h-[50vh] flex-col overflow-hidden', {
           'ring-2 ring-red-400': hasMemberEmpty,
@@ -182,7 +182,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* 헤더 고정 */}
           <div className="shrink-0 overflow-hidden">
-            <Table className="bg-surface-secondary" style={{ tableLayout: 'fixed' }}>
+            <Table className="bg-secondary" style={{ tableLayout: 'fixed' }}>
               <ColGroup />
               <TableHeader>
                 <TableRow>
@@ -209,7 +209,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
             <Table
-              className="bg-surface-secondary text-content-primary"
+              className="bg-secondary text-content-primary"
               style={{ tableLayout: 'fixed' }}
             >
               <ColGroup />
@@ -219,8 +219,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                     key={mem.id}
                     className={cn(
                       'cursor-pointer text-center',
-                      isAssignMemberSelected === mem.id && 'bg-surface-accent text-content-primary',
-                      hasEnoughRemainingTickets(mem) && 'hover:bg-surface-accent',
+                      isAssignMemberSelected === mem.id && 'bg-accent text-content-primary',
+                      hasEnoughRemainingTickets(mem) && 'hover:bg-accent',
                       !hasEnoughRemainingTickets(mem) && 'cursor-not-allowed opacity-40',
                     )}
                     onClick={() => {
@@ -240,7 +240,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           </div>
         </div>
       </div>
-      <DialogFooter className="bg-surface-secondary border-t-surface-accent">
+      <DialogFooter className="bg-secondary border-t-accent">
         <div
           className={clsx('flex w-full gap-2', {
             'justify-between': isVisibleCancelButton,

@@ -66,8 +66,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="bg-surface-primary flex min-h-screen items-center justify-center">
-      <div className="bg-surface-secondary flex w-full max-w-sm flex-col gap-y-6 rounded-lg p-8">
+    <div className="bg-primary flex min-h-screen items-center justify-center">
+      <div className="bg-secondary flex w-full max-w-sm flex-col gap-y-6 rounded-lg p-8">
         <div className="flex flex-col gap-y-1">
           <h1 className="text-content-primary text-lg font-semibold">Orchestra</h1>
           <p className="text-content-secondary text-sm">로그인</p>
@@ -76,10 +76,10 @@ export default function LoginPage() {
           <Field>
             <FieldLabel className="text-content-primary">파트</FieldLabel>
             <Select value={part?.abbr ?? ''} onValueChange={handlePartChange}>
-              <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-primary text-content-primary w-45 border-0">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-surface-primary text-content-primary">
+              <SelectContent className="bg-primary text-content-primary">
                 <SelectGroup>
                   {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
                     <SelectItem key={abbr} value={abbr}>
@@ -97,10 +97,10 @@ export default function LoginPage() {
               value={memberId != null ? String(memberId) : ''}
               onValueChange={(v) => setMemberId(Number(v))}
             >
-              <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-primary text-content-primary w-45 border-0">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-surface-primary text-content-primary">
+              <SelectContent className="bg-primary text-content-primary">
                 <SelectGroup>
                   {filteredMembers.map((member) => (
                     <SelectItem key={member.id} value={String(member.id)}>

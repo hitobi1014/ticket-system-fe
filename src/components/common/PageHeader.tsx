@@ -10,7 +10,7 @@ interface PageHeaderProps {
 export default function PageHeader({ title, icon }: PageHeaderProps) {
   const { logout, isAuthenticated } = useAuthStore();
   return (
-    <div className="flex justify-between bg-surface-secondary border-b border-surface-accent  py-2.5 px-4">
+    <div className="flex justify-between bg-secondary border-b border-accent  py-2.5 px-4">
       <div className="flex items-center gap-x-2">
         <div className="text-content-primary">{icon}</div>
         <h2 className="text-content-primary text-lg font-medium">{title}</h2>

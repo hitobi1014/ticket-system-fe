@@ -198,7 +198,7 @@ export default function FloorSetupPage() {
   ];
 
   return (
-    <div className="bg-surface-primary flex h-full flex-col overflow-hidden">
+    <div className="bg-primary flex h-full flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />
       <Tabs
@@ -235,22 +235,22 @@ export default function FloorSetupPage() {
               <IconZoomIn stroke={1.5} size={18} />
             </Button>
             {showZoomDropdown && (
-              <div className="bg-popover border-surface-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
+              <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-content-accent"
+                  className="text-accent"
                   onClick={() => activeTransform?.zoomOut(0.25)}
                 >
                   <IconMinus stroke={2} size={14} />
                 </Button>
-                <span className="text-content-accent w-10 text-center text-xs tabular-nums">
+                <span className="text-accent w-10 text-center text-xs tabular-nums">
                   {Math.round(currentScale * 100)}%
                 </span>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-content-accent"
+                  className="text-accent"
                   onClick={() => activeTransform?.zoomIn(0.25)}
                 >
                   <IconPlus stroke={2} size={14} />
@@ -321,17 +321,17 @@ export default function FloorSetupPage() {
                   </Button>
                 </div>
               </div>
-              <div className="bg-surface-secondary flex gap-x-4 p-2">
+              <div className="bg-secondary flex gap-x-4 p-2">
                 <div className="flex items-center gap-x-2">
                   <span className="flex h-6 w-6 shrink-0 rounded-md bg-red-400" />
                   <span className="text-content-primary">배정 완료 석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <span className="bg-surface-danger flex h-6 w-6 shrink-0 rounded-md border-0 text-transparent opacity-15" />
+                  <span className="bg-destructive flex h-6 w-6 shrink-0 rounded-md border-0 text-transparent opacity-15" />
                   <span className="text-content-primary">숨긴 좌석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <span className="bg-surface-primary flex h-6 w-6 shrink-0 rounded-md" />
+                  <span className="bg-primary flex h-6 w-6 shrink-0 rounded-md" />
                   <span className="text-content-primary">배정 가능 석</span>
                 </div>
               </div>

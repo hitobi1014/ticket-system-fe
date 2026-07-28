@@ -45,8 +45,8 @@ export default function Row({
                 <Button
                   className={cn(
                     'h-8 w-8 border-0 text-sm',
-                    !isVisible && 'bg-surface-danger border-0 text-transparent opacity-15',
-                    isVisible && 'bg-surface-primary text-content-primary',
+                    !isVisible && 'bg-destructive border-0 text-transparent opacity-15',
+                    isVisible && 'bg-primary text-content-primary',
                     seat.assignedMemberId != null && 'pointer-events-none bg-red-400',
                     isSeatSelected && isEditMode && isVisible && 'ring-2 ring-blue-500',
                     isSeatSelected &&

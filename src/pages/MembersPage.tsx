@@ -168,7 +168,7 @@ export default function MembersPage() {
         <div className="flex flex-1 flex-col overflow-hidden rounded-lg">
           {/*헤더 고정*/}
           <div className="shrink-0">
-            <Table className="bg-surface-secondary">
+            <Table className="bg-secondary">
               <ColGroup />
               <TableHeader className="w-25">
                 <TableRow>
@@ -187,7 +187,7 @@ export default function MembersPage() {
 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
-            <Table className="bg-surface-secondary text-content-primary">
+            <Table className="bg-secondary text-content-primary">
               <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
@@ -199,7 +199,7 @@ export default function MembersPage() {
                       key={member.id}
                       className={cn(
                         'cursor-pointer text-center',
-                        isHighlighted && 'bg-surface-danger text-content-danger font-bold',
+                        isHighlighted && 'bg-destructive text-content-danger font-bold',
                       )}
                       onClick={() => {
                         highlightedMemberIds.delete(member.id);

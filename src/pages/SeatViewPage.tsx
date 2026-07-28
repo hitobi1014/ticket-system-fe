@@ -133,7 +133,7 @@ export default function SeatViewPage() {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       {/* 공연장명 + 공연일 */}
-      <div className="bg-surface-secondary border-b border-surface-accent py-3 px-4">
+      <div className="bg-secondary border-b border-accent py-3 px-4">
         <div className="flex items-center gap-x-2">
           <IconMapPin stroke={1.5} className="text-content-primary" />
           <div>
@@ -172,7 +172,7 @@ export default function SeatViewPage() {
               {selectedMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="flex justify-center items-center gap-x-1 rounded-md bg-surface-accent px-2 shrink-0"
+                  className="flex justify-center items-center gap-x-1 rounded-md bg-accent px-2 shrink-0"
                 >
                   <div
                     className="w-2.5 h-2.5 rounded-full shrink-0"
@@ -266,22 +266,22 @@ export default function SeatViewPage() {
                   <IconZoomIn stroke={1.5} size={18} />
                 </Button>
                 {showZoomDropdown && (
-                  <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-surface-accent">
+                  <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-accent">
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-content-accent"
+                      className="text-accent"
                       onClick={() => activeTransform?.zoomOut(0.25)}
                     >
                       <IconMinus stroke={2} size={14} />
                     </Button>
-                    <span className="text-content-accent text-xs w-10 text-center tabular-nums">
+                    <span className="text-accent text-xs w-10 text-center tabular-nums">
                       {Math.round(currentScale * 100)}%
                     </span>
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-content-accent"
+                      className="text-accent"
                       onClick={() => activeTransform?.zoomIn(0.25)}
                     >
                       <IconPlus stroke={2} size={14} />

@@ -87,7 +87,7 @@ export function RemoveSeatDialog({
           {buttonText}
         </Button>
       </DialogTrigger>
-      <DialogContent className="bg-surface-secondary">
+      <DialogContent className="bg-secondary">
         <DialogHeader>
           <DialogTitle className="text-content-primary flex items-center gap-x-2">
             <IconTrash className="danger-color" stroke={1.5} />
@@ -96,14 +96,14 @@ export function RemoveSeatDialog({
           <DialogDescription>
             <span className="text-content-secondary">끝 번호부터 삭제 됩니다.</span>
             <br />
-            <span className="text-surface-danger">
+            <span className="text-destructive">
               배정되어 있는 회원이 있는경우 삭제가 불가능합니다. 배정해제를 먼저 진행해주세요
             </span>
           </DialogDescription>
         </DialogHeader>
 
         {/* 구역/열 정보 */}
-        <div className="bg-surface-primary flex justify-between rounded-md px-4 py-2">
+        <div className="bg-primary flex justify-between rounded-md px-4 py-2">
           <div>
             <p className="text-mist-400">구역</p>
             <p className="text-content-primary">
@@ -129,7 +129,7 @@ export function RemoveSeatDialog({
             </Button>
             <input
               type="number"
-              className="bg-surface-primary no-spinners h-8 w-full rounded-lg text-center text-mist-50"
+              className="bg-primary no-spinners h-8 w-full rounded-lg text-center text-mist-50"
               min={1}
               max={enabledRemoveCount}
               value={deleteCount}
@@ -144,7 +144,7 @@ export function RemoveSeatDialog({
             </Button>
           </div>
           {deleteCount > enabledRemoveCount ? (
-            <p className="text-surface-danger">
+            <p className="text-destructive">
               배정된 좌석이 있어 최대 {enabledRemoveCount}석까지만 삭제할 수 있습니다.
             </p>
           ) : (
@@ -153,7 +153,7 @@ export function RemoveSeatDialog({
         </div>
 
         {/* 미리 보기 */}
-        <DialogFooter className="bg-surface-secondary border-0 pb-2.5">
+        <DialogFooter className="bg-secondary border-0 pb-2.5">
           <DialogClose asChild>
             <Button variant="dialog">취소</Button>
           </DialogClose>

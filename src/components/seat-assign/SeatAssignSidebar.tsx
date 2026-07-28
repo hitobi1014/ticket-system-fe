@@ -25,8 +25,8 @@ export default function SeatAssignSidebar() {
   ]);
 
   return (
-    <div className="w-44 flex-none flex flex-col h-full border-l border-surface-accent pl-4 p-y">
-      <div className="bg-surface-secondary rounded-lg pl-3 py-2 shrink-0">
+    <div className="w-44 flex-none flex flex-col h-full border-l border-accent pl-4 p-y">
+      <div className="bg-secondary rounded-lg pl-3 py-2 shrink-0">
         <h5 className="text-content-secondary">잔여 좌석</h5>
         <h3 className="text-content-primary font-bold">{getRemainSeatCount()}</h3>
       </div>
@@ -65,8 +65,8 @@ export default function SeatAssignSidebar() {
                 </div>
                 <p
                   className={clsx('px-2 py-0.5 rounded text-sm min-w-6 text-center', {
-                    'bg-surface-danger text-content-danger': isRemainTicketZero(member),
-                    'bg-surface-secondary text-content-primary': !isRemainTicketZero(member),
+                    'bg-destructive text-content-danger': isRemainTicketZero(member),
+                    'bg-secondary text-content-primary': !isRemainTicketZero(member),
                   })}
                 >
                   {getRemainTickets(member, assignedCountMap)}
@@ -76,14 +76,14 @@ export default function SeatAssignSidebar() {
           </div>
           {canScrollUp && (
             <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-              <div className="bg-surface-secondary text-content-secondary rounded-full p-0.5 shadow">
+              <div className="bg-secondary text-content-secondary rounded-full p-0.5 shadow">
                 <IconChevronUp size={14} stroke={2} />
               </div>
             </div>
           )}
           {canScrollDown && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
-              <div className="bg-surface-secondary text-content-secondary rounded-full p-0.5 shadow">
+              <div className="bg-secondary text-content-secondary rounded-full p-0.5 shadow">
                 <IconChevronDown size={14} stroke={2} />
               </div>
             </div>

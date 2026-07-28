@@ -80,7 +80,7 @@ function MinimapContent({ floor, highlightColorMap }: SeatMinimapProps) {
 
   return createPortal(
     <div
-      className="fixed bottom-4 right-4 z-50 rounded-lg overflow-hidden cursor-pointer shadow-lg border border-surface-accent bg-surface-secondary/95 backdrop-blur-sm select-none"
+      className="fixed bottom-4 right-4 z-50 rounded-lg overflow-hidden cursor-pointer shadow-lg border border-accent bg-secondary/95 backdrop-blur-sm select-none"
       style={{ width: MINIMAP_W, height: MINIMAP_H }}
       onClick={handleClick}
     >
@@ -95,7 +95,7 @@ function MinimapContent({ floor, highlightColorMap }: SeatMinimapProps) {
                 <div
                   key={`${item.kind}-${item.id}`}
                   className={cn(
-                    'relative flex-1 rounded-sm bg-surface-accent min-w-0',
+                    'relative flex-1 rounded-sm bg-accent min-w-0',
                     sectionHasHighlight(item) && 'ring-1 ring-content-primary',
                   )}
                 >

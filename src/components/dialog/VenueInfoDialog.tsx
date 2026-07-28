@@ -32,7 +32,7 @@ const stagePositionStyle: Record<StagePosition, string> = {
 
 function StagePreview({ position }: { position: StagePosition }) {
   return (
-    <div className="relative h-32 rounded-lg border border-border bg-surface-primary overflow-hidden">
+    <div className="relative h-32 rounded-lg border border-border bg-primary overflow-hidden">
       <span
         className={cn(
           'absolute px-3 py-1 rounded text-xs font-semibold bg-blue-500 text-white transition-all duration-300',
@@ -113,7 +113,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
       <DialogTrigger asChild>
         <Button variant="primary">공연장 정보</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-140 bg-surface-secondary text-content-primary">
+      <DialogContent className="min-w-140 bg-secondary text-content-primary">
         <DialogHeader>
           <DialogTitle className="text-content-primary flex items-center gap-x-2">
             {isUpdate ? '공연 정보 수정' : '공연 정보 등록'}
@@ -132,7 +132,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
               aria-label="name"
               value={form.name}
               type="text"
-              className="bg-surface-primary border-0"
+              className="bg-primary border-0"
               placeholder="예) 롯데콘서트홀"
               onChange={(e) => handleChange('name', e.target.value)}
             />
@@ -145,7 +145,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
               aria-label="address"
               value={form.address}
               type="text"
-              className="bg-surface-primary border-0"
+              className="bg-primary border-0"
               placeholder="예) 서울 송파구 xx로 50"
               onChange={(e) => handleChange('address', e.target.value)}
             />
@@ -160,7 +160,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
                 aria-label="performance-date"
                 value={form.performanceDate}
                 type="date"
-                className="bg-surface-primary border-0"
+                className="bg-primary border-0"
                 placeholder="2026.01.01"
                 onChange={(e) => handleChange('performanceDate', e.target.value)}
               />
@@ -174,7 +174,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
                 value={form.totalSeats}
                 min={1}
                 type="number"
-                className="bg-surface-primary border-0 no-spinners"
+                className="bg-primary border-0 no-spinners"
                 onChange={(e) => handleChange('totalSeats', parseInt(e.target.value) || 0)}
               />
             </Field>
@@ -199,7 +199,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
           <StagePreview position={form.stagePosition} />
         </div>
 
-        <DialogFooter className="flex bg-surface-secondary">
+        <DialogFooter className="flex bg-secondary">
           <DialogClose asChild>
             <Button variant="dialog">취소</Button>
           </DialogClose>
