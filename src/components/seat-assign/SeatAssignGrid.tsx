@@ -68,7 +68,7 @@ export default function SeatAssignGrid({
     <TabsContent value={String(floor.id)} className="flex min-h-0 flex-1 flex-col gap-y-4">
       <div className="flex items-center gap-x-4">
         <Toggle
-          className={clsx('bg-secondary text-content-primary cursor-pointer', {
+          className={clsx('bg-secondary text-primary cursor-pointer', {
             'bg-white text-black': isBulkEditMode,
           })}
           pressed={isBulkEditMode}
@@ -90,7 +90,7 @@ export default function SeatAssignGrid({
             >
               좌석배정
             </Button>
-            <span className="text-content-primary">선택된 좌석: {selectedSeatIds.size}</span>
+            <span className="text-primary">선택된 좌석: {selectedSeatIds.size}</span>
           </>
         )}
       </div>
@@ -122,7 +122,7 @@ export default function SeatAssignGrid({
                       item.kind === 'aisle' ? (
                         <div
                           key={`${item.kind}-${item.id}`}
-                          className="text-content-primary bg-secondary flex items-center justify-center self-stretch rounded-md px-3"
+                          className="text-primary bg-secondary flex items-center justify-center self-stretch rounded-md px-3"
                         >
                           <div className="bg-accent h-2/4 w-px" />
                         </div>

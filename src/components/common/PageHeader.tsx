@@ -10,16 +10,13 @@ interface PageHeaderProps {
 export default function PageHeader({ title, icon }: PageHeaderProps) {
   const { logout, isAuthenticated } = useAuthStore();
   return (
-    <div className="flex justify-between bg-secondary border-b border-accent  py-2.5 px-4">
+    <div className="bg-card border-accent flex justify-between border-b px-4 py-2.5">
       <div className="flex items-center gap-x-2">
-        <div className="text-content-primary">{icon}</div>
-        <h2 className="text-content-primary text-lg font-medium">{title}</h2>
+        <div className="text-primary">{icon}</div>
+        <h2 className="text-primary text-lg font-medium">{title}</h2>
       </div>
       {isAuthenticated && (
-        <div
-          className="flex items-center gap-x-2 text-content-primary cursor-pointer"
-          onClick={logout}
-        >
+        <div className="text-primary flex cursor-pointer items-center gap-x-2" onClick={logout}>
           <IconLogout stroke={2} />
           로그아웃
         </div>

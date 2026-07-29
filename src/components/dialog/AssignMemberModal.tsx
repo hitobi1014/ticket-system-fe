@@ -128,10 +128,10 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const sortedMemberFromRemainSeat = getAssignableMember(members, assignedCountMap);
 
   return (
-    <DialogContent className="bg-secondary text-content-primary">
+    <DialogContent className="bg-secondary text-primary">
       <DialogHeader>
         <DialogTitle className="text-lg">좌석배정</DialogTitle>
-        <DialogDescription className="text-content-secondary">{modalTitle['N']}</DialogDescription>
+        <DialogDescription className="text-secondary">{modalTitle['N']}</DialogDescription>
       </DialogHeader>
       <Separator className="bg-accent" />
       {/* 선택한 좌석 */}
@@ -152,8 +152,8 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                 className={clsx(
                   'flex items-center gap-1 rounded px-2 py-1 text-xs whitespace-nowrap',
                   {
-                    'bg-destructive text-content-danger font-bold': memberName,
-                    'bg-accent text-content-primary': !memberName,
+                    'bg-destructive text-danger font-bold': memberName,
+                    'bg-accent text-primary': !memberName,
                   },
                 )}
               >
@@ -177,7 +177,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           'ring-2 ring-red-400': hasMemberEmpty,
         })}
       >
-        <h5 className="text-content-secondary mb-2 px-4 text-sm font-bold">회원 목록</h5>
+        <h5 className="text-secondary mb-2 px-4 text-sm font-bold">회원 목록</h5>
         {/* 테이블 wrapper - flex-col로 헤더/바디 분리 */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* 헤더 고정 */}
@@ -186,19 +186,19 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
               <ColGroup />
               <TableHeader>
                 <TableRow>
-                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
                     순서
                   </TableHead>
-                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
                     순위
                   </TableHead>
-                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
                     파트
                   </TableHead>
-                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
                     이름
                   </TableHead>
-                  <TableHead className="border-b-content-secondary border-b text-center text-gray-300">
+                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
                     잔여티켓
                   </TableHead>
                 </TableRow>
@@ -209,7 +209,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
             <Table
-              className="bg-secondary text-content-primary"
+              className="bg-secondary text-primary"
               style={{ tableLayout: 'fixed' }}
             >
               <ColGroup />
@@ -219,7 +219,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                     key={mem.id}
                     className={cn(
                       'cursor-pointer text-center',
-                      isAssignMemberSelected === mem.id && 'bg-accent text-content-primary',
+                      isAssignMemberSelected === mem.id && 'bg-accent text-primary',
                       hasEnoughRemainingTickets(mem) && 'hover:bg-accent',
                       !hasEnoughRemainingTickets(mem) && 'cursor-not-allowed opacity-40',
                     )}

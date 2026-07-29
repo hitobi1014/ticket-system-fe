@@ -89,12 +89,12 @@ export function RemoveSeatDialog({
       </DialogTrigger>
       <DialogContent className="bg-secondary">
         <DialogHeader>
-          <DialogTitle className="text-content-primary flex items-center gap-x-2">
+          <DialogTitle className="text-primary flex items-center gap-x-2">
             <IconTrash className="danger-color" stroke={1.5} />
             <p>{title}</p>
           </DialogTitle>
           <DialogDescription>
-            <span className="text-content-secondary">끝 번호부터 삭제 됩니다.</span>
+            <span className="text-secondary">끝 번호부터 삭제 됩니다.</span>
             <br />
             <span className="text-destructive">
               배정되어 있는 회원이 있는경우 삭제가 불가능합니다. 배정해제를 먼저 진행해주세요
@@ -106,13 +106,13 @@ export function RemoveSeatDialog({
         <div className="bg-primary flex justify-between rounded-md px-4 py-2">
           <div>
             <p className="text-mist-400">구역</p>
-            <p className="text-content-primary">
+            <p className="text-primary">
               {sectionName} {rowName}열
             </p>
           </div>
           <div>
             <p className="text-mist-400">현재 좌석 수</p>
-            <p className="text-content-primary text-right">{currentSeatCount}석</p>
+            <p className="text-primary text-right">{currentSeatCount}석</p>
           </div>
         </div>
 

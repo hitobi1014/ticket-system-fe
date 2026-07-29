@@ -96,7 +96,7 @@ function MinimapContent({ floor, highlightColorMap }: SeatMinimapProps) {
                   key={`${item.kind}-${item.id}`}
                   className={cn(
                     'relative flex-1 rounded-sm bg-accent min-w-0',
-                    sectionHasHighlight(item) && 'ring-1 ring-content-primary',
+                    sectionHasHighlight(item) && 'ring-1 ring-primary',
                   )}
                 >
                   {sectionHasHighlight(item) && (

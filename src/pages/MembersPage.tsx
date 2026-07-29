@@ -96,7 +96,7 @@ export default function MembersPage() {
       confirm: {
         title: '회원 목록 가져오기',
         description: (
-          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+          <AlertDialogDescription className="text-secondary whitespace-pre-line">
             출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. {'\n'}💡목록에 없는 회원은 삭제됩니다.
           </AlertDialogDescription>
         ),
@@ -127,20 +127,6 @@ export default function MembersPage() {
       },
       icon: <IconUserPlus stroke={2} />,
     },
-    // TODD삭제 예정
-    // {
-    //   text: '티켓 균등 배분',
-    //   icon: <IconTicket stroke={2} />,
-    //   onClick: async () => {
-    //     try {
-    //       await distributeTickets();
-    //       toast.success('티켓 균등 배분이 완료되었습니다.');
-    //     } catch (e) {
-    //       toast.error(e instanceof Error ? e.message : '티켓 배분에 실패했습니다.');
-    //     }
-    //   },
-    //   disabled: members.length === 0 || getTotalSeatCount() === 0 || isLoading.distribute,
-    // },
   ];
 
   if (isLoading.fetch) {
@@ -187,7 +173,7 @@ export default function MembersPage() {
 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
-            <Table className="bg-secondary text-content-primary">
+            <Table className="bg-secondary text-primary">
               <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
@@ -199,7 +185,7 @@ export default function MembersPage() {
                       key={member.id}
                       className={cn(
                         'cursor-pointer text-center',
-                        isHighlighted && 'bg-destructive text-content-danger font-bold',
+                        isHighlighted && 'bg-destructive text-danger font-bold',
                       )}
                       onClick={() => {
                         highlightedMemberIds.delete(member.id);

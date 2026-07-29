@@ -131,23 +131,23 @@ export default function SeatViewPage() {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex h-full flex-col overflow-hidden">
       {/* 공연장명 + 공연일 */}
-      <div className="bg-secondary border-b border-accent py-3 px-4">
+      <div className="bg-secondary border-accent border-b px-4 py-3">
         <div className="flex items-center gap-x-2">
-          <IconMapPin stroke={1.5} className="text-content-primary" />
+          <IconMapPin stroke={1.5} className="text-primary" />
           <div>
-            <h2 className="text-content-primary text-lg font-medium leading-tight">
+            <h2 className="text-primary text-lg leading-tight font-medium">
               {venue?.name ?? '공연장'}
             </h2>
             {venue?.performanceDate && (
-              <p className="text-content-secondary text-sm">{venue.performanceDate}</p>
+              <p className="text-secondary text-sm">{venue.performanceDate}</p>
             )}
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col flex-1 overflow-hidden p-4 gap-y-4">
+      <div className="flex flex-1 flex-col gap-y-4 overflow-hidden p-4">
         {/* 회원 검색 Combobox */}
         <Combobox
           value=""
@@ -160,7 +160,7 @@ export default function SeatViewPage() {
             showTrigger={false}
             placeholder="회원 이름으로 좌석 찾기"
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-60 text-content-primary"
+            className="text-primary w-60"
           />
           {/* 선택된 회원 목록
             간략하게 color 이름 표기
@@ -168,23 +168,21 @@ export default function SeatViewPage() {
             화면 범위를 넘어가면 잘리지 않고 가로 스크롤되도록 처리
             */}
           {selectedMembers.length > 0 && (
-            <div className="flex gap-x-2 overflow-x-auto no-scrollbar py-1">
+            <div className="no-scrollbar flex gap-x-2 overflow-x-auto py-1">
               {selectedMembers.map((member) => (
                 <div
                   key={member.id}
-                  className="flex justify-center items-center gap-x-1 rounded-md bg-accent px-2 shrink-0"
+                  className="bg-accent flex shrink-0 items-center justify-center gap-x-1 rounded-md px-2"
                 >
                   <div
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
+                    className="h-2.5 w-2.5 shrink-0 rounded-full"
                     style={{ backgroundColor: member.color ?? '#cccccc' }}
                   />
-                  <span className="text-content-primary text-sm whitespace-nowrap">
-                    {member.name}
-                  </span>
+                  <span className="text-primary text-sm whitespace-nowrap">{member.name}</span>
                   <Button
                     variant="ghost"
                     size="icon-xs"
-                    className="shrink-0 text-content-primary"
+                    className="text-primary shrink-0"
                     onClick={() => handleRemoveMember(member.id)}
                   >
                     <IconX stroke={2} size={14} />
@@ -197,21 +195,21 @@ export default function SeatViewPage() {
             <ComboboxContent>
               <ComboboxList>
                 {filteredMembers.length === 0 ? (
-                  <p className="py-2 text-center text-sm text-muted-foreground">검색 결과 없음</p>
+                  <p className="text-muted-foreground py-2 text-center text-sm">검색 결과 없음</p>
                 ) : (
                   filteredMembers.map((member) => {
                     const remain = getMemberRemainTicketsByMemberId(member.id);
                     return (
                       <ComboboxItem key={member.id} value={String(member.id)}>
                         <div
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          className="h-2.5 w-2.5 shrink-0 rounded-full"
                           style={{ backgroundColor: member.color ?? '#cccccc' }}
                         />
-                        <Badge variant="secondary" className="px-1.5 py-0 w-8 text-xs">
+                        <Badge variant="secondary" className="w-8 px-1.5 py-0 text-xs">
                           {member.instrument.abbr}
                         </Badge>
                         <span className="flex-1 text-sm">{member.name}</span>
-                        <span className="text-muted-foreground text-xs ml-auto">
+                        <span className="text-muted-foreground ml-auto text-xs">
                           잔여:{remain} / 배정:{member.allocatedTickets}
                         </span>
                       </ComboboxItem>
@@ -224,32 +222,27 @@ export default function SeatViewPage() {
         </Combobox>
 
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
-        <div className="flex gap-x-4 flex-1 overflow-hidden">
+        <div className="flex flex-1 gap-x-4 overflow-hidden">
           {/* 좌석 그리드 */}
           <Tabs
-            className="flex flex-col flex-1 overflow-hidden"
+            className="flex flex-1 flex-col overflow-hidden"
             value={String(selectedFloorId)}
             onValueChange={(v) => setSelectedFloorId(Number(v))}
           >
             <div className="flex items-center justify-between">
-              <TabsList className="bg-transparent flex gap-x-2">
+              <TabsList className="flex gap-x-2 bg-transparent">
                 {floors.map((floor) => (
                   <TabsTrigger
                     key={floor.id}
                     value={String(floor.id)}
                     className={cn(
-                      `cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-                      hover:text-content-danger
-                      data-[state=active]:text-content-primary
-                      data-[state=active]:bg-transparent
-                      data-[state=active]:shadow-none
-                      data-[state=active]:border-b-white`,
+                      `text-primary hover:text-danger data-[state=active]:text-primary cursor-pointer rounded-none border-b-2 border-transparent text-base data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none`,
                       highlightedFloorIds.has(floor.id) && 'gap-x-1.5',
                     )}
                   >
                     {floor.name}
                     {highlightedFloorIds.has(floor.id) && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-content-primary shrink-0" />
+                      <span className="bg-primary h-1.5 w-1.5 shrink-0 rounded-full" />
                     )}
                   </TabsTrigger>
                 ))}
@@ -260,13 +253,13 @@ export default function SeatViewPage() {
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="text-content-primary"
+                  className="text-primary"
                   onClick={() => setShowZoomDropdown((v) => !v)}
                 >
                   <IconZoomIn stroke={1.5} size={18} />
                 </Button>
                 {showZoomDropdown && (
-                  <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-accent">
+                  <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
                     <Button
                       variant="ghost"
                       size="icon-xs"
@@ -275,7 +268,7 @@ export default function SeatViewPage() {
                     >
                       <IconMinus stroke={2} size={14} />
                     </Button>
-                    <span className="text-accent text-xs w-10 text-center tabular-nums">
+                    <span className="text-accent w-10 text-center text-xs tabular-nums">
                       {Math.round(currentScale * 100)}%
                     </span>
                     <Button

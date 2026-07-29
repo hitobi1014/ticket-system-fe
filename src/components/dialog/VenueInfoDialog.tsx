@@ -113,17 +113,17 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
       <DialogTrigger asChild>
         <Button variant="primary">공연장 정보</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-140 bg-secondary text-content-primary">
+      <DialogContent className="min-w-140 bg-secondary text-primary">
         <DialogHeader>
-          <DialogTitle className="text-content-primary flex items-center gap-x-2">
+          <DialogTitle className="text-primary flex items-center gap-x-2">
             {isUpdate ? '공연 정보 수정' : '공연 정보 등록'}
           </DialogTitle>
-          <DialogDescription className="text-content-secondary">
+          <DialogDescription className="text-secondary">
             공연장 기본 정보를 입력하세요.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-y-2 text-content-primary">
+        <div className="flex flex-col gap-y-2 text-primary">
           {/*1. 공연장명*/}
           <Field className="max-w-xs">
             <FieldLabel htmlFor="name-input">공연장 이름</FieldLabel>

@@ -49,7 +49,7 @@ export default function AlertDialogCustom({
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="bg-primary">
-        <AlertDialogHeader className="text-content-primary">
+        <AlertDialogHeader className="text-primary">
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description}
         </AlertDialogHeader>

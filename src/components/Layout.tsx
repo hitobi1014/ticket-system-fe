@@ -37,11 +37,11 @@ export default function Layout() {
     | undefined;
 
   return (
-    <SidebarProvider className="bg-primary h-screen overflow-hidden">
+    <SidebarProvider className="bg-background h-screen overflow-hidden">
       <AppSidebar />
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex flex-1 overflow-hidden">
         {/* max-w-350 => 1400px */}
-        <div className="w-full mx-auto flex flex-col flex-1 overflow-hidden">
+        <div className="mx-auto flex w-full flex-1 flex-col overflow-hidden">
           {currentHandle && <PageHeader title={currentHandle.title} icon={currentHandle.icon} />}
           <div className="flex-1 overflow-hidden px-6 py-4">
             <Outlet /> {/* Outlet 감싸는 div 추가 */}

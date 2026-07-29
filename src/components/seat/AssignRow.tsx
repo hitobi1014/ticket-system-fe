@@ -27,7 +27,7 @@ export default function AssignRow({
     members.find((v) => v.id === id)?.name ?? '';
 
   return (
-    <div className="bg-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4">
+    <div className="bg-secondary text-primary flex flex-col gap-y-2 rounded-md p-4">
       <div className="flex items-center justify-between text-sm">
         <span>{section.name}</span>
         <span>{section.rows.flatMap((r) => r.seats).length}석</span>
@@ -48,7 +48,7 @@ export default function AssignRow({
                 ref={triggerRef}
                 className={cn(
                   'h-10 w-10 text-sm',
-                  isVisible && 'bg-primary text-content-primary border-0',
+                  isVisible && 'bg-primary text-primary border-0',
                   !isVisible && 'pointer-events-none border-0 bg-transparent text-transparent',
                   selectedSeatIds.has(seat.id) && 'ring-accent ring-2 ring-offset-1',
                 )}

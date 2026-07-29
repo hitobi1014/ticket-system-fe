@@ -53,7 +53,7 @@ export default function SeatGrid({
         item.kind === 'aisle' ? (
           <div
             key={`${item.kind}-${item.id}`}
-            className="text-content-primary bg-secondary flex items-center justify-center self-stretch rounded-md px-3"
+            className="text-primary bg-secondary flex items-center justify-center self-stretch rounded-md px-3"
           >
             <div className="bg-accent h-2/4 w-px" />
           </div>
@@ -61,7 +61,7 @@ export default function SeatGrid({
           <div
             key={item.id}
             className={cn(
-              'bg-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4',
+              'bg-secondary text-primary flex flex-col gap-y-2 rounded-md p-4',
               (highlightColorMap?.size ?? 0) > 0 &&
                 item.rows.some((row) =>
                   row.seats.some(
@@ -70,7 +70,7 @@ export default function SeatGrid({
                       (highlightColorMap?.has(seat.assignedMemberId) ?? false),
                   ),
                 ) &&
-                'ring-content-primary ring-2',
+                'ring-primary ring-2',
             )}
           >
             <div className="flex items-center justify-between text-sm">
@@ -100,7 +100,7 @@ export default function SeatGrid({
                       key={seat.id}
                       className={cn(
                         'flex h-10 w-10 items-center justify-center rounded-md text-sm',
-                        isVisible && 'bg-primary text-content-primary border',
+                        isVisible && 'bg-primary text-primary border',
                         !isVisible &&
                           'pointer-events-none border-0 bg-transparent text-transparent',
                         isPulsing && 'animate-pulse',

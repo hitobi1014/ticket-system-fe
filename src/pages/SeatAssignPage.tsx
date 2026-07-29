@@ -73,9 +73,9 @@ export default function SeatAssignPage() {
               <TabsTrigger
                 key={floor.id}
                 value={String(floor.id)}
-                className="cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-                      hover:text-content-danger
-                      data-[state=active]:text-content-primary
+                className="cursor-pointer text-primary text-base rounded-none border-b-2 border-transparent
+                      hover:text-danger
+                      data-[state=active]:text-primary
                       data-[state=active]:bg-transparent
                       data-[state=active]:shadow-none
                       data-[state=active]:border-b-white
@@ -91,7 +91,7 @@ export default function SeatAssignPage() {
             <Button
               variant="ghost"
               size="lg"
-              className="text-content-primary"
+              className="text-primary"
               onClick={() => setShowZoomDropdown((v) => !v)}
             >
               <IconZoomIn stroke={1.5} size={18} />

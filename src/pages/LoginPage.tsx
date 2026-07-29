@@ -69,17 +69,17 @@ export default function LoginPage() {
     <div className="bg-primary flex min-h-screen items-center justify-center">
       <div className="bg-secondary flex w-full max-w-sm flex-col gap-y-6 rounded-lg p-8">
         <div className="flex flex-col gap-y-1">
-          <h1 className="text-content-primary text-lg font-semibold">Orchestra</h1>
-          <p className="text-content-secondary text-sm">로그인</p>
+          <h1 className="text-primary text-lg font-semibold">Orchestra</h1>
+          <p className="text-secondary text-sm">로그인</p>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-y-3">
           <Field>
-            <FieldLabel className="text-content-primary">파트</FieldLabel>
+            <FieldLabel className="text-primary">파트</FieldLabel>
             <Select value={part?.abbr ?? ''} onValueChange={handlePartChange}>
-              <SelectTrigger className="bg-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-primary text-primary w-45 border-0">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-primary text-content-primary">
+              <SelectContent className="bg-primary text-primary">
                 <SelectGroup>
                   {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
                     <SelectItem key={abbr} value={abbr}>
@@ -92,15 +92,15 @@ export default function LoginPage() {
             </Select>
           </Field>
           <Field>
-            <FieldLabel className="text-content-primary">이름</FieldLabel>
+            <FieldLabel className="text-primary">이름</FieldLabel>
             <Select
               value={memberId != null ? String(memberId) : ''}
               onValueChange={(v) => setMemberId(Number(v))}
             >
-              <SelectTrigger className="bg-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-primary text-primary w-45 border-0">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-primary text-content-primary">
+              <SelectContent className="bg-primary text-primary">
                 <SelectGroup>
                   {filteredMembers.map((member) => (
                     <SelectItem key={member.id} value={String(member.id)}>
@@ -113,7 +113,7 @@ export default function LoginPage() {
           </Field>
           <Input
             type="password"
-            className="text-content-primary"
+            className="text-primary"
             aria-label="disabled"
             placeholder="비밀번호"
             value={memberCode}

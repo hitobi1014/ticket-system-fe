@@ -9,39 +9,34 @@ export function AppSidebar() {
   const { isAuthenticated } = useAuthStore();
 
   return (
-    <Sidebar collapsible="icon" className="bg-secondary">
-      <SidebarHeader className="border-b border-b-accent border-r border-r-accent">
+    <Sidebar collapsible="icon">
+      <SidebarHeader className="border-b-accent border-r-accent border-r border-b">
         <div className="flex items-center justify-between">
-          <div className="text-content-secondary group-data-[collapsible=icon]:hidden">
+          <div className="text-secondary group-data-[collapsible=icon]:hidden">
             Orchestra
           </div>
           <CustomTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <nav className="flex flex-col gap-y-2 text-content-secondary">
+        <nav className="text-secondary flex flex-col gap-y-2">
           {navRoutes
             .filter(({ isPublic }) => isPublic || isAuthenticated)
             .map(({ path, title, Icon }) => (
               <NavLink
                 className={({ isActive }) =>
                   cn(
-                    'flex px-4 py-2 gap-x-2',
+                    'flex gap-x-2 px-4 py-2',
                     isActive ? 'main-bg-color border-r-2 border-r-mist-300' : '',
                   )
                 }
                 key={path}
                 to={path}
               >
-                <span className="w-5 h-5 shrink-0">
+                <span className="h-5 w-5 shrink-0">
                   <Icon stroke={2} />
                 </span>
-                <span
-                  className="overflow-hidden whitespace-nowrap group-data-[collapsible=icon]:w-0
-                  group-data-[collapsible=icon]:opacity-0
-                  transition-all duration-200
-                "
-                >
+                <span className="overflow-hidden whitespace-nowrap transition-all duration-200 group-data-[collapsible=icon]:w-0 group-data-[collapsible=icon]:opacity-0">
                   {title}
                 </span>
               </NavLink>

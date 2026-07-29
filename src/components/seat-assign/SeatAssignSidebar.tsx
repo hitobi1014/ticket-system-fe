@@ -27,11 +27,11 @@ export default function SeatAssignSidebar() {
   return (
     <div className="w-44 flex-none flex flex-col h-full border-l border-accent pl-4 p-y">
       <div className="bg-secondary rounded-lg pl-3 py-2 shrink-0">
-        <h5 className="text-content-secondary">잔여 좌석</h5>
-        <h3 className="text-content-primary font-bold">{getRemainSeatCount()}</h3>
+        <h5 className="text-secondary">잔여 좌석</h5>
+        <h3 className="text-primary font-bold">{getRemainSeatCount()}</h3>
       </div>
       <div className="flex flex-col flex-1 gap-y-2 mt-2 min-h-0">
-        <h3 className="text-content-secondary text-sm shrink-0">회원별 잔여 티켓</h3>
+        <h3 className="text-secondary text-sm shrink-0">회원별 잔여 티켓</h3>
         <Separator className="shrink-0" />
         <div className="relative flex-1 min-h-0">
           <div
@@ -40,7 +40,7 @@ export default function SeatAssignSidebar() {
           >
             {sortedMemberFromRemainSeat.map((member) => (
               <div key={member.id} className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-content-primary">
+                <div className="flex items-center gap-2 text-primary">
                   <p className="w-6 text-xs">{member.seq}</p>
                   <p
                     className="w-8  text-center text-xs  px-1 py-0.5 rounded font-bold"
@@ -56,7 +56,7 @@ export default function SeatAssignSidebar() {
                     {member.instrument.abbr}
                   </p>
                   <p
-                    className={clsx('text-sm text-content-primary', {
+                    className={clsx('text-sm text-primary', {
                       'text-mist-500': isRemainTicketZero(member),
                     })}
                   >
@@ -65,8 +65,8 @@ export default function SeatAssignSidebar() {
                 </div>
                 <p
                   className={clsx('px-2 py-0.5 rounded text-sm min-w-6 text-center', {
-                    'bg-destructive text-content-danger': isRemainTicketZero(member),
-                    'bg-secondary text-content-primary': !isRemainTicketZero(member),
+                    'bg-destructive text-danger': isRemainTicketZero(member),
+                    'bg-secondary text-primary': !isRemainTicketZero(member),
                   })}
                 >
                   {getRemainTickets(member, assignedCountMap)}
@@ -76,14 +76,14 @@ export default function SeatAssignSidebar() {
           </div>
           {canScrollUp && (
             <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-              <div className="bg-secondary text-content-secondary rounded-full p-0.5 shadow">
+              <div className="bg-secondary text-secondary rounded-full p-0.5 shadow">
                 <IconChevronUp size={14} stroke={2} />
               </div>
             </div>
           )}
           {canScrollDown && (
             <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
-              <div className="bg-secondary text-content-secondary rounded-full p-0.5 shadow">
+              <div className="bg-secondary text-secondary rounded-full p-0.5 shadow">
                 <IconChevronDown size={14} stroke={2} />
               </div>
             </div>

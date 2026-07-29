@@ -94,19 +94,19 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
 
   return (
     <DialogContent
-      className="bg-secondary border-content-primary border sm:max-w-106.25"
+      className="bg-secondary border-primary border sm:max-w-106.25"
       // onInteractOutside={onClose}
     >
       <DialogHeader>
         {/* 회원 등록/수정 */}
-        <DialogTitle className="text-content-primary flex items-center gap-x-2">
+        <DialogTitle className="text-primary flex items-center gap-x-2">
           회원 등록
         </DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
 
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
-      <div className="text-content-primary flex flex-col gap-y-2">
+      <div className="text-primary flex flex-col gap-y-2">
         {/* 이름, 악기, 색상*/}
         <div className="flex items-center gap-x-2">
           {/*  이름 */}
@@ -132,10 +132,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
                 handleChange('instrumentAbbr', v as InstrumentAbbr);
               }}
             >
-              <SelectTrigger className="bg-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-primary text-primary w-45 border-0">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-primary text-content-primary">
+              <SelectContent className="bg-primary text-primary">
                 <SelectGroup>
                   {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
                     <SelectItem key={abbr} value={abbr}>
@@ -217,7 +217,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             title={'확인'}
             description={
               <>
-                <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                <AlertDialogDescription className="text-secondary whitespace-pre-line">
                   [{form.name}]님을 목록에서 제거 하시겠습니까?
                 </AlertDialogDescription>
                 <AlertDialogDescription className="text-destructive mt-2">

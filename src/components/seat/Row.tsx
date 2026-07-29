@@ -46,13 +46,13 @@ export default function Row({
                   className={cn(
                     'h-8 w-8 border-0 text-sm',
                     !isVisible && 'bg-destructive border-0 text-transparent opacity-15',
-                    isVisible && 'bg-primary text-content-primary',
+                    isVisible && 'bg-primary text-primary',
                     seat.assignedMemberId != null && 'pointer-events-none bg-red-400',
                     isSeatSelected && isEditMode && isVisible && 'ring-2 ring-blue-500',
                     isSeatSelected &&
                       isEditMode &&
                       !isVisible &&
-                      'ring-content-danger opacity-80 ring-2',
+                      'ring-danger opacity-80 ring-2',
                   )}
                   onClick={(e) => {
                     if (isEditMode && onSeatClick && seat.assignedMemberId == null) {

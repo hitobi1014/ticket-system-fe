@@ -1,13 +1,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/geist";
+@import "pretendard/dist/web/variable/pretendardvariable.css";
 
 @custom-variant dark (&:is(.dark *));
 
 @theme {
     --font-heading: var(--font-sans);
-    --font-sans: 'Geist Variable', sans-serif;
+    --font-sans: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
 
     --radius: 0.625rem;
     --radius-sm: calc(var(--radius) * 0.6);
@@ -19,23 +19,35 @@
     --radius-4xl: calc(var(--radius) * 2.6);
 
     /* shadcn */
-    --color-background: oklch(1 0 0);
+    --color-background: oklch(0.975 0.005 255);
     --color-foreground: oklch(0.145 0 0);
     --color-card: oklch(1 0 0);
     --color-card-foreground: oklch(0.145 0 0);
     --color-popover: oklch(1 0 0);
     --color-popover-foreground: oklch(0.145 0 0);
-    --color-primary: oklch(0.205 0 0);
-    --color-primary-foreground: oklch(0.985 0 0);
-    --color-secondary: oklch(0.97 0 0);
-    --color-secondary-foreground: oklch(0.205 0 0);
+
+    /* custom */
+    --color-primary: oklch(0.33 0.06 250);
+    --color-primary-foreground: oklch(0.28 0.055 250);
+    --color-secondary: oklch(0.55 0.08 235);
+    --color-secondary-foreground: oklch(0.45 0.03 235);
+    --color-border: oklch(87.2% 0.01 258.338);
+    --color-danger: oklch(0.56 0.14 25);
+    --color-warning: oklch(0.85 0.12 80); /* 보류 */
+    --color-success: oklch(0.60 0.11 150); /* 미사용, 참고용 */
+
+    /* text */
+    --color-text-primary: oklch(0.2 0.02 255);
+    --color-text-foreground: oklch(0.975 0.005 255);
+    --color-text-secondary: oklch(0.55 0.015 255);
+    --color-text-placeholder: oklch(0.65 0.015 255);
+
     --color-muted: oklch(0.97 0 0);
     --color-muted-foreground: oklch(0.556 0 0);
     --color-accent: oklch(0.97 0 0);
     --color-accent-foreground: oklch(0.205 0 0);
     --color-destructive: oklch(0.577 0.245 27.325);
     --color-destructive-foreground: oklch(0.985 0 0);
-    --color-border: oklch(0.922 0 0);
     --color-input: oklch(0.922 0 0);
     --color-ring: oklch(0.708 0 0);
     --color-chart-1: oklch(0.87 0 0);
@@ -51,11 +63,6 @@
     --color-sidebar-accent-foreground: oklch(0.205 0 0);
     --color-sidebar-border: oklch(0.922 0 0);
     --color-sidebar-ring: oklch(0.708 0 0);
-
-    /* content: 텍스트/아이콘 (surface와 값이 겹쳤던 accent는 accent로 통합됨) */
-    --color-content-primary: var(--color-mist-50);
-    --color-content-secondary: var(--color-mist-300);
-    --color-content-danger: var(--color-red-950);
 }
 
 @utility no-spinners {

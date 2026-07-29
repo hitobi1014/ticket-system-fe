@@ -188,7 +188,7 @@ export default function FloorSetupPage() {
         triggerText: '층 삭제',
         title: '층 삭제 확인',
         description: (
-          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+          <AlertDialogDescription className="text-secondary whitespace-pre-line">
             선택한 층 [{selectedFloor?.name}]을 삭제하시겠습니까?
           </AlertDialogDescription>
         ),
@@ -217,7 +217,7 @@ export default function FloorSetupPage() {
               <TabsTrigger
                 key={floor.id}
                 value={String(floor.id)}
-                className="text-content-primary data-[state=active]:text-content-primary cursor-pointer rounded-none border-b-2 border-transparent text-base hover:text-amber-300 data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                className="text-primary data-[state=active]:text-primary cursor-pointer rounded-none border-b-2 border-transparent text-base hover:text-amber-300 data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 {floor.name}
               </TabsTrigger>
@@ -229,7 +229,7 @@ export default function FloorSetupPage() {
             <Button
               variant="ghost"
               size="lg"
-              className="text-content-primary"
+              className="text-primary"
               onClick={() => setShowZoomDropdown((v) => !v)}
             >
               <IconZoomIn stroke={1.5} size={18} />
@@ -300,7 +300,7 @@ export default function FloorSetupPage() {
                     title="통로 추가"
                     triggerText="통로 추가"
                     description={
-                      <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                      <AlertDialogDescription className="text-secondary whitespace-pre-line">
                         선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
                       </AlertDialogDescription>
                     }
@@ -324,15 +324,15 @@ export default function FloorSetupPage() {
               <div className="bg-secondary flex gap-x-4 p-2">
                 <div className="flex items-center gap-x-2">
                   <span className="flex h-6 w-6 shrink-0 rounded-md bg-red-400" />
-                  <span className="text-content-primary">배정 완료 석</span>
+                  <span className="text-primary">배정 완료 석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
                   <span className="bg-destructive flex h-6 w-6 shrink-0 rounded-md border-0 text-transparent opacity-15" />
-                  <span className="text-content-primary">숨긴 좌석</span>
+                  <span className="text-primary">숨긴 좌석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
                   <span className="bg-primary flex h-6 w-6 shrink-0 rounded-md" />
-                  <span className="text-content-primary">배정 가능 석</span>
+                  <span className="text-primary">배정 가능 석</span>
                 </div>
               </div>
             </div>
