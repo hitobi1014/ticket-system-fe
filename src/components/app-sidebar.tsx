@@ -12,14 +12,12 @@ export function AppSidebar() {
     <Sidebar collapsible="icon">
       <SidebarHeader className="border-b-accent border-r-accent border-r border-b">
         <div className="flex items-center justify-between">
-          <div className="text-secondary group-data-[collapsible=icon]:hidden">
-            Orchestra
-          </div>
+          <div className="text-primary group-data-[collapsible=icon]:hidden">Orchestra</div>
           <CustomTrigger />
         </div>
       </SidebarHeader>
       <SidebarContent>
-        <nav className="text-secondary flex flex-col gap-y-2">
+        <nav className="text-primary flex flex-col gap-y-2">
           {navRoutes
             .filter(({ isPublic }) => isPublic || isAuthenticated)
             .map(({ path, title, Icon }) => (

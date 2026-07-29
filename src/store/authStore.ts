@@ -6,6 +6,7 @@ import fetchApi from '@/lib/api';
 interface AuthLoadingState {
   fetch: boolean;
   login: boolean;
+  testLogin: boolean;
 }
 
 interface AuthStore {
@@ -13,6 +14,7 @@ interface AuthStore {
   isLoading: AuthLoadingState;
   isAuthenticated: boolean;
   login: (req: LoginRequest) => Promise<void>;
+  testLogin: (role: 'member' | 'admin') => Promise<void>;
   logout: () => void;
 
   nonValidateMembers: NonValidateMember[];
@@ -27,6 +29,7 @@ const useAuthStore = create<AuthStore>()(
       isLoading: {
         fetch: false,
         login: false,
+        testLogin: false,
       },
       nonValidateMembers: [],
       token: null,
@@ -41,6 +44,20 @@ const useAuthStore = create<AuthStore>()(
           set({ token: accessToken, isAuthenticated: true });
         } finally {
           set((state) => ({ isLoading: { ...state.isLoading, login: false } }));
+        }
+      },
+      testLogin: async (role) => {
+        set((state) => ({ isLoading: { ...state.isLoading, testLogin: true } }));
+        try {
+          const { accessToken } = await fetchApi<LoginResponse>(
+            `${AUTH_API_PREFIX}/test-login?role=${role}`,
+            {
+              method: 'POST',
+            },
+          );
+          set({ token: accessToken, isAuthenticated: true });
+        } finally {
+          set((state) => ({ isLoading: { ...state.isLoading, testLogin: false } }));
         }
       },
       logout: () => {

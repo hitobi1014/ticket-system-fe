@@ -32,10 +32,10 @@ const stagePositionStyle: Record<StagePosition, string> = {
 
 function StagePreview({ position }: { position: StagePosition }) {
   return (
-    <div className="relative h-32 rounded-lg border border-border bg-primary overflow-hidden">
+    <div className="border-border relative h-32 overflow-hidden rounded-lg border">
       <span
         className={cn(
-          'absolute px-3 py-1 rounded text-xs font-semibold bg-blue-500 text-white transition-all duration-300',
+          'bg-secondary text-text-foreground absolute rounded px-3 py-1 text-xs font-semibold transition-all duration-300',
           stagePositionStyle[position],
         )}
       >
@@ -111,11 +111,11 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="primary">공연장 정보</Button>
+        <Button>공연장 정보</Button>
       </DialogTrigger>
-      <DialogContent className="min-w-140 bg-secondary text-primary">
+      <DialogContent className="bg-card text-primary min-w-140">
         <DialogHeader>
-          <DialogTitle className="text-primary flex items-center gap-x-2">
+          <DialogTitle className="text-primary flex items-center gap-x-2 text-lg font-semibold">
             {isUpdate ? '공연 정보 수정' : '공연 정보 등록'}
           </DialogTitle>
           <DialogDescription className="text-secondary">
@@ -123,7 +123,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex flex-col gap-y-2 text-primary">
+        <div className="text-primary flex flex-col gap-y-2">
           {/*1. 공연장명*/}
           <Field className="max-w-xs">
             <FieldLabel htmlFor="name-input">공연장 이름</FieldLabel>
@@ -132,7 +132,6 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
               aria-label="name"
               value={form.name}
               type="text"
-              className="bg-primary border-0"
               placeholder="예) 롯데콘서트홀"
               onChange={(e) => handleChange('name', e.target.value)}
             />
@@ -145,7 +144,6 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
               aria-label="address"
               value={form.address}
               type="text"
-              className="bg-primary border-0"
               placeholder="예) 서울 송파구 xx로 50"
               onChange={(e) => handleChange('address', e.target.value)}
             />
@@ -160,7 +158,6 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
                 aria-label="performance-date"
                 value={form.performanceDate}
                 type="date"
-                className="bg-primary border-0"
                 placeholder="2026.01.01"
                 onChange={(e) => handleChange('performanceDate', e.target.value)}
               />
@@ -174,7 +171,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
                 value={form.totalSeats}
                 min={1}
                 type="number"
-                className="bg-primary border-0 no-spinners"
+                className="no-spinners"
                 onChange={(e) => handleChange('totalSeats', parseInt(e.target.value) || 0)}
               />
             </Field>
@@ -183,11 +180,11 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
           <Field>
             <FieldLabel htmlFor="stage-position-input">무대 위치</FieldLabel>
             {/*5. 무대 선택 버튼*/}
-            <div className="flex justify-around flex-wrap gap-2">
+            <div className="flex flex-wrap justify-around gap-2">
               {stagePositionOptions.map((v) => (
                 <Button
                   key={v.value}
-                  variant={form.stagePosition === v.value ? 'primary' : 'dialog'}
+                  variant={form.stagePosition === v.value ? 'default' : 'dialog'}
                   onClick={() => handleChange('stagePosition', v.value)}
                 >
                   {v.label} ({v.value})
@@ -199,7 +196,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
           <StagePreview position={form.stagePosition} />
         </div>
 
-        <DialogFooter className="flex bg-secondary">
+        <DialogFooter className="flex">
           <DialogClose asChild>
             <Button variant="dialog">취소</Button>
           </DialogClose>

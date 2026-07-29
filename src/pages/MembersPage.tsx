@@ -134,7 +134,7 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-y-4 overflow-hidden">
+    <div className="bor flex h-full flex-col gap-y-4 overflow-hidden">
       <FunctionButtons buttons={functionButtons} />
       <div className="flex gap-3">
         {memberInfoCards.map((card) => (
@@ -151,18 +151,15 @@ export default function MembersPage() {
         <p>등록된 회원이 없습니다.</p>
       ) : (
         /* 테이블 wrapper - flex-col로 테이블 헤더/바디 분리 */
-        <div className="flex flex-1 flex-col overflow-hidden rounded-lg">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-lg border">
           {/*헤더 고정*/}
           <div className="shrink-0">
-            <Table className="bg-secondary">
+            <Table className="bg-card">
               <ColGroup />
               <TableHeader className="w-25">
                 <TableRow>
                   {TABLE_HEADS.map((head) => (
-                    <TableHead
-                      key={head}
-                      className="border-b border-b-mist-300 text-center text-gray-300"
-                    >
+                    <TableHead key={head} className="text-primary text-center">
                       {head}
                     </TableHead>
                   ))}
@@ -173,7 +170,7 @@ export default function MembersPage() {
 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
-            <Table className="bg-secondary text-primary">
+            <Table className="bg-card text-primary">
               <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
@@ -196,7 +193,7 @@ export default function MembersPage() {
                       <TableCell>{member.seq}</TableCell>
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
-                        <Badge className="bg-mist-500 text-white">
+                        <Badge className="bg-accent-foreground text-text-foreground">
                           {member.instrument.abbr} /{' '}
                           {INSTRUMENTS[member.instrument.abbr as keyof typeof INSTRUMENTS] ??
                             '알 수 없음'}
