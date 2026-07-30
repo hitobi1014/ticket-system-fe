@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import useVenueStore from '@/store/venueStore.ts';
 import { VenueInfoDialog } from '@/components/dialog/VenueInfoDialog.tsx';
 import { cn } from '@/lib/utils.ts';
+import { pageContentClass } from '@/constant/styles.ts';
 
 const COL_WIDTHS = ['5%', '14%', '11%', '10%', '10%', '10%', '10%', '11%'];
 const ColGroup = () => (
@@ -134,7 +135,7 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="bor flex h-full flex-col gap-y-4 overflow-hidden">
+    <div className={cn(pageContentClass, 'flex h-full flex-col gap-y-4 overflow-hidden')}>
       <FunctionButtons buttons={functionButtons} />
       <div className="flex gap-3">
         {memberInfoCards.map((card) => (

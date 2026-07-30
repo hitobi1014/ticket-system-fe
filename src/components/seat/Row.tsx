@@ -23,14 +23,13 @@ export default function Row({
   return (
     <div
       key={row.id}
-      className={clsx('flex items-center gap-x-2', {
-        'bg-secondary/25 rounded-lg': isSelected,
-      })}
+      className="flex items-center gap-x-2"
       onClick={(e) => {
         e.stopPropagation();
         onClick(row.id);
       }}
     >
+      <div className={cn('w-1 self-stretch rounded-full', isSelected && 'bg-primary')} />
       <div className="flex">
         <span className={clsx('flex w-6 items-center justify-center text-sm', {})}>
           {row.rowName}
@@ -48,7 +47,7 @@ export default function Row({
                     !isVisible && 'bg-danger/50',
                     isVisible && seat.assignedMemberId == null && 'border-primary border',
                     seat.assignedMemberId != null && 'bg-success text-muted pointer-events-none',
-                    isSeatSelected && isEditMode && isVisible && 'border-0 ring-2 ring-red-500',
+                    isSeatSelected && isEditMode && isVisible && 'bg-success/50 border-0',
                     isSeatSelected && isEditMode && !isVisible && 'ring-danger opacity-80 ring-2',
                   )}
                   onClick={(e) => {

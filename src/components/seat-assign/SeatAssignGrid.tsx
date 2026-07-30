@@ -4,7 +4,6 @@ import { SquareIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button.tsx';
 import AssignRow from '@/components/seat/AssignRow.tsx';
 import type { Floor, StagePosition } from '@/types';
-import { clsx } from 'clsx';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
 import {
@@ -13,6 +12,7 @@ import {
   useTransformEffect,
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
+import AisleDivider from '@/components/seat/AisleDivider.tsx';
 
 interface SeatAssignGridProps {
   floor: Floor;
@@ -68,9 +68,10 @@ export default function SeatAssignGrid({
     <TabsContent value={String(floor.id)} className="flex min-h-0 flex-1 flex-col gap-y-4">
       <div className="flex items-center gap-x-4">
         <Toggle
-          className={clsx('bg-secondary text-primary cursor-pointer', {
-            'bg-white text-black': isBulkEditMode,
-          })}
+          className={cn(
+            'text-primary cursor-pointer font-semibold',
+            // isBulkEditMode && 'bg-white text-black', TODO 필요없으면 삭제
+          )}
           pressed={isBulkEditMode}
           onPressedChange={(pressed) => {
             setIsBulkEditMode(pressed);
@@ -83,20 +84,19 @@ export default function SeatAssignGrid({
         {isBulkEditMode && (
           <>
             <Button
-              variant="primary"
               size="base"
               onClick={() => setIsModalOpen(true)}
               disabled={selectedSeatIds.size === 0}
             >
               좌석배정
             </Button>
-            <span className="text-primary">선택된 좌석: {selectedSeatIds.size}</span>
+            <span>선택된 좌석: {selectedSeatIds.size}</span>
           </>
         )}
       </div>
       <div
         className={cn(
-          'flex flex-1 gap-2 overflow-hidden',
+          'bg-card mt-4 flex min-h-0 flex-1 gap-2 overflow-hidden rounded-md p-4',
           stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
         )}
       >
@@ -120,12 +120,7 @@ export default function SeatAssignGrid({
                   <div key={floorRow.id} className="flex gap-x-4">
                     {floorRow.items.map((item) =>
                       item.kind === 'aisle' ? (
-                        <div
-                          key={`${item.kind}-${item.id}`}
-                          className="text-primary bg-secondary flex items-center justify-center self-stretch rounded-md px-3"
-                        >
-                          <div className="bg-accent h-2/4 w-px" />
-                        </div>
+                        <AisleDivider />
                       ) : (
                         <AssignRow
                           key={item.id}

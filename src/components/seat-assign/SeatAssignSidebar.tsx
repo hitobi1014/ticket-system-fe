@@ -25,25 +25,25 @@ export default function SeatAssignSidebar() {
   ]);
 
   return (
-    <div className="w-44 flex-none flex flex-col h-full border-l border-accent pl-4 p-y">
-      <div className="bg-secondary rounded-lg pl-3 py-2 shrink-0">
-        <h5 className="text-secondary">잔여 좌석</h5>
-        <h3 className="text-primary font-bold">{getRemainSeatCount()}</h3>
-      </div>
-      <div className="flex flex-col flex-1 gap-y-2 mt-2 min-h-0">
-        <h3 className="text-secondary text-sm shrink-0">회원별 잔여 티켓</h3>
+    <div className="bg-card border-accent p-y flex h-full w-44 flex-none flex-col border-l pl-4">
+      <header className="shrink-0 rounded-lg py-2">
+        <p className="text-secondary">잔여 좌석</p>
+        <p className="text-primary font-bold">{getRemainSeatCount()}</p>
+      </header>
+      <div className="mt-2 flex min-h-0 flex-1 flex-col gap-y-2">
+        <h3 className="text-secondary shrink-0 text-sm">회원별 잔여 티켓</h3>
         <Separator className="shrink-0" />
-        <div className="relative flex-1 min-h-0">
+        <div className="relative min-h-0 flex-1">
           <div
             ref={scrollContainerRef}
-            className="flex flex-col h-full no-scrollbar overflow-y-auto gap-y-1.5"
+            className="no-scrollbar flex h-full flex-col gap-y-1.5 overflow-y-auto"
           >
             {sortedMemberFromRemainSeat.map((member) => (
               <div key={member.id} className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 text-primary">
+                <div className="text-primary flex items-center gap-2">
                   <p className="w-6 text-xs">{member.seq}</p>
                   <p
-                    className="w-8  text-center text-xs  px-1 py-0.5 rounded font-bold"
+                    className="w-8 rounded px-1 py-0.5 text-center text-xs font-bold"
                     style={
                       member.color != null
                         ? {
@@ -56,7 +56,7 @@ export default function SeatAssignSidebar() {
                     {member.instrument.abbr}
                   </p>
                   <p
-                    className={clsx('text-sm text-primary', {
+                    className={clsx('text-primary text-sm', {
                       'text-mist-500': isRemainTicketZero(member),
                     })}
                   >
@@ -64,7 +64,7 @@ export default function SeatAssignSidebar() {
                   </p>
                 </div>
                 <p
-                  className={clsx('px-2 py-0.5 rounded text-sm min-w-6 text-center', {
+                  className={clsx('min-w-6 rounded px-2 py-0.5 text-center text-sm', {
                     'bg-destructive text-danger': isRemainTicketZero(member),
                     'bg-secondary text-primary': !isRemainTicketZero(member),
                   })}

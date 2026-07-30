@@ -3,11 +3,14 @@ import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import { IconArmchair, IconEyeOff, IconMinus, IconPlus, IconTrash } from '@tabler/icons-react';
 import FunctionButtons from '@/components/common/FunctionButtons.tsx';
-import { clsx } from 'clsx';
 import { findSeatContextByRowId, findVisibleSeatCountByRowId } from '@/lib/seatUtils.ts';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 import { useState } from 'react';
+import { cn } from '@/lib/utils.ts';
+import { Badge } from '@/components/ui/badge';
+import AisleDivider from '@/components/seat/AisleDivider.tsx';
+import { seatSectionClass } from '@/constant/styles.ts';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -202,20 +205,13 @@ export default function SectionCard({
 
   if (item.kind === 'aisle') {
     return (
-      <div
+      <AisleDivider
         onClick={(e) => {
           e.stopPropagation();
           handleSelectAisle(item.id);
         }}
-        className={clsx(
-          'flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
-          {
-            'ring-ring ring-2': selectedAisleId === item.id,
-          },
-        )}
-      >
-        <div className="bg-primary h-2/4 w-px" />
-      </div>
+        isSelected={selectedAisleId === item.id}
+      />
     );
   }
 
@@ -227,9 +223,10 @@ export default function SectionCard({
         e.stopPropagation();
         handleSelectSection(item.id);
       }}
-      className={clsx('bg-card flex flex-col gap-y-2 rounded-md p-4', {
-        'ring-ring ring-2': selectedSectionId === item.id,
-      })}
+      className={cn(
+        seatSectionClass,
+        selectedSectionId === item.id && 'ring-primary bg-secondary/10 border-0 ring-2',
+      )}
     >
       <div
         className="flex items-center justify-between"
@@ -239,7 +236,7 @@ export default function SectionCard({
           onSelectedRowId(null); // row 선택 해제
         }}
       >
-        <p>{item.name}</p>
+        <Badge>{item.name}</Badge>
         <p>{item.rows.flatMap((r) => r.seats).length}석</p>
       </div>
       {selectedSectionId === item.id && <FunctionButtons buttons={sectionEditButtons} />}

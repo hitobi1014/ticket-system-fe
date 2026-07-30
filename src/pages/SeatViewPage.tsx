@@ -17,6 +17,7 @@ import {
   ComboboxList,
 } from '@/components/ui/combobox';
 import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
+import { pageContentClass } from '@/constant/styles.ts';
 
 export default function SeatViewPage() {
   const { floors } = useFloorStore();
@@ -131,7 +132,7 @@ export default function SeatViewPage() {
   };
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/* 공연장명 + 공연일 */}
       <div className="bg-secondary border-accent border-b px-4 py-3">
         <div className="flex items-center gap-x-2">

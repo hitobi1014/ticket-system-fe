@@ -32,13 +32,14 @@
     --color-secondary: oklch(0.55 0.08 235);
     --color-secondary-foreground: oklch(0.45 0.03 235);
     --color-border: oklch(87.2% 0.01 258.338);
-    --color-danger: oklch(0.56 0.14 25);
+    --color-danger: oklch(56% 0.14 25);
+    --color-danger-foreground: oklch(46% 0.09 25);
     --color-warning: oklch(65% 0.183 30); /* 보류 */
     --color-success: oklch(0.60 0.11 150); /* 미사용, 참고용 */
 
     /* text */
     --color-text-primary: oklch(0.2 0.02 255);
-    --color-text-foreground: oklch(0.975 0.005 255);
+    --color-text-foreground: oklch(0.975 0 0);
     --color-text-secondary: oklch(0.55 0.015 255);
     --color-text-placeholder: oklch(0.65 0.015 255);
 

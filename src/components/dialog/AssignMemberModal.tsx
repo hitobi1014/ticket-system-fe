@@ -48,6 +48,7 @@ const ColGroup = () => (
     ))}
   </colgroup>
 );
+const TABLE_MEMBER_HEADERS = ['순서', '순위', '파트', '이름', '잔여티켓'];
 
 export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) {
   const { floors, assignSeat, unAssignSeat } = useFloorStore();
@@ -128,12 +129,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const sortedMemberFromRemainSeat = getAssignableMember(members, assignedCountMap);
 
   return (
-    <DialogContent className="bg-secondary text-primary">
+    <DialogContent>
       <DialogHeader>
-        <DialogTitle className="text-lg">좌석배정</DialogTitle>
-        <DialogDescription className="text-secondary">{modalTitle['N']}</DialogDescription>
+        <DialogTitle className="text-primary text-lg font-semibold">좌석배정</DialogTitle>
+        <DialogDescription>{modalTitle['N']}</DialogDescription>
       </DialogHeader>
-      <Separator className="bg-accent" />
+      <Separator />
       {/* 선택한 좌석 */}
       <div className="flex flex-col gap-2">
         <div className="no-scrollbar flex max-h-24 flex-wrap gap-1 overflow-y-auto">
@@ -149,12 +150,9 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
             return (
               <span
                 key={seatId}
-                className={clsx(
+                className={cn(
                   'flex items-center gap-1 rounded px-2 py-1 text-xs whitespace-nowrap',
-                  {
-                    'bg-destructive text-danger font-bold': memberName,
-                    'bg-accent text-primary': !memberName,
-                  },
+                  memberName ? 'bg-secondary text-text-foreground font-semibold' : 'bg-accent',
                 )}
               >
                 {memberName && <TriangleAlert size={12} />}
@@ -164,43 +162,31 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           })}
         </div>
         {overwriteCount > 0 && (
-          <div className="flex items-center gap-2 rounded bg-amber-100 px-3 py-2 text-xs font-bold text-amber-800">
+          <div className="bg-danger text-text-foreground flex items-center gap-2 rounded px-3 py-2 text-xs font-semibold">
             <TriangleAlert size={14} />
             배정된 좌석 {overwriteCount}개가 포함되어 있습니다. 덮어씁니다.
           </div>
         )}
       </div>
       {/* ✅ 회원 목록: 잔여 좌석이 남은 회원만 표기 */}
-      <Separator className="bg-accent" />
+      <Separator />
       <div
         className={clsx('-mx-4 flex max-h-[50vh] flex-col overflow-hidden', {
-          'ring-2 ring-red-400': hasMemberEmpty,
+          'ring-danger ring-2': hasMemberEmpty,
         })}
       >
-        <h5 className="text-secondary mb-2 px-4 text-sm font-bold">회원 목록</h5>
+        <header className="text-primary mb-2 px-4 text-base font-semibold">회원 목록</header>
         {/* 테이블 wrapper - flex-col로 헤더/바디 분리 */}
         <div className="flex flex-1 flex-col overflow-hidden">
           {/* 헤더 고정 */}
           <div className="shrink-0 overflow-hidden">
-            <Table className="bg-secondary" style={{ tableLayout: 'fixed' }}>
+            <Table style={{ tableLayout: 'fixed' }}>
               <ColGroup />
               <TableHeader>
                 <TableRow>
-                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
-                    순서
-                  </TableHead>
-                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
-                    순위
-                  </TableHead>
-                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
-                    파트
-                  </TableHead>
-                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
-                    이름
-                  </TableHead>
-                  <TableHead className="border-b-secondary border-b text-center text-gray-300">
-                    잔여티켓
-                  </TableHead>
+                  {TABLE_MEMBER_HEADERS.map((header) => (
+                    <TableHead className="text-center">{header}</TableHead>
+                  ))}
                 </TableRow>
               </TableHeader>
             </Table>
@@ -208,10 +194,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
-            <Table
-              className="bg-secondary text-primary"
-              style={{ tableLayout: 'fixed' }}
-            >
+            <Table style={{ tableLayout: 'fixed' }}>
               <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {sortedMemberFromRemainSeat.map((mem) => (
@@ -219,7 +202,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
                     key={mem.id}
                     className={cn(
                       'cursor-pointer text-center',
-                      isAssignMemberSelected === mem.id && 'bg-accent text-primary',
+                      isAssignMemberSelected === mem.id && 'bg-accent text-primary font-semibold',
                       hasEnoughRemainingTickets(mem) && 'hover:bg-accent',
                       !hasEnoughRemainingTickets(mem) && 'cursor-not-allowed opacity-40',
                     )}
@@ -240,12 +223,12 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
           </div>
         </div>
       </div>
-      <DialogFooter className="bg-secondary border-t-accent">
+      <DialogFooter>
         <div
-          className={clsx('flex w-full gap-2', {
-            'justify-between': isVisibleCancelButton,
-            'justify-end': !isVisibleCancelButton,
-          })}
+          className={cn(
+            'flex w-full gap-2',
+            isVisibleCancelButton ? 'justify-between' : 'justify-end',
+          )}
         >
           {isVisibleCancelButton && (
             <Button variant="cancel" size="base" onClick={() => handleCancel()}>

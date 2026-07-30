@@ -19,6 +19,7 @@ import {
   useTransformEffect,
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
+import { pageContentClass } from '@/constant/styles.ts';
 
 function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
   useTransformEffect((state) => {
@@ -198,7 +199,7 @@ export default function FloorSetupPage() {
   ];
 
   return (
-    <div className="flex h-full flex-col overflow-hidden">
+    <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />
       <Tabs
@@ -212,13 +213,9 @@ export default function FloorSetupPage() {
       >
         <div className="flex items-center justify-between">
           {/* 1층 탭바 */}
-          <TabsList className="flex gap-x-2">
+          <TabsList variant="default">
             {floors.map((floor) => (
-              <TabsTrigger
-                key={floor.id}
-                value={String(floor.id)}
-                className="data-[state=active]:text-primary hover:text-secondary cursor-pointer rounded-none border-b-2 border-transparent text-base data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-              >
+              <TabsTrigger variant="default" key={floor.id} value={String(floor.id)}>
                 {floor.name}
               </TabsTrigger>
             ))}
@@ -327,7 +324,7 @@ export default function FloorSetupPage() {
                   <span>숨긴 좌석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <span className="bg-primary flex h-6 w-6 shrink-0 rounded-md" />
+                  <span className="border-primary flex h-6 w-6 shrink-0 rounded-md border" />
                   <span>배정 가능 석</span>
                 </div>
               </div>
