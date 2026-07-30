@@ -96,7 +96,7 @@ export default function MembersPage() {
       confirm: {
         title: '회원 목록 가져오기',
         description: (
-          <AlertDialogDescription className="text-secondary whitespace-pre-line">
+          <AlertDialogDescription className="text-danger font-semibold whitespace-pre-line">
             출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. {'\n'}💡목록에 없는 회원은 삭제됩니다.
           </AlertDialogDescription>
         ),

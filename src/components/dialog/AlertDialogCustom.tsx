@@ -48,12 +48,12 @@ export default function AlertDialogCustom({
           {triggerText}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-primary">
+      <AlertDialogContent>
         <AlertDialogHeader className="text-primary">
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description}
         </AlertDialogHeader>
-        <AlertDialogFooter className="bg-primary border-t-secondary">
+        <AlertDialogFooter className="border-t-secondary">
           <AlertDialogCancel variant={variant} size={size}>
             닫기
           </AlertDialogCancel>

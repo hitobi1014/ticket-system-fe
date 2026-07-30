@@ -24,7 +24,7 @@ export default function Row({
     <div
       key={row.id}
       className={clsx('flex items-center gap-x-2', {
-        'rounded-lg bg-mist-500': isSelected,
+        'bg-secondary/25 rounded-lg': isSelected,
       })}
       onClick={(e) => {
         e.stopPropagation();
@@ -44,15 +44,12 @@ export default function Row({
               <div key={seat.id} className="flex items-center">
                 <Button
                   className={cn(
-                    'h-8 w-8 border-0 text-sm',
-                    !isVisible && 'bg-destructive border-0 text-transparent opacity-15',
-                    isVisible && 'bg-primary text-primary',
-                    seat.assignedMemberId != null && 'pointer-events-none bg-red-400',
-                    isSeatSelected && isEditMode && isVisible && 'ring-2 ring-blue-500',
-                    isSeatSelected &&
-                      isEditMode &&
-                      !isVisible &&
-                      'ring-danger opacity-80 ring-2',
+                    'text-primary h-8 w-8 border-0 bg-transparent text-sm',
+                    !isVisible && 'bg-danger/50',
+                    isVisible && seat.assignedMemberId == null && 'border-primary border',
+                    seat.assignedMemberId != null && 'bg-success text-muted pointer-events-none',
+                    isSeatSelected && isEditMode && isVisible && 'border-0 ring-2 ring-red-500',
+                    isSeatSelected && isEditMode && !isVisible && 'ring-danger opacity-80 ring-2',
                   )}
                   onClick={(e) => {
                     if (isEditMode && onSeatClick && seat.assignedMemberId == null) {

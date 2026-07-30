@@ -45,9 +45,12 @@ export default function SectionCard({
   };
 
   const handleAddRow = async (sectionId: number) => {
+    // TODO Alert Dialog로 변경하기
     const rowName = window.prompt('추가 할 열 이름을 입력해주세요.');
     if (rowName === null || rowName === '') {
-      alert(`열 이름을 다시 확인해주세요. 빈 값은 입력할 수 없습니다. \n 입력한 값: ${rowName}`);
+      toast.warning(
+        `열 이름을 다시 확인해주세요. 빈 값은 입력할 수 없습니다. \n 입력한 값: ${rowName}`,
+      );
       return;
     }
 
@@ -77,12 +80,12 @@ export default function SectionCard({
    */
   const handleAddSeat = async () => {
     if (selectedRowId === null) {
-      toast.error('선택된 row가 없습니다.');
+      toast.warning('선택된 row가 없습니다.');
       return;
     }
     const addSeatCount = Number(window.prompt('추가하실 좌석 수를 입력해주세요'));
     if (isNaN(addSeatCount) || addSeatCount === 0) {
-      alert(
+      toast.warning(
         `입력값이 올바르지 않습니다. 1개 이상의 좌석수를 입력해주세요 \n 입력값 :${addSeatCount}`,
       );
       return;
@@ -101,7 +104,7 @@ export default function SectionCard({
 
   const handleRemoveSeat = async (removeSeatCnt: number) => {
     if (selectedRowId == null) {
-      toast.error('선택된 row가 없습니다. 열을 선택하고 다시시도해주세요.');
+      toast.warning('선택된 row가 없습니다. 열을 선택하고 다시시도해주세요.');
       return;
     }
 
@@ -114,7 +117,7 @@ export default function SectionCard({
 
   const handleToggleSeatVisible = async () => {
     if (selectedSeatIds.size === 0) {
-      toast.error('선택된 좌석이 없습니다.');
+      toast.warning('선택된 좌석이 없습니다.');
       return;
     }
 
@@ -146,32 +149,29 @@ export default function SectionCard({
   // 열 편집 버튼
   const sectionEditButtons: ButtonItem[] = [
     {
-      variant: 'secondary',
       text: '열 추가',
       size: 'xs',
       icon: <IconPlus stroke={2} />,
-      onClick: () => {
-        handleAddRow(item.id);
+      onClick: async () => {
+        await handleAddRow(item.id);
       },
     },
     {
-      variant: 'secondary',
       text: '열 삭제',
       size: 'xs',
       icon: <IconMinus stroke={2} />,
       disabled: selectedRowId === undefined,
-      onClick: () => {
-        handleRemoveRow(selectedRowId!);
+      onClick: async () => {
+        await handleRemoveRow(selectedRowId!);
       },
     },
     {
-      variant: 'secondary',
       text: '좌석 추가',
       size: 'xs',
       icon: <IconArmchair stroke={2} />,
       disabled: selectedRowId === undefined,
-      onClick: () => {
-        handleAddSeat();
+      onClick: async () => {
+        await handleAddSeat();
       },
     },
     {
@@ -181,7 +181,6 @@ export default function SectionCard({
           title="좌석 삭제"
           buttonText="좌석 삭제"
           icon={<IconTrash stroke={2} />}
-          variant="secondary"
           size="xs"
           disabled={selectedRowId === undefined}
           rowId={selectedRowId ?? undefined}
@@ -193,7 +192,6 @@ export default function SectionCard({
       ),
     },
     {
-      variant: 'secondary',
       text: `빈 좌석 ${selectedSeatIds.size > 0 ? `(${selectedSeatIds.size})` : '설정'}`,
       size: 'xs',
       icon: <IconEyeOff stroke={2} />,
@@ -210,13 +208,13 @@ export default function SectionCard({
           handleSelectAisle(item.id);
         }}
         className={clsx(
-          'text-primary bg-secondary flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
+          'flex cursor-pointer items-center justify-center self-stretch rounded-md px-3',
           {
             'ring-ring ring-2': selectedAisleId === item.id,
           },
         )}
       >
-        <div className="h-2/4 w-px bg-mist-500" />
+        <div className="bg-primary h-2/4 w-px" />
       </div>
     );
   }
@@ -229,7 +227,7 @@ export default function SectionCard({
         e.stopPropagation();
         handleSelectSection(item.id);
       }}
-      className={clsx('bg-secondary text-primary flex flex-col gap-y-2 rounded-md p-4', {
+      className={clsx('bg-card flex flex-col gap-y-2 rounded-md p-4', {
         'ring-ring ring-2': selectedSectionId === item.id,
       })}
     >

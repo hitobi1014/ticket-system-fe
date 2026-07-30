@@ -29,6 +29,7 @@ import {
 import { clsx } from 'clsx';
 import useFloorStore from '@/store/floorStore.ts';
 import CustomSpinner from '@/components/common/CustomSpinner.tsx';
+import { cn } from '@/lib/utils.ts';
 
 interface Props {
   floorId: number;
@@ -106,27 +107,31 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
 
   // content-3
   const MAX_VISIBLE = 16; // 보여줄 최대 박스 수
+  const seatBoxClass = cn(
+    'flex h-5 w-5 items-center justify-center rounded-sm border text-center text-sm',
+  );
+
   const renderSeatBoxes = (count: number) => {
     if (count <= MAX_VISIBLE) {
       return Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="w-5 h-5 bg-secondary rounded-sm text-center text-sm">
+        <div key={i} className={cn(seatBoxClass)}>
           {i + 1}
         </div>
       ));
     }
 
     const front = Array.from({ length: MAX_VISIBLE - 2 }).map((_, i) => (
-      <div key={i} className="w-5 h-5 bg-secondary rounded-sm text-center text-sm">
+      <div key={i} className={cn(seatBoxClass)}>
         {i + 1}
       </div>
     ));
 
     return [
       ...front,
-      <div key="ellipsis" className="w-5 h-5 text-secondary text-center text-sm">
+      <div key="ellipsis" className="text-secondary h-5 w-5 text-center text-sm">
         ...
       </div>,
-      <div key="last" className="w-5 h-5 bg-secondary rounded-sm text-center text-sm">
+      <div key="last" className={cn(seatBoxClass)}>
         {count}
       </div>,
     ];
@@ -135,44 +140,38 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="secondary" size="base">
+        <Button size="base">
           <IconPlus stroke={2} />
           구역 추가
         </Button>
       </DialogTrigger>
 
       {/* 컨텐트 시작 */}
-      <DialogContent className="bg-secondary min-w-150">
+      <DialogContent className="min-w-150">
         <DialogHeader className="pt-8">
           <DialogTitle className="text-primary flex items-center gap-x-2">
             {/* 스텝 프로그레스 */}
             <div className="flex flex-1 gap-x-2">
               <div
-                className={clsx(
-                  'h-1 flex-1 rounded-full',
-                  step >= 1 ? 'bg-mist-50' : 'bg-mist-500',
-                )}
+                className={clsx('h-1 flex-1 rounded-full', step >= 1 ? 'bg-primary' : 'bg-muted')}
               />
               <div
-                className={clsx(
-                  'h-1 flex-1 rounded-full',
-                  step >= 2 ? 'bg-mist-50' : 'bg-mist-500',
-                )}
+                className={clsx('h-1 flex-1 rounded-full', step >= 2 ? 'bg-primary' : 'bg-muted')}
               />
             </div>
           </DialogTitle>
           {step === 1 ? (
             /* ✅ STEP01 CONTENT */
             <div>
-              <h3 className="text-primary text-base">구역 추가</h3>
-              <DialogDescription className="text-mist-400">
+              <header className="text-primary text-lg font-semibold">구역 추가</header>
+              <DialogDescription className="text-secondary font-semibold">
                 구역 기본 정보를 입력하세요
               </DialogDescription>
             </div>
           ) : (
             <div>
-              <h3 className="text-primary text-base">구역 추가-열 상세 설정</h3>
-              <DialogDescription className="text-mist-400">
+              <header className="text-primary text-lg font-semibold">구역 추가-열 상세 설정</header>
+              <DialogDescription className="text-secondary font-semibold">
                 각 열의 좌석 수를 조정하세요. 기본값은12석입니다.
               </DialogDescription>
             </div>
@@ -180,7 +179,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
         </DialogHeader>
 
         {step === 1 ? (
-          <div className="text-primary">
+          <div>
             <FieldGroup>
               {/*필드1: 구역명*/}
               <div className="flex gap-x-4">
@@ -191,7 +190,6 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                     aria-label="section-name"
                     value={sectionName}
                     onChange={(e) => setSectionName(e.target.value)}
-                    className="bg-primary border-0"
                     type="triggerText"
                     placeholder="구역명을 입력해주세요."
                   />
@@ -204,10 +202,10 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                       setSelectRowId(v === 'new' ? 'new' : Number(v));
                     }}
                   >
-                    <SelectTrigger className="w-45 bg-primary text-primary border-0">
+                    <SelectTrigger className="w-45">
                       <SelectValue placeholder="new" />
                     </SelectTrigger>
-                    <SelectContent className="bg-primary text-primary">
+                    <SelectContent>
                       <SelectGroup>
                         <SelectItem value="new">새 열 추가</SelectItem>
                         {floors
@@ -221,9 +219,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                       </SelectGroup>
                     </SelectContent>
                   </Select>
-                  <FieldDescription className="text-secondary text-xs">
-                    이 구역이 배치될 열 위치
-                  </FieldDescription>
+                  <FieldDescription className="text-xs">이 구역이 배치될 열 위치</FieldDescription>
                 </Field>
               </div>
 
@@ -237,11 +233,11 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                     aria-label="col-count"
                     value={rowCount}
                     onChange={(e) => setRowCount(Number(e.target.value))}
-                    className="bg-primary border-0 no-spinners"
+                    className="no-spinners"
                     type="number"
                     placeholder="열의 수를 입력해주세요."
                   />
-                  <FieldDescription className="text-secondary text-xs">
+                  <FieldDescription className="text-xs">
                     구역에 배치할 열의 수 ex) 가구역 10열
                   </FieldDescription>
                 </Field>
@@ -252,13 +248,11 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                     aria-label="base-seat-count"
                     value={defaultSeatCount}
                     onChange={(e) => setDefaultSeatCount(Number(e.target.value))}
-                    className="bg-primary border-0 no-spinners"
+                    className="no-spinners"
                     type="number"
                     placeholder="좌석수를 입력해주세요"
                   />
-                  <FieldDescription className="text-secondary text-xs">
-                    열 기본 좌석 수
-                  </FieldDescription>
+                  <FieldDescription className="text-xs">열 기본 좌석 수</FieldDescription>
                 </Field>
               </div>
               <div className="flex items-center gap-x-4">
@@ -275,10 +269,10 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                       }
                     }}
                   >
-                    <SelectTrigger className="w-45 bg-primary text-primary border-0">
+                    <SelectTrigger className="w-45">
                       <SelectValue placeholder="선택" />
                     </SelectTrigger>
-                    <SelectContent className="bg-primary text-primary">
+                    <SelectContent>
                       <SelectGroup>
                         <SelectItem value="number">숫자(1,2,3...)</SelectItem>
                         <SelectItem value="alpha">알파벳(A,B,C...)</SelectItem>
@@ -292,7 +286,6 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                   </FieldLabel>
                   <Input
                     aria-label="start-value"
-                    className="bg-primary border-0"
                     type="triggerText"
                     value={startValue}
                     onChange={(e) => setStartValue(e.target.value)}
@@ -305,7 +298,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                 {previewDisplay.map((v, i) => (
                   <span
                     key={i}
-                    className="bg-accent text-primary px-2 py-0.5 rounded text-xs"
+                    className="bg-secondary text-text-foreground rounded px-2 py-0.5 text-xs"
                   >
                     {v === '...' ? '...' : `${v}열`}
                   </span>
@@ -313,17 +306,17 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
               </div>
 
               {/*구역명, 열 수, 예상좌석 표기*/}
-              <div className="bg-primary flex justify-between text-center px-4 py-2 rounded-md">
+              <div className="flex justify-between rounded-md px-4 py-2 text-center">
                 <div>
-                  <p className="text-secondary text-xs">구역명</p>
+                  <p className="text-secondary text-sm font-semibold">구역명</p>
                   <p className="text-base">{sectionName}</p>
                 </div>
                 <div>
-                  <p className="text-secondary text-xs">열 수</p>
+                  <p className="text-secondary text-sm font-semibold">열 수</p>
                   <p className="text-base">{rowCount}열</p>
                 </div>
                 <div>
-                  <p className="text-secondary text-xs">예상 좌석</p>
+                  <p className="text-secondary text-sm font-semibold">예상 좌석</p>
                   <p className="text-base">{rowCount * defaultSeatCount}석</p>
                 </div>
               </div>
@@ -333,31 +326,31 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
           /* ✅ STEP02 CONTENT */
           <div className="flex flex-col gap-y-2">
             {/* step02-content-01*/}
-            <div className="text-primary bg-primary flex gap-x-4 px-4 py-2 rounded-md">
-              <div className="flex gap-x-1">
-                <p className="text-mist-400">구역</p>
-                <p className="font-bold">{sectionName}</p>
+            <div className="flex gap-x-1 rounded-md py-2">
+              <div className="text-muted bg-secondary flex gap-x-1 rounded-md px-2">
+                <p>구역:</p>
+                <p>{sectionName}</p>
               </div>
-              <div className="flex gap-x-1">
-                <p className="text-mist-400">열 수</p>
-                <p className="font-bold">{rowCount}열</p>
+              <div className="text-muted bg-secondary flex gap-x-1 rounded-md px-2">
+                <p>열:</p>
+                <p>{rowCount}열</p>
               </div>
-              <div className="flex gap-x-1">
-                <p className="text-mist-400">형식</p>
-                <p className="font-bold">{rowNameType === 'number' ? '숫자' : '알파벳'}</p>
+              <div className="text-muted bg-secondary flex gap-x-1 rounded-md px-2">
+                <p>형식:</p>
+                <p>{rowNameType === 'number' ? '숫자' : '알파벳'}</p>
               </div>
             </div>
             {/* step02-content-02*/}
-            <div className="bg-primary text-primary flex justify-between items-center px-4 py-2 rounded-md">
-              <div className="flex h-full gap-x-4 items-center">
-                <p className="text-secondary text-xs">전체 일괄 적용</p>
+            <div className="flex items-center justify-between rounded-md py-2">
+              <div className="flex h-full items-center gap-x-4">
+                <p className="text-sm">전체 일괄 적용</p>
                 <Input
                   type="number"
                   aria-label="seat-count"
                   min={1}
                   value={bulkCount}
                   onChange={(e) => setBulkCount(parseInt(e.target.value) || 0)}
-                  className="bg-secondary w-16 h-7 rounded-md no-spinners"
+                  className="no-spinners h-7 w-16 rounded-md text-center"
                 />
                 <Button
                   variant="dialog"
@@ -371,20 +364,17 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                   전체 적용
                 </Button>
               </div>
-              <p className="text-secondary text-xs">개별 수정도 가능</p>
+              <p className="text-warning text-xs">개별 수정도 가능</p>
             </div>
             {/* step02-content-03*/}
-            <div className="flex flex-col gap-y-1 text-primary">
+            <div className="flex flex-col gap-y-1">
               {rowConfigs.map((config, i) => (
-                <div
-                  key={i}
-                  className="flex items-center gap-x-3 bg-primary rounded-md px-2 py-1"
-                >
-                  <p className="w-8 text-secondary">{config.name}열</p>
+                <div key={i} className="flex items-center gap-x-3 rounded-md border px-2 py-1">
+                  <p className="w-8 text-center">{config.name}열</p>
                   <div className="flex gap-x-2">
                     <Button
                       variant="dialog"
-                      className="w-6 h-6"
+                      className={cn('border-border h-6 w-6')}
                       onClick={() =>
                         setRowConfigs((prev) =>
                           prev.map((row, idx) =>
@@ -407,11 +397,11 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
                           ),
                         )
                       }
-                      className="bg-secondary w-12 h-6 text-center text-sm no-spinners"
+                      className="no-spinners h-6 w-12 text-center text-sm"
                     />
                     <Button
                       variant="dialog"
-                      className="w-6 h-6"
+                      className={cn('border-border h-6 w-6')}
                       onClick={() =>
                         setRowConfigs((prev) =>
                           prev.map((row, idx) =>
@@ -429,9 +419,9 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
             </div>
           </div>
         )}
-        <DialogFooter className="bg-secondary border-0 pb-2.5">
+        <DialogFooter className="pb-2.5">
           <div
-            className={clsx('w-full flex items-center gap-x-2', {
+            className={clsx('flex w-full items-center gap-x-2', {
               'justify-between': step === 2,
               'justify-end': step === 1,
             })}

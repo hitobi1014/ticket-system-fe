@@ -188,7 +188,7 @@ export default function FloorSetupPage() {
         triggerText: '층 삭제',
         title: '층 삭제 확인',
         description: (
-          <AlertDialogDescription className="text-secondary whitespace-pre-line">
+          <AlertDialogDescription className="whitespace-pre-line">
             선택한 층 [{selectedFloor?.name}]을 삭제하시겠습니까?
           </AlertDialogDescription>
         ),
@@ -198,7 +198,7 @@ export default function FloorSetupPage() {
   ];
 
   return (
-    <div className="bg-primary flex h-full flex-col overflow-hidden">
+    <div className="flex h-full flex-col overflow-hidden">
       {/*상단 버튼 그룹*/}
       <FunctionButtons buttons={floorButtons} />
       <Tabs
@@ -212,12 +212,12 @@ export default function FloorSetupPage() {
       >
         <div className="flex items-center justify-between">
           {/* 1층 탭바 */}
-          <TabsList className="flex gap-x-2 bg-transparent">
+          <TabsList className="flex gap-x-2">
             {floors.map((floor) => (
               <TabsTrigger
                 key={floor.id}
                 value={String(floor.id)}
-                className="text-primary data-[state=active]:text-primary cursor-pointer rounded-none border-b-2 border-transparent text-base hover:text-amber-300 data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                className="data-[state=active]:text-primary hover:text-secondary cursor-pointer rounded-none border-b-2 border-transparent text-base data-[state=active]:border-b-white data-[state=active]:bg-transparent data-[state=active]:shadow-none"
               >
                 {floor.name}
               </TabsTrigger>
@@ -235,22 +235,20 @@ export default function FloorSetupPage() {
               <IconZoomIn stroke={1.5} size={18} />
             </Button>
             {showZoomDropdown && (
-              <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
+              <div className="bg-popover text-primary border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-accent"
                   onClick={() => activeTransform?.zoomOut(0.25)}
                 >
                   <IconMinus stroke={2} size={14} />
                 </Button>
-                <span className="text-accent w-10 text-center text-xs tabular-nums">
+                <span className="w-10 text-center text-xs tabular-nums">
                   {Math.round(currentScale * 100)}%
                 </span>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="text-accent"
                   onClick={() => activeTransform?.zoomIn(0.25)}
                 >
                   <IconPlus stroke={2} size={14} />
@@ -284,7 +282,6 @@ export default function FloorSetupPage() {
 
                   <Button
                     size="base"
-                    variant="secondary"
                     onClick={handleRemoveSection}
                     disabled={selectedSectionId === null}
                   >
@@ -292,15 +289,14 @@ export default function FloorSetupPage() {
                     구역 삭제
                   </Button>
                 </div>
-                <div className="mx-1 my-1.5 w-0.5 self-stretch bg-mist-400" />
+                <div className="bg-muted-foreground mx-1 my-1.5 w-0.5 self-stretch" />
                 <div className="flex justify-end gap-x-2">
                   <AlertDialogCustom
-                    variant="secondary"
                     size="base"
                     title="통로 추가"
                     triggerText="통로 추가"
                     description={
-                      <AlertDialogDescription className="text-secondary whitespace-pre-line">
+                      <AlertDialogDescription className="whitespace-pre-line">
                         선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
                       </AlertDialogDescription>
                     }
@@ -310,9 +306,9 @@ export default function FloorSetupPage() {
                     ]}
                     icon={<IconLayoutColumns stroke={2} />}
                     disabled={selectedSectionId === null}
+                    variant={'default'}
                   />
                   <Button
-                    variant="secondary"
                     size="base"
                     onClick={handleRemoveAisle}
                     disabled={selectedAisleId === null}
@@ -321,18 +317,18 @@ export default function FloorSetupPage() {
                   </Button>
                 </div>
               </div>
-              <div className="bg-secondary flex gap-x-4 p-2">
+              <div className="flex gap-x-4 p-2">
                 <div className="flex items-center gap-x-2">
-                  <span className="flex h-6 w-6 shrink-0 rounded-md bg-red-400" />
-                  <span className="text-primary">배정 완료 석</span>
+                  <span className="bg-success flex h-6 w-6 shrink-0 rounded-md" />
+                  <span>배정 완료 석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
-                  <span className="bg-destructive flex h-6 w-6 shrink-0 rounded-md border-0 text-transparent opacity-15" />
-                  <span className="text-primary">숨긴 좌석</span>
+                  <span className="bg-danger/50 flex h-6 w-6 shrink-0 rounded-md border-0" />
+                  <span>숨긴 좌석</span>
                 </div>
                 <div className="flex items-center gap-x-2">
                   <span className="bg-primary flex h-6 w-6 shrink-0 rounded-md" />
-                  <span className="text-primary">배정 가능 석</span>
+                  <span>배정 가능 석</span>
                 </div>
               </div>
             </div>
@@ -340,7 +336,7 @@ export default function FloorSetupPage() {
             {/* 구역 컨텐츠 시작: 구역/통로 */}
             <div
               className={cn(
-                'mt-4 flex min-h-0 flex-1 gap-2 overflow-hidden',
+                'bg-card mt-4 flex min-h-0 flex-1 gap-2 overflow-hidden rounded-md p-4',
                 stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
               )}
             >

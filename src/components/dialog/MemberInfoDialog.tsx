@@ -93,20 +93,17 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   };
 
   return (
-    <DialogContent
-      className="bg-secondary border-primary border sm:max-w-106.25"
-      // onInteractOutside={onClose}
-    >
+    <DialogContent className="border sm:max-w-106.25">
       <DialogHeader>
         {/* 회원 등록/수정 */}
-        <DialogTitle className="text-primary flex items-center gap-x-2">
+        <DialogTitle className="text-primary primary flex items-center gap-x-2 text-lg font-semibold">
           회원 등록
         </DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
 
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
-      <div className="text-primary flex flex-col gap-y-2">
+      <div className="flex flex-col gap-y-2">
         {/* 이름, 악기, 색상*/}
         <div className="flex items-center gap-x-2">
           {/*  이름 */}
@@ -117,7 +114,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               aria-label="name"
               value={form?.name}
               type="triggerText"
-              className="bg-primary border-0"
               placeholder="이름을 입력하세요"
               onChange={(e) => handleChange('name', e.target.value)}
             />
@@ -132,10 +128,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
                 handleChange('instrumentAbbr', v as InstrumentAbbr);
               }}
             >
-              <SelectTrigger className="bg-primary text-primary w-45 border-0">
+              <SelectTrigger className="w-45">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-primary text-primary">
+              <SelectContent>
                 <SelectGroup>
                   {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
                     <SelectItem key={abbr} value={abbr}>
@@ -176,7 +172,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               id="allow-ticket-input"
               aria-label="allow-ticket-input"
               type="number"
-              className="bg-primary no-spinners border-0"
+              className="no-spinners"
               min={0}
               max={getUnallocatedTickedCount()}
               value={form?.allocatedTickets}
@@ -184,7 +180,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
             />
             {assignedSeatCount != null && assignedSeatCount > 0 && (
-              <FieldDescription className="text-destructive text-xs">
+              <FieldDescription className="text-danger text-xs">
                 이미 배정된 좌석({assignedSeatCount})보다 적게 설정할 수 없습니다.
               </FieldDescription>
             )}
@@ -196,7 +192,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               aria-label="assigned-ticket-input"
               readOnly={true}
               value={assignedSeatCount ?? 0}
-              className="bg-accent border-0"
+              className="bg-muted-foreground text-muted border-0"
             />
           </Field>
         </div>
@@ -204,7 +200,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
 
       <DialogFooter
         className={cn(
-          'bg-secondary flex pb-2.5',
+          'flex pb-2.5',
           isEditMode && 'justify-between!',
           !isEditMode && 'justify-end!',
         )}
@@ -217,10 +213,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             title={'확인'}
             description={
               <>
-                <AlertDialogDescription className="text-secondary whitespace-pre-line">
+                <AlertDialogDescription className="text-danger whitespace-pre-line">
                   [{form.name}]님을 목록에서 제거 하시겠습니까?
                 </AlertDialogDescription>
-                <AlertDialogDescription className="text-destructive mt-2">
+                <AlertDialogDescription className="text-danger mt-2">
                   <p className="font-bold">⚠️ 주의: 이 작업은 되돌릴 수 없습니다.</p>
                   {assignedSeatCount != null && assignedSeatCount > 0 && (
                     <p className="text-xs">배정 완료된 좌석({assignedSeatCount}석)도 삭제됩니다.</p>

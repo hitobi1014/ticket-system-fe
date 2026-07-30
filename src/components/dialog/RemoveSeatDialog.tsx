@@ -21,7 +21,7 @@ interface Props {
   title: string;
   buttonText: string;
   icon?: React.ReactNode;
-  variant: VariantProps<typeof buttonVariants>['variant'];
+  variant?: VariantProps<typeof buttonVariants>['variant'];
   size: VariantProps<typeof buttonVariants>['size'];
   disabled?: boolean;
   sectionName: string;

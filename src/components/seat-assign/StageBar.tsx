@@ -11,7 +11,7 @@ export default function StageBar({ position }: StageBarProps) {
   return (
     <div
       className={cn(
-        'bg-blue-900 text-white rounded-md flex items-center justify-center text-sm font-medium shrink-0',
+        'bg-primary text-text-foreground flex shrink-0 items-center justify-center rounded-md text-sm font-medium',
         isVertical ? 'w-10 self-stretch [writing-mode:vertical-rl]' : 'h-10 w-full',
       )}
     >
