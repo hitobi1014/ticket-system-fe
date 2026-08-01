@@ -11,6 +11,8 @@ import {
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
 import SeatMinimap from '@/components/seat/SeatMinimap';
+import AisleDivider from '@/components/seat/AisleDivider.tsx';
+import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 
 interface SeatGridProps {
   floor: Floor;
@@ -51,17 +53,12 @@ export default function SeatGrid({
     <div key={floorRow.id} className="flex gap-x-4 py-2">
       {floorRow.items.map((item) =>
         item.kind === 'aisle' ? (
-          <div
-            key={`${item.kind}-${item.id}`}
-            className="text-primary bg-secondary flex items-center justify-center self-stretch rounded-md px-3"
-          >
-            <div className="bg-accent h-2/4 w-px" />
-          </div>
+          <AisleDivider />
         ) : (
           <div
             key={item.id}
             className={cn(
-              'bg-secondary text-primary flex flex-col gap-y-2 rounded-md p-4',
+              seatSectionClass,
               (highlightColorMap?.size ?? 0) > 0 &&
                 item.rows.some((row) =>
                   row.seats.some(
@@ -99,10 +96,10 @@ export default function SeatGrid({
                     <div
                       key={seat.id}
                       className={cn(
+                        emptySeatClass,
                         'flex h-10 w-10 items-center justify-center rounded-md text-sm',
-                        isVisible && 'bg-primary text-primary border',
-                        !isVisible &&
-                          'pointer-events-none border-0 bg-transparent text-transparent',
+                        seat.assignedMemberId != null && 'border-0',
+                        !isVisible && hideSeatClass,
                         isPulsing && 'animate-pulse',
                       )}
                       style={{

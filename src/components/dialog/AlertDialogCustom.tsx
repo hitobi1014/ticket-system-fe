@@ -43,7 +43,12 @@ export default function AlertDialogCustom({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} disabled={disabled} onClick={(e) => e.stopPropagation()}>
+        <Button
+          variant={variant}
+          size={size}
+          disabled={disabled}
+          onClick={(e) => e.stopPropagation()}
+        >
           {icon}
           {triggerText}
         </Button>

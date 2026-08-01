@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button.tsx';
 import type { Rows } from '@/types';
 import { clsx } from 'clsx';
 import { cn } from '@/lib/utils.ts';
+import { emptySeatClass } from '@/constant/styles.ts';
 
 interface RowProps {
   row: Rows;
@@ -43,10 +44,11 @@ export default function Row({
               <div key={seat.id} className="flex items-center">
                 <Button
                   className={cn(
-                    'text-primary h-8 w-8 border-0 bg-transparent text-sm',
-                    !isVisible && 'bg-danger/50',
-                    isVisible && seat.assignedMemberId == null && 'border-primary border',
-                    seat.assignedMemberId != null && 'bg-success text-muted pointer-events-none',
+                    emptySeatClass,
+                    'h-8 w-8',
+                    !isVisible && 'bg-danger/50 border-0',
+                    seat.assignedMemberId != null &&
+                      'bg-success text-muted pointer-events-none border-0',
                     isSeatSelected && isEditMode && isVisible && 'bg-success/50 border-0',
                     isSeatSelected && isEditMode && !isVisible && 'ring-danger opacity-80 ring-2',
                   )}

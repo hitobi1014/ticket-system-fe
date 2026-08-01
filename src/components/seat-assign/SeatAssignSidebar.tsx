@@ -7,6 +7,7 @@ import { getAssignableMember, getRemainTickets } from '@/lib/seatUtils.ts';
 import type { Member } from '@/types';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useScrollHint } from '@/hooks/use-scroll-hint.ts';
+import { cn } from '@/lib/utils.ts';
 
 export default function SeatAssignSidebar() {
   const { getRemainSeatCount } = useFloorStore();
@@ -24,8 +25,11 @@ export default function SeatAssignSidebar() {
     sortedMemberFromRemainSeat.length,
   ]);
 
+  const scrollClass = cn('pointer-events-none absolute inset-x-0 flex justify-center');
+  const scrollIconClass = 'bg-primary text-text-foreground rounded-full p-0.5 shadow';
+
   return (
-    <div className="bg-card border-accent p-y flex h-full w-44 flex-none flex-col border-l pl-4">
+    <div className="bg-card border-accent flex h-full flex-none flex-col border-l px-6 py-3">
       <header className="shrink-0 rounded-lg py-2">
         <p className="text-secondary">잔여 좌석</p>
         <p className="text-primary font-bold">{getRemainSeatCount()}</p>
@@ -63,27 +67,22 @@ export default function SeatAssignSidebar() {
                     {member.name}
                   </p>
                 </div>
-                <p
-                  className={clsx('min-w-6 rounded px-2 py-0.5 text-center text-sm', {
-                    'bg-destructive text-danger': isRemainTicketZero(member),
-                    'bg-secondary text-primary': !isRemainTicketZero(member),
-                  })}
-                >
+                <p className="min-w-6 rounded px-2 py-0.5 text-center text-sm">
                   {getRemainTickets(member, assignedCountMap)}
                 </p>
               </div>
             ))}
           </div>
           {canScrollUp && (
-            <div className="pointer-events-none absolute inset-x-0 top-0 flex justify-center">
-              <div className="bg-secondary text-secondary rounded-full p-0.5 shadow">
+            <div className={cn(scrollClass, 'top-0')}>
+              <div className={scrollIconClass}>
                 <IconChevronUp size={14} stroke={2} />
               </div>
             </div>
           )}
           {canScrollDown && (
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center">
-              <div className="bg-secondary text-secondary rounded-full p-0.5 shadow">
+            <div className={cn(scrollClass, 'bottom-0')}>
+              <div className={scrollIconClass}>
                 <IconChevronDown size={14} stroke={2} />
               </div>
             </div>

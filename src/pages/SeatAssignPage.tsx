@@ -114,7 +114,6 @@ export default function SeatAssignPage() {
           </div>
         </div>
 
-        {/*<div className="flex min-h-0 flex-1 gap-x-4">*/}
         {/* 좌측 메인 */}
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
           {floors.map((floor) => (

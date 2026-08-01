@@ -5,7 +5,7 @@ import { useRef } from 'react';
 import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
-import { seatSectionClass } from '@/constant/styles.ts';
+import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 
 interface AssignRowProps {
   section: Section;
@@ -22,7 +22,6 @@ export default function AssignRow({
   const { members } = useMemberStore();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // 기본값 oklch(98.4% 0.014 180.72)
   const assignedSeatColor = (id: number | null) =>
     members.find((v) => v.id === id)?.color ?? '#f0fdfa';
   const assignedSeatMemberName = (id: number | null) =>
@@ -49,10 +48,11 @@ export default function AssignRow({
                 key={seat.id}
                 ref={triggerRef}
                 className={cn(
-                  'h-10 w-10 border-0 text-xs',
-                  isVisible && 'text-primary',
-                  !isVisible && 'pointer-events-none bg-transparent text-transparent',
-                  selectedSeatIds.has(seat.id) && 'ring-accent ring-2 ring-offset-1',
+                  emptySeatClass,
+                  'h-10 w-10',
+                  !isVisible && hideSeatClass,
+                  seat.assignedMemberId != null && 'border-0',
+                  selectedSeatIds.has(seat.id) && 'border-0 ring-2 ring-red-400 ring-offset-1',
                 )}
                 variant="outline"
                 style={

@@ -1,11 +1,10 @@
 import useFloorStore from '../store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Aisle, ButtonItem, CreateAisleRequest, CreateFloorRequest, Section } from '@/types';
+import type { Aisle, CreateAisleRequest, CreateFloorRequest, Floor, Section } from '@/types';
 import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IconLayoutColumns, IconMinus, IconPlus, IconTrash, IconZoomIn } from '@tabler/icons-react';
-import FunctionButtons from '@/components/common/FunctionButtons.tsx';
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
@@ -19,7 +18,17 @@ import {
   useTransformEffect,
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
-import { pageContentClass } from '@/constant/styles.ts';
+import { headerTitleClass, pageContentClass } from '@/constant/styles.ts';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
   useTransformEffect((state) => {
@@ -29,14 +38,15 @@ function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => vo
 }
 
 export default function FloorSetupPage() {
-  const { floors, addFloor, removeSection, addAisle, removeAisle, removeFloor } = useFloorStore();
-  const { venue } = useVenueStore();
+  const floors = useFloorStore((state) => state.floors);
+  const venue = useVenueStore((state) => state.venue);
+
   const stagePosition = venue?.stagePosition ?? 'front';
   const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
-  const [selectedSectionId, setSelectedSectionId] = useState<number | null>(null);
-  const [selectedAisleId, setSelectedAisleId] = useState<number | null>(null);
-  const [selectedRowId, setSelectedRowId] = useState<number | null>(null);
-  const [addSectionDialogKey, setAddSectionDialogKey] = useState<number>(0);
+  const [selectedSectionId, setSelectedSectionId] = useState<number | undefined>(undefined);
+  const [selectedAisleId, setSelectedAisleId] = useState<number | undefined>(undefined);
+  const [selectedRowId, setSelectedRowId] = useState<number | undefined>(undefined);
+
   const [currentScale, setCurrentScale] = useState(1);
   const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
@@ -75,140 +85,26 @@ export default function FloorSetupPage() {
     },
     [selectedFloorId],
   );
-
   // eslint-disable-next-line react-hooks/refs
   const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
-
   const isMac = navigator.platform.toUpperCase().includes('MAC');
-
-  const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? null;
-  const selectedSection =
-    selectedFloor?.rows
-      .flatMap((r) => r.items)
-      .filter((item): item is Section => item.kind === 'section')
-      .find((x) => x.id === selectedSectionId) ?? null;
-  const selectedFloorRow =
-    selectedFloor?.rows.find((r) =>
-      r.items.some((item) => item.kind === 'section' && item.id === selectedSectionId),
-    ) ?? null;
-
-  const handleAddFloor = async () => {
-    const name = window.prompt('층 이름을 입력하세요.'); // TODO 나중에 모달로 입력 바꾸기
-    if (!name?.trim()) return;
-    const req: CreateFloorRequest = {
-      name: name.trim(),
-    };
-    try {
-      const savedFloor = await addFloor(req);
-      setSelectedFloorId(savedFloor.id);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : '층 추가에 실패했습니다.');
-    }
-  };
-
-  const handleRemoveFloor = async () => {
-    // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
-    if (selectedFloorId == null) return;
-
-    try {
-      await removeFloor(selectedFloorId);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : '층 삭제에 실패했습니다.');
-    }
-
-    toast('층 삭제 성공했습니다.');
-    // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
-    const remaining = floors.filter((f) => f.id !== selectedFloorId);
-    setSelectedFloorId(remaining.length > 0 ? remaining[0].id : undefined);
-  };
-
-  const handleRemoveSection = async () => {
-    if (selectedSectionId === null) return;
-
-    const findItem = selectedFloor?.rows
-      .flatMap((r) => r.items)
-      .find((item): item is Section => item.kind === 'section' && item.id === selectedSectionId);
-    if (!findItem) return;
-
-    const isRemove = window.confirm(`${findItem.name} 구역을 정말 삭제하시겠습니까?`);
-    if (!isRemove) return;
-
-    try {
-      await removeSection(findItem.id);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : '구역 삭제에 실패했습니다.');
-    }
-  };
-
-  const handleAddAisle = async (direction: 'left' | 'right') => {
-    const floorRowId = selectedFloorRow?.id;
-
-    if (selectedFloor == null) return;
-    if (selectedSectionId === null) return;
-    if (floorRowId == null) return;
-
-    const req: CreateAisleRequest = {
-      label: '통로',
-      sectionId: selectedSectionId,
-      floorRowId: floorRowId,
-      direction: direction,
-    };
-
-    try {
-      await addAisle(selectedFloor.id, req);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : '통로 추가에 실패했습니다.');
-    }
-  };
-
-  const handleRemoveAisle = async () => {
-    if (selectedAisleId === null) return;
-
-    const findItem = selectedFloor?.rows
-      .flatMap((r) => r.items)
-      .find((item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId);
-    if (!findItem) return;
-
-    const isRemove = window.confirm(`${findItem.label} 통로 정말 삭제하시겠습니까?`);
-    if (!isRemove) return;
-
-    await removeAisle(findItem.id);
-  };
-
-  const floorButtons: ButtonItem[] = [
-    // TODO 추후 여유있을때 층 추가 Dialog로 변경하기
-    {
-      text: '층 추가',
-      icon: <IconPlus stroke={2} />,
-      onClick: handleAddFloor,
-    },
-    {
-      text: '층 삭제',
-      icon: <IconMinus stroke={2} />,
-      confirm: {
-        triggerText: '층 삭제',
-        title: '층 삭제 확인',
-        description: (
-          <AlertDialogDescription className="whitespace-pre-line">
-            선택한 층 [{selectedFloor?.name}]을 삭제하시겠습니까?
-          </AlertDialogDescription>
-        ),
-        actions: [{ text: '삭제', onClick: handleRemoveFloor }],
-      },
-    },
-  ];
+  const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? undefined;
 
   return (
     <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/*상단 버튼 그룹*/}
-      <FunctionButtons buttons={floorButtons} />
+      <FloorButtons
+        selectedFloorId={selectedFloorId}
+        setSelectedFloorId={setSelectedFloorId}
+        selectedFloor={selectedFloor}
+      />
       <Tabs
         className="flex min-h-0 flex-1 flex-col overflow-hidden"
         value={String(selectedFloorId)}
         onValueChange={(v) => setSelectedFloorId(Number(v))}
         onClick={() => {
-          setSelectedSectionId(null);
-          setSelectedRowId(null);
+          setSelectedSectionId(undefined);
+          setSelectedRowId(undefined);
         }}
       >
         <div className="flex items-center justify-between">
@@ -263,72 +159,14 @@ export default function FloorSetupPage() {
             className="flex min-h-0 flex-1 flex-col overflow-hidden p-0"
           >
             {/* ✅ 구역 기능 버튼 그룹 */}
-            <div className="flex items-center justify-between gap-x-2">
-              <div className="flex shrink-0">
-                <div className="flex justify-end gap-x-2">
-                  <AddSectionDialog
-                    key={addSectionDialogKey}
-                    floorId={floor.id}
-                    onConfirm={() => {
-                      // 구역 추가 완료 시 선택 상태 초기화
-                      setSelectedSectionId(null);
-                      setSelectedRowId(null);
-                      setAddSectionDialogKey((prev) => prev + 1);
-                    }}
-                  />
-
-                  <Button
-                    size="base"
-                    onClick={handleRemoveSection}
-                    disabled={selectedSectionId === null}
-                  >
-                    <IconMinus stroke={2} />
-                    구역 삭제
-                  </Button>
-                </div>
-                <div className="bg-muted-foreground mx-1 my-1.5 w-0.5 self-stretch" />
-                <div className="flex justify-end gap-x-2">
-                  <AlertDialogCustom
-                    size="base"
-                    title="통로 추가"
-                    triggerText="통로 추가"
-                    description={
-                      <AlertDialogDescription className="whitespace-pre-line">
-                        선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
-                      </AlertDialogDescription>
-                    }
-                    actions={[
-                      { text: '← 좌측', onClick: () => handleAddAisle('left') },
-                      { text: '우측 →', onClick: () => handleAddAisle('right') },
-                    ]}
-                    icon={<IconLayoutColumns stroke={2} />}
-                    disabled={selectedSectionId === null}
-                    variant={'default'}
-                  />
-                  <Button
-                    size="base"
-                    onClick={handleRemoveAisle}
-                    disabled={selectedAisleId === null}
-                  >
-                    <IconTrash stroke={2} /> 통로 삭제
-                  </Button>
-                </div>
-              </div>
-              <div className="flex gap-x-4 p-2">
-                <div className="flex items-center gap-x-2">
-                  <span className="bg-success flex h-6 w-6 shrink-0 rounded-md" />
-                  <span>배정 완료 석</span>
-                </div>
-                <div className="flex items-center gap-x-2">
-                  <span className="bg-danger/50 flex h-6 w-6 shrink-0 rounded-md border-0" />
-                  <span>숨긴 좌석</span>
-                </div>
-                <div className="flex items-center gap-x-2">
-                  <span className="border-primary flex h-6 w-6 shrink-0 rounded-md border" />
-                  <span>배정 가능 석</span>
-                </div>
-              </div>
-            </div>
+            <SectionButtons
+              selectedSectionId={selectedSectionId}
+              floor={floor}
+              setSelectedSectionId={setSelectedSectionId}
+              setSelectedRowId={setSelectedRowId}
+              selectedFloor={selectedFloor}
+              selectedAisleId={selectedAisleId}
+            />
 
             {/* 구역 컨텐츠 시작: 구역/통로 */}
             <div
@@ -382,6 +220,249 @@ export default function FloorSetupPage() {
           </TabsContent>
         ))}
       </Tabs>
+    </div>
+  );
+}
+
+interface FloorButtonsProps {
+  selectedFloorId: number | undefined;
+  setSelectedFloorId: (id: number | undefined) => void;
+  selectedFloor: Floor | undefined;
+}
+
+function FloorButtons({ selectedFloorId, setSelectedFloorId, selectedFloor }: FloorButtonsProps) {
+  const addFloor = useFloorStore((state) => state.addFloor);
+  const removeFloor = useFloorStore((state) => state.removeFloor);
+  const floors = useFloorStore((state) => state.floors);
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [floorInfo, setFloorInfo] = useState<string>('');
+
+  const handleAddFloor = async () => {
+    const req: CreateFloorRequest = {
+      name: floorInfo,
+    };
+    try {
+      const savedFloor = await addFloor(req);
+      setSelectedFloorId(savedFloor.id);
+      setFloorInfo('');
+      setIsModalOpen(false);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '층 추가에 실패했습니다.');
+    }
+  };
+
+  const handleRemoveFloor = async () => {
+    // TODO 추후확인 해당 층에  Section 있으면 경고 메시지
+    if (selectedFloorId == null) return;
+
+    try {
+      await removeFloor(selectedFloorId);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '층 삭제에 실패했습니다.');
+    }
+
+    toast.success('층 삭제 성공했습니다.');
+    // 삭제한 층이 현재 선택된 층이면 -> 첫 번째 층으로 이동
+    const remaining = floors.filter((f) => f.id !== selectedFloorId);
+    setSelectedFloorId(remaining.length > 0 ? remaining[0].id : undefined);
+  };
+
+  return (
+    <div className="flex items-center justify-end gap-x-2">
+      <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+        <DialogTrigger>
+          <Button variant="default" size="base">
+            층 추가
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader className={cn(headerTitleClass)}>층 추가</DialogHeader>
+          <DialogDescription>층 이름을 입력하세요</DialogDescription>
+          <Input
+            type={'text'}
+            aria-label="input-floor"
+            onChange={(e) => setFloorInfo(e.target.value.trim())}
+            onKeyDown={async (e) => {
+              if (e.key === 'Enter') {
+                await handleAddFloor();
+              }
+            }}
+            value={floorInfo}
+          />
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="dialog" onClick={() => setIsModalOpen(false)}>
+                닫기
+              </Button>
+            </DialogClose>
+            <Button variant="dialog" onClick={handleAddFloor} disabled={!floorInfo.trim()}>
+              추가
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <AlertDialogCustom
+        variant={'default'}
+        size={'base'}
+        title={'층 삭제'}
+        triggerText={'층 삭제'}
+        description={
+          <AlertDialogDescription className="whitespace-pre-line">
+            선택한 층 [{selectedFloor?.name}]을 삭제하시겠습니까?
+          </AlertDialogDescription>
+        }
+        actions={[{ text: '삭제', onClick: handleRemoveFloor }]}
+      />
+    </div>
+  );
+}
+
+interface SectionButtonsProps {
+  floor: Floor;
+  selectedSectionId: number | undefined;
+  setSelectedSectionId: (id: number | undefined) => void;
+  setSelectedRowId: (id: number | undefined) => void;
+  selectedFloor: Floor | undefined;
+  selectedAisleId: number | undefined;
+}
+
+function SectionButtons({
+  floor,
+  selectedSectionId,
+  setSelectedSectionId,
+  setSelectedRowId,
+  selectedFloor,
+  selectedAisleId,
+}: SectionButtonsProps) {
+  const addAisle = useFloorStore((state) => state.addAisle);
+  const removeSection = useFloorStore((state) => state.removeSection);
+  const removeAisle = useFloorStore((state) => state.removeAisle);
+
+  const [addSectionDialogKey, setAddSectionDialogKey] = useState<number>(0);
+
+  const selectedSection =
+    selectedFloor?.rows
+      .flatMap((r) => r.items)
+      .filter((item): item is Section => item.kind === 'section')
+      .find((x) => x.id === selectedSectionId) ?? null;
+
+  const selectedFloorRow =
+    selectedFloor?.rows.find((r) =>
+      r.items.some((item) => item.kind === 'section' && item.id === selectedSectionId),
+    ) ?? null;
+
+  const handleRemoveAisle = async () => {
+    if (selectedAisleId === null) return;
+
+    const findItem = selectedFloor?.rows
+      .flatMap((r) => r.items)
+      .find((item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId);
+    if (!findItem) return;
+
+    const isRemove = window.confirm(`${findItem.label} 통로 정말 삭제하시겠습니까?`);
+    if (!isRemove) return;
+
+    await removeAisle(findItem.id);
+  };
+
+  const handleAddAisle = async (direction: 'left' | 'right') => {
+    const floorRowId = selectedFloorRow?.id;
+
+    if (selectedFloor == undefined) return;
+    if (selectedSectionId == undefined) return;
+    if (floorRowId == null) return;
+
+    const req: CreateAisleRequest = {
+      label: '통로',
+      sectionId: selectedSectionId,
+      floorRowId: floorRowId,
+      direction: direction,
+    };
+
+    try {
+      await addAisle(selectedFloor.id, req);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '통로 추가에 실패했습니다.');
+    }
+  };
+
+  const handleRemoveSection = async () => {
+    if (selectedSectionId === null) return;
+
+    const findItem = selectedFloor?.rows
+      .flatMap((r) => r.items)
+      .find((item): item is Section => item.kind === 'section' && item.id === selectedSectionId);
+    if (!findItem) return;
+
+    const isRemove = window.confirm(`${findItem.name} 구역을 정말 삭제하시겠습니까?`);
+    if (!isRemove) return;
+
+    try {
+      await removeSection(findItem.id);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '구역 삭제에 실패했습니다.');
+    }
+  };
+
+  return (
+    <div role="group" className="flex items-center justify-between gap-x-2">
+      <div className="flex shrink-0">
+        <div className="flex justify-end gap-x-2">
+          <AddSectionDialog
+            key={addSectionDialogKey}
+            floorId={floor.id}
+            onConfirm={() => {
+              // 구역 추가 완료 시 선택 상태 초기화
+              setSelectedSectionId(undefined);
+              setSelectedRowId(undefined);
+              setAddSectionDialogKey((prev) => prev + 1);
+            }}
+          />
+          <Button size="base" onClick={handleRemoveSection} disabled={selectedSectionId === null}>
+            <IconMinus stroke={2} />
+            구역 삭제
+          </Button>
+        </div>
+
+        <div className="bg-muted-foreground mx-1 my-1.5 w-0.5 self-stretch" />
+        <div className="flex justify-end gap-x-2">
+          <AlertDialogCustom
+            size="base"
+            title="통로 추가"
+            triggerText="통로 추가"
+            description={
+              <AlertDialogDescription className="whitespace-pre-line">
+                선택한 [{selectedSection?.name}] 기준으로 통로를 추가합니다.
+              </AlertDialogDescription>
+            }
+            actions={[
+              { text: '← 좌측', onClick: () => handleAddAisle('left') },
+              { text: '우측 →', onClick: () => handleAddAisle('right') },
+            ]}
+            icon={<IconLayoutColumns stroke={2} />}
+            disabled={selectedSectionId === null}
+            variant={'default'}
+          />
+          <Button size="base" onClick={handleRemoveAisle} disabled={selectedAisleId === null}>
+            <IconTrash stroke={2} /> 통로 삭제
+          </Button>
+        </div>
+      </div>
+      <div className="flex gap-x-4 p-2">
+        <div className="flex items-center gap-x-2">
+          <span className="bg-success flex h-6 w-6 shrink-0 rounded-md" />
+          <span>배정 완료 석</span>
+        </div>
+        <div className="flex items-center gap-x-2">
+          <span className="bg-danger/50 flex h-6 w-6 shrink-0 rounded-md border-0" />
+          <span>숨긴 좌석</span>
+        </div>
+        <div className="flex items-center gap-x-2">
+          <span className="border-primary flex h-6 w-6 shrink-0 rounded-md border" />
+          <span>배정 가능 석</span>
+        </div>
+      </div>
     </div>
   );
 }

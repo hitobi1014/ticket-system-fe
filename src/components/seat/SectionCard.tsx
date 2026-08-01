@@ -10,17 +10,17 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
-import { seatSectionClass } from '@/constant/styles.ts';
+import { seatSectionClass, selectedSectionClass } from '@/constant/styles.ts';
 
 interface SectionCardProps {
   item: FloorItem;
-  selectedRowId: number | null;
-  selectedSectionId: number | null;
-  selectedAisleId: number | null;
+  selectedRowId: number | undefined;
+  selectedSectionId: number | undefined;
+  selectedAisleId: number | undefined;
 
-  onSelectedSectionId: (id: number | null) => void;
-  onSelectedAisleId: (id: number | null) => void;
-  onSelectedRowId: (id: number | null) => void;
+  onSelectedSectionId: (id: number | undefined) => void;
+  onSelectedAisleId: (id: number | undefined) => void;
+  onSelectedRowId: (id: number | undefined) => void;
 }
 
 export default function SectionCard({
@@ -38,13 +38,13 @@ export default function SectionCard({
   const handleSelectSection = (sectionId: number) => {
     if (selectedSectionId === sectionId) return;
     onSelectedSectionId(sectionId);
-    onSelectedAisleId(null);
+    onSelectedAisleId(undefined);
   };
 
   const handleSelectAisle = (id: number) => {
     if (selectedAisleId === id) return;
     onSelectedAisleId(id);
-    onSelectedSectionId(null);
+    onSelectedSectionId(undefined);
   };
 
   const handleAddRow = async (sectionId: number) => {
@@ -99,7 +99,7 @@ export default function SectionCard({
     };
 
     try {
-      await addSeat(selectedRowId, req);
+      await addSeat(selectedRowId!, req);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '좌석 추가에 실패했습니다.');
     }
@@ -223,17 +223,14 @@ export default function SectionCard({
         e.stopPropagation();
         handleSelectSection(item.id);
       }}
-      className={cn(
-        seatSectionClass,
-        selectedSectionId === item.id && 'ring-primary bg-secondary/10 border-0 ring-2',
-      )}
+      className={cn(seatSectionClass, selectedSectionId === item.id && selectedSectionClass)}
     >
       <div
         className="flex items-center justify-between"
         onClick={(e) => {
           e.stopPropagation();
           handleSelectSection(item.id);
-          onSelectedRowId(null); // row 선택 해제
+          onSelectedRowId(undefined); // row 선택 해제
         }}
       >
         <Badge>{item.name}</Badge>
