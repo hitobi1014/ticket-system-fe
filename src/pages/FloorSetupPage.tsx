@@ -8,15 +8,14 @@ import { IconLayoutColumns, IconMinus, IconPlus, IconTrash, IconZoomIn } from '@
 import { Button } from '@/components/ui/button';
 import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
-import { AlertDialogDescription } from '@/components/ui/alert-dialog.tsx';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
 import {
-  TransformWrapper,
-  TransformComponent,
-  useTransformEffect,
   type ReactZoomPanPinchContentRef,
+  TransformComponent,
+  TransformWrapper,
+  useTransformEffect,
 } from 'react-zoom-pan-pinch';
 import { headerTitleClass, pageContentClass } from '@/constant/styles.ts';
 import {
@@ -29,6 +28,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { AlertDialogDescription } from '@/components/ui/alert-dialog';
 
 function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
   useTransformEffect((state) => {
@@ -38,6 +38,7 @@ function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => vo
 }
 
 export default function FloorSetupPage() {
+  const isInitalized = useRef(false);
   const floors = useFloorStore((state) => state.floors);
   const venue = useVenueStore((state) => state.venue);
 
@@ -51,12 +52,11 @@ export default function FloorSetupPage() {
   const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
   useEffect(() => {
-    if (floors.length > 0 && selectedFloorId == undefined) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (!isInitalized.current && floors.length > 0 && selectedFloorId == undefined) {
       setSelectedFloorId(floors[0].id);
+      isInitalized.current = true;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [floors]);
+  }, [floors, selectedFloorId]);
 
   const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
   const zoomDropdownRef = useRef<HTMLDivElement>(null);
@@ -85,10 +85,19 @@ export default function FloorSetupPage() {
     },
     [selectedFloorId],
   );
-  // eslint-disable-next-line react-hooks/refs
-  const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+
   const isMac = navigator.platform.toUpperCase().includes('MAC');
   const selectedFloor = floors.find((x) => x.id === selectedFloorId) ?? undefined;
+
+  const handleZoomOut = useCallback(() => {
+    const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+    activeTransform?.zoomOut(0.25);
+  }, [selectedFloorId]);
+
+  const handleZoomIn = useCallback(() => {
+    const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+    activeTransform?.zoomIn(0.25);
+  }, [selectedFloorId]);
 
   return (
     <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
@@ -129,21 +138,13 @@ export default function FloorSetupPage() {
             </Button>
             {showZoomDropdown && (
               <div className="bg-popover text-primary border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => activeTransform?.zoomOut(0.25)}
-                >
+                <Button variant="ghost" size="icon-xs" onClick={handleZoomOut}>
                   <IconMinus stroke={2} size={14} />
                 </Button>
                 <span className="w-10 text-center text-xs tabular-nums">
                   {Math.round(currentScale * 100)}%
                 </span>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  onClick={() => activeTransform?.zoomIn(0.25)}
-                >
+                <Button variant="ghost" size="icon-xs" onClick={handleZoomIn}>
                   <IconPlus stroke={2} size={14} />
                 </Button>
               </div>
@@ -240,7 +241,7 @@ function FloorButtons({ selectedFloorId, setSelectedFloorId, selectedFloor }: Fl
 
   const handleAddFloor = async () => {
     const req: CreateFloorRequest = {
-      name: floorInfo,
+      name: floorInfo.trim(),
     };
     try {
       const savedFloor = await addFloor(req);
@@ -280,12 +281,12 @@ function FloorButtons({ selectedFloorId, setSelectedFloorId, selectedFloor }: Fl
           <DialogHeader className={cn(headerTitleClass)}>층 추가</DialogHeader>
           <DialogDescription>층 이름을 입력하세요</DialogDescription>
           <Input
-            type={'text'}
+            type="text"
             aria-label="input-floor"
-            onChange={(e) => setFloorInfo(e.target.value.trim())}
-            onKeyDown={async (e) => {
+            onChange={(e) => setFloorInfo(e.target.value)}
+            onKeyDown={(e) => {
               if (e.key === 'Enter') {
-                await handleAddFloor();
+                void handleAddFloor();
               }
             }}
             value={floorInfo}
@@ -352,31 +353,35 @@ function SectionButtons({
       r.items.some((item) => item.kind === 'section' && item.id === selectedSectionId),
     ) ?? null;
 
+  const findAisle = selectedFloor?.rows
+    .flatMap((r) => r.items)
+    .find((item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId);
+
   const handleRemoveAisle = async () => {
-    if (selectedAisleId === null) return;
+    if (!findAisle) return;
 
-    const findItem = selectedFloor?.rows
-      .flatMap((r) => r.items)
-      .find((item): item is Aisle => item.kind === 'aisle' && item.id === selectedAisleId);
-    if (!findItem) return;
-
-    const isRemove = window.confirm(`${findItem.label} 통로 정말 삭제하시겠습니까?`);
-    if (!isRemove) return;
-
-    await removeAisle(findItem.id);
+    try {
+      await removeAisle(findAisle.id);
+      toast.success(`[${findAisle.label}] 통로 삭제 성공`);
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '통로 삭제를 실패했습니다.');
+    }
   };
 
-  const handleAddAisle = async (direction: 'left' | 'right') => {
-    const floorRowId = selectedFloorRow?.id;
+  const findSection = selectedFloor?.rows
+    .flatMap((r) => r.items)
+    .find((item): item is Section => item.kind === 'section' && item.id === selectedSectionId);
 
-    if (selectedFloor == undefined) return;
-    if (selectedSectionId == undefined) return;
-    if (floorRowId == null) return;
+  const handleAddAisle = async (direction: 'left' | 'right') => {
+    if (!selectedFloor || !selectedSectionId || !selectedFloorRow?.id) {
+      toast.warning('구역을 먼저 선택해주세요');
+      return;
+    }
 
     const req: CreateAisleRequest = {
       label: '통로',
       sectionId: selectedSectionId,
-      floorRowId: floorRowId,
+      floorRowId: selectedFloorRow.id,
       direction: direction,
     };
 
@@ -388,18 +393,13 @@ function SectionButtons({
   };
 
   const handleRemoveSection = async () => {
-    if (selectedSectionId === null) return;
-
-    const findItem = selectedFloor?.rows
-      .flatMap((r) => r.items)
-      .find((item): item is Section => item.kind === 'section' && item.id === selectedSectionId);
-    if (!findItem) return;
-
-    const isRemove = window.confirm(`${findItem.name} 구역을 정말 삭제하시겠습니까?`);
-    if (!isRemove) return;
-
+    if (findSection?.id == undefined) {
+      toast.warning('선택된 구역이 없습니다.');
+      return;
+    }
     try {
-      await removeSection(findItem.id);
+      await removeSection(findSection.id);
+      toast.success(`[${findSection.name}] 구역 삭제 성공`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '구역 삭제에 실패했습니다.');
     }
@@ -419,13 +419,22 @@ function SectionButtons({
               setAddSectionDialogKey((prev) => prev + 1);
             }}
           />
-          <Button size="base" onClick={handleRemoveSection} disabled={selectedSectionId === null}>
-            <IconMinus stroke={2} />
-            구역 삭제
-          </Button>
+          <AlertDialogCustom
+            title={'구역 삭제'}
+            triggerText={'구역 삭제'}
+            icon={<IconMinus stroke={2} />}
+            size={'base'}
+            description={
+              <AlertDialogDescription className="text-danger font-semibold">
+                [{findSection?.name}] 구역을 정말 삭제하시겠습니까?
+              </AlertDialogDescription>
+            }
+            actions={[{ text: '삭제', onClick: handleRemoveSection }]}
+            disabled={selectedSectionId == undefined}
+          />
         </div>
 
-        <div className="bg-muted-foreground mx-1 my-1.5 w-0.5 self-stretch" />
+        <div className="bg-primary mx-1 my-1.5 w-0.5 self-stretch" />
         <div className="flex justify-end gap-x-2">
           <AlertDialogCustom
             size="base"
@@ -441,12 +450,22 @@ function SectionButtons({
               { text: '우측 →', onClick: () => handleAddAisle('right') },
             ]}
             icon={<IconLayoutColumns stroke={2} />}
-            disabled={selectedSectionId === null}
+            disabled={selectedSectionId == undefined}
             variant={'default'}
           />
-          <Button size="base" onClick={handleRemoveAisle} disabled={selectedAisleId === null}>
-            <IconTrash stroke={2} /> 통로 삭제
-          </Button>
+          <AlertDialogCustom
+            size="base"
+            title="통로 삭제"
+            triggerText="통로 삭제"
+            icon={<IconTrash stroke={2} />}
+            description={
+              <AlertDialogDescription className="text-danger font-semibold">
+                [{findAisle?.label}] 통로 정말 삭제하시겠습니까?
+              </AlertDialogDescription>
+            }
+            actions={[{ text: '통로 삭제', onClick: handleRemoveAisle }]}
+            disabled={selectedAisleId == undefined}
+          />
         </div>
       </div>
       <div className="flex gap-x-4 p-2">

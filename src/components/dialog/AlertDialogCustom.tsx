@@ -20,8 +20,8 @@ export interface DialogAction {
 }
 
 interface Props {
-  variant: VariantProps<typeof buttonVariants>['variant'];
-  size: VariantProps<typeof buttonVariants>['size'];
+  variant?: VariantProps<typeof buttonVariants>['variant'];
+  size?: VariantProps<typeof buttonVariants>['size'];
   title: string;
   triggerText: string;
   description: React.ReactNode;
@@ -32,8 +32,8 @@ interface Props {
 
 export default function AlertDialogCustom({
   icon,
-  variant,
-  size,
+  variant = 'default',
+  size = 'default',
   triggerText,
   title,
   description,
