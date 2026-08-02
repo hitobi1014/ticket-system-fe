@@ -59,7 +59,7 @@ export default function AlertDialogCustom({
           {description}
         </AlertDialogHeader>
         <AlertDialogFooter className="border-t-secondary">
-          <AlertDialogCancel variant={variant} size={size}>
+          <AlertDialogCancel variant="dialog" size={size}>
             닫기
           </AlertDialogCancel>
           {actions.map((action, i) => (
