@@ -1,4 +1,4 @@
-import type { FloorItem } from '@/types';
+import type { FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import { IconEyeOff, IconMinus } from '@tabler/icons-react';
@@ -13,6 +13,8 @@ import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import AddSeatDialog from '@/components/dialog/seat/AddSeatDialog.tsx';
 import AddRowDialog from '@/components/dialog/row/AddRowDialog.tsx';
+import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import { findSectionRowInfoByRowId } from '@/lib/seatUtils.ts';
 
 interface SectionCardProps {
   item: FloorItem;
@@ -125,7 +127,7 @@ export default function SectionCard({
 }
 
 interface SectionButtonsProps {
-  item: FloorItem;
+  item: Section;
   selectedRowId: number | undefined;
   selectedSeatIds: Set<number>;
   setSelectedSeatIds: (selectedSeatIds: Set<number>) => void;
@@ -156,29 +158,39 @@ function SectionButtons({
     }
   };
 
-  const handleRemoveRow = async (rowId: number) => {
-    const isRemove = window.confirm(`선택한 row:${rowId}를 삭제하시겠습니까?`);
-    if (!isRemove) return;
+  const getRowName = () => {
+    const infos = findSectionRowInfoByRowId(item, selectedRowId!);
+    return infos?.row.rowName;
+  };
 
+  const handleRemoveRow = async (rowId: number, rowName: string | undefined) => {
     try {
       await removeRow(rowId);
+      toast.success(`[${rowName}]열 삭제를 성공했습니다.`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '행 삭제에 실패했습니다.');
     }
   };
-
   return (
     <ButtonGroup className="self-end">
       {/*열 버튼 그룹*/}
       <ButtonGroup>
         <AddRowDialog item={item} />
-        <Button
+        <AlertDialogCustom
+          title="행 삭제"
+          triggerText="열 삭제"
           size="xs"
+          icon={<IconMinus stroke={2} />}
           disabled={selectedRowId == undefined}
-          onClick={() => handleRemoveRow(selectedRowId!)}
-        >
-          <IconMinus stroke={2} />열 삭제
-        </Button>
+          description={`선택한 [${getRowName()}]열을 삭제하시겠습니까?`}
+          actions={[
+            {
+              text: '삭제',
+              size: 'xs',
+              onClick: () => handleRemoveRow(selectedRowId!, getRowName()),
+            },
+          ]}
+        />
       </ButtonGroup>
       {/*좌석 버튼 그룹*/}
       <ButtonGroup>

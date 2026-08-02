@@ -1,4 +1,4 @@
-import type { Floor, Member } from '@/types';
+import type { Floor, Member, Section } from '@/types';
 
 export function findSeatContext(floors: Floor[], seatId: number) {
   for (const floor of floors) {
@@ -58,4 +58,12 @@ export function getAssignableMember(
     if (aEmpty !== bEmpty) return aEmpty - bEmpty; // 잔여 0이면 후순위
     return a.seq - b.seq; // 기본 정렬은 seq
   });
+}
+
+export function findSectionRowInfoByRowId(section: Section, rowId: number) {
+  const row = section.rows.find((r) => r.id === rowId);
+  if (row) {
+    return { section: section, row };
+  }
+  return null;
 }
