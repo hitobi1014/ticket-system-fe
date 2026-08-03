@@ -76,6 +76,10 @@
     .popup-title {
         @apply text-lg font-bold text-gray-600;
     }
+
+    .ticket-bottom-bg {
+        background-color: oklch(0.20 0.06 250)
+    }
 }
 
 @layer base {

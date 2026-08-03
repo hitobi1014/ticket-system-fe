@@ -11,6 +11,7 @@ import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
 import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
+import { getMockMemberWithSeats } from '@/mocks/tickets.ts';
 
 export default function SeatViewPage() {
   const { floors } = useFloorStore();
@@ -123,7 +124,7 @@ export default function SeatViewPage() {
             setSearchQuery={setSearchQuery}
             selectedMembers={selectedMembers}
           />
-          <TicketDownloadDialog id={1} />
+          <TicketDownloadDialog memberWithSeats={getMockMemberWithSeats(1)} />
         </div>
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
         <div className="flex flex-1 gap-x-4 overflow-hidden">

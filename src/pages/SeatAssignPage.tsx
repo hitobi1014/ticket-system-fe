@@ -133,7 +133,6 @@ export default function SeatAssignPage() {
             />
           ))}
         </div>
-        {/*</div>*/}
       </Tabs>
       <SeatAssignSidebar />
 

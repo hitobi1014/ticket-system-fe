@@ -71,3 +71,18 @@ export interface TicketSummary {
   usedTickets: number; // 사용한 티켓 수 (배정된 좌석 수)
   remainingTickets: number; // 잔여 티켓 (allocatedTickets - usedTickets)
 }
+
+/** 배정 좌석 1건 (파생 데이터: 층/구역/열 이름을 미리 resolve한 형태) */
+export interface AssignedSeatInfo {
+  seatId: number;
+  floorName: string; // ex) 2F
+  sectionName: string; // ex) 나
+  rowName: string; // ex) C
+  seatNumber: number;
+}
+
+/** 회원 + 배정 좌석 목록 (티켓 다운로드용 파생 데이터) */
+export interface MemberWithSeats {
+  member: Member;
+  seats: AssignedSeatInfo[]; // 1~n개
+}
