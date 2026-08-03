@@ -37,7 +37,8 @@ function toTicketProps(
     rowName: seat.rowName,
     seatNumber: seat.seatNumber,
     inviterName: member.name,
-    // TODO: 초대받는 분(inviteeName)은 Seat에 필드 추가 후 연결 예정 (예: seat.guestName)
+    guestName: seat.guestName,
+    memo: seat.memo,
   };
 }
 

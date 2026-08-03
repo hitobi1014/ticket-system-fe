@@ -9,7 +9,8 @@ export interface TicketProps {
   rowName: string;
   seatNumber: number;
   inviterName: string; // 초대자명 = 배정 회원명 (member.name), 필수
-  inviteeName?: string; // 초대받는 분, 추후 Seat에 필드 추가 후 연결 예정 — 현재는 옵션
+  guestName?: string; // 초대받는 분, 추후 Seat에 필드 추가 후 연결 예정 — 현재는 옵션
+  memo?: string;
   ref?: React.Ref<HTMLDivElement>;
 }
 
@@ -22,7 +23,7 @@ export default function Ticket({
   rowName,
   seatNumber,
   inviterName,
-  inviteeName,
+  guestName,
   ref,
 }: TicketProps) {
   return (
@@ -51,7 +52,7 @@ export default function Ticket({
         </div>
         <div className="flex flex-col gap-y-1">
           <p className="text-text-foreground/50 text-xs">초대받는 분</p>
-          <p className="text-lg font-bold">{inviteeName ? `${inviteeName} 님` : '-'}</p>
+          <p className="text-lg font-bold">{guestName ? `${guestName} 님` : '-'}</p>
         </div>
       </section>
 

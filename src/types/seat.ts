@@ -4,6 +4,8 @@ export interface Seat {
   seatNumber: number; // ex) 1열 1, 2열 5
   assignedMemberId?: number;
   visible: boolean; // 특정 좌석 안보이게할때, 기본값 true
+  guestName?: string;
+  memo?: string;
 }
 export interface CreateSeatRequest {
   addSeatCount: number;
