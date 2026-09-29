@@ -30,6 +30,9 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   const { addMember, updateMember, removeMember, getAssignedCountMap, isLoading } =
     useMemberStore();
   const { getUnallocatedTickedCount } = useFloorStore();
+
+  // ✅ 추가: 초기 allocatedTickets 저장
+  const [initialAllocatedTickets] = useState<number>(member?.allocatedTickets ?? 0);
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     instrumentAbbr: member?.instrument.abbr ?? '지휘',
@@ -37,7 +40,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     color: member?.color ?? '#000000',
   });
   const [assignedSeatCount, setAssignedSeatsCount] = useState<number | null>(null);
-
   const isEditMode = member !== undefined;
 
   useEffect(() => {
@@ -54,14 +56,16 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       const numValue = value as number; // 타입 단언
       if (assignedSeatCount != null && numValue < assignedSeatCount) {
         toast.error(
-          `변경한 배정티켓 수량(${numValue})이 좌석 배정 완료된수(${assignedSeatCount})보다 적을 수 없습니다.`,
+          `변경한 배정티켓 수량(${numValue})이 좌석 배정 완료된 수(${assignedSeatCount})보다 적을 수 없습니다.`,
         );
         return;
       }
 
-      console.log(`입력한 value:${numValue}, 현재 미배분: ${getUnallocatedTickedCount()}`);
-      if (numValue > getUnallocatedTickedCount()) {
-        toast.error(`미배분 티켓(${getUnallocatedTickedCount()})보다 많이 배정할 수 없습니다.`);
+      const availableAllocatedTicket = getUnallocatedTickedCount() + initialAllocatedTickets;
+      if (numValue > availableAllocatedTicket) {
+        toast.error(
+          `배정 가능한 최대 티켓 수(${availableAllocatedTicket}장)를 초과할 수 없습니다.`,
+        );
         return;
       }
     }
@@ -88,7 +92,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       toast.success(`${member.name} 회원이 삭제되었습니다.`);
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '회원 삭제에 실패햇습니다.');
+      toast.error(e instanceof Error ? e.message : '회원 삭제에 실패했습니다.');
     }
   };
 
@@ -96,8 +100,8 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     <DialogContent className="border sm:max-w-106.25">
       <DialogHeader>
         {/* 회원 등록/수정 */}
-        <DialogTitle className="text-primary primary flex items-center gap-x-2 text-lg font-semibold">
-          회원 등록
+        <DialogTitle className="text-primary flex items-center gap-x-2 text-lg font-semibold">
+          {isEditMode ? '회원 수정' : '회원 등록'}
         </DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
@@ -167,21 +171,26 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         <div className="flex gap-x-4">
           {/*  배정 티켓수 */}
           <Field className="max-w-sm">
-            <FieldLabel htmlFor="allow-ticket-input">배정티켓</FieldLabel>
+            <FieldLabel htmlFor="allow-ticket-input">
+              배정티켓
+              <span className="text-muted-foreground ml-2 text-xs">
+                (최대: {getUnallocatedTickedCount() + initialAllocatedTickets}장)
+              </span>
+            </FieldLabel>
             <Input
               id="allow-ticket-input"
               aria-label="allow-ticket-input"
               type="number"
               className="no-spinners"
               min={0}
-              max={getUnallocatedTickedCount()}
+              max={getUnallocatedTickedCount() + initialAllocatedTickets}
               value={form?.allocatedTickets}
               placeholder="배정할 티켓 수량을 입력하세요."
               onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
             />
             {assignedSeatCount != null && assignedSeatCount > 0 && (
               <FieldDescription className="text-danger text-xs">
-                이미 배정된 좌석({assignedSeatCount})보다 적게 설정할 수 없습니다.
+                이미 배정된 좌석({assignedSeatCount}석)보다 적게 설정할 수 없습니다.
               </FieldDescription>
             )}
           </Field>
