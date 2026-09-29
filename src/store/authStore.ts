@@ -1,6 +1,6 @@
 import { create } from 'zustand/react';
 import { persist } from 'zustand/middleware';
-import type { LoginRequest, LoginResponse, NonValidateMember } from '@/types';
+import type { LoginRequest, LoginResponse, NonValidateMember, MemberInfo } from '@/types';
 import fetchApi from '@/lib/api';
 
 interface AuthLoadingState {
@@ -13,6 +13,7 @@ interface AuthStore {
   token: string | null;
   isLoading: AuthLoadingState;
   isAuthenticated: boolean;
+  currentMember: MemberInfo | null;
   login: (req: LoginRequest) => Promise<void>;
   testLogin: (role: 'member' | 'admin') => Promise<void>;
   logout: () => void;
@@ -34,14 +35,15 @@ const useAuthStore = create<AuthStore>()(
       nonValidateMembers: [],
       token: null,
       isAuthenticated: false,
+      currentMember: null,
       login: async (req) => {
         set((state) => ({ isLoading: { ...state.isLoading, login: true } }));
         try {
-          const { accessToken } = await fetchApi<LoginResponse>(`${AUTH_API_PREFIX}/login`, {
+          const { accessToken, member } = await fetchApi<LoginResponse>(`${AUTH_API_PREFIX}/login`, {
             method: 'POST',
             body: JSON.stringify(req),
           });
-          set({ token: accessToken, isAuthenticated: true });
+          set({ token: accessToken, isAuthenticated: true, currentMember: member });
         } finally {
           set((state) => ({ isLoading: { ...state.isLoading, login: false } }));
         }
@@ -49,19 +51,19 @@ const useAuthStore = create<AuthStore>()(
       testLogin: async (role) => {
         set((state) => ({ isLoading: { ...state.isLoading, testLogin: true } }));
         try {
-          const { accessToken } = await fetchApi<LoginResponse>(
+          const { accessToken, member } = await fetchApi<LoginResponse>(
             `${AUTH_API_PREFIX}/test-login?role=${role}`,
             {
               method: 'POST',
             },
           );
-          set({ token: accessToken, isAuthenticated: true });
+          set({ token: accessToken, isAuthenticated: true, currentMember: member });
         } finally {
           set((state) => ({ isLoading: { ...state.isLoading, testLogin: false } }));
         }
       },
       logout: () => {
-        set({ token: null, isAuthenticated: false });
+        set({ token: null, isAuthenticated: false, currentMember: null });
       },
       getMembers: async () => {
         set((state) => ({ isLoading: { ...state.isLoading, fetch: true } }));
