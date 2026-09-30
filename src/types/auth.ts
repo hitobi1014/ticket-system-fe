@@ -1,9 +1,6 @@
 import type { InstrumentAbbr } from '@/types/member.ts';
 
-export interface LoginRequest {
-  memberId: number;
-  memberCode: string;
-}
+export type MemberRole = 'BASE' | 'ADMIN';
 
 // 로그인 응답의 회원 정보
 export interface MemberInfo {
@@ -11,6 +8,12 @@ export interface MemberInfo {
   name: string;
   color: string;
   instrumentAbbr: InstrumentAbbr;
+  role: MemberRole;
+}
+
+export interface LoginRequest {
+  memberId: number;
+  memberCode: string;
 }
 
 export interface LoginResponse {

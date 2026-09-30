@@ -1,6 +1,12 @@
 import { create } from 'zustand/react';
 import { persist } from 'zustand/middleware';
-import type { LoginRequest, LoginResponse, NonValidateMember, MemberInfo } from '@/types';
+import type {
+  LoginRequest,
+  LoginResponse,
+  NonValidateMember,
+  MemberInfo,
+  MemberRole,
+} from '@/types';
 import fetchApi from '@/lib/api';
 
 interface AuthLoadingState {
@@ -14,8 +20,12 @@ interface AuthStore {
   isLoading: AuthLoadingState;
   isAuthenticated: boolean;
   currentMember: MemberInfo | null;
+
+  getRole: () => MemberRole | null;
+  isAdmin: () => boolean;
+
   login: (req: LoginRequest) => Promise<void>;
-  testLogin: (role: 'member' | 'admin') => Promise<void>;
+  testLogin: (role: MemberRole) => Promise<void>;
   logout: () => void;
 
   nonValidateMembers: NonValidateMember[];
@@ -26,7 +36,7 @@ const AUTH_API_PREFIX = '/auth';
 
 const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isLoading: {
         fetch: false,
         login: false,
@@ -36,13 +46,20 @@ const useAuthStore = create<AuthStore>()(
       token: null,
       isAuthenticated: false,
       currentMember: null,
+
+      getRole: () => get().currentMember?.role ?? null,
+      isAdmin: () => get().currentMember?.role === 'ADMIN',
+
       login: async (req) => {
         set((state) => ({ isLoading: { ...state.isLoading, login: true } }));
         try {
-          const { accessToken, member } = await fetchApi<LoginResponse>(`${AUTH_API_PREFIX}/login`, {
-            method: 'POST',
-            body: JSON.stringify(req),
-          });
+          const { accessToken, member } = await fetchApi<LoginResponse>(
+            `${AUTH_API_PREFIX}/login`,
+            {
+              method: 'POST',
+              body: JSON.stringify(req),
+            },
+          );
           set({ token: accessToken, isAuthenticated: true, currentMember: member });
         } finally {
           set((state) => ({ isLoading: { ...state.isLoading, login: false } }));

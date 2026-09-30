@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { IconLogout } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore.ts';
 import { Badge } from '@/components/ui/badge.tsx';
 
@@ -10,6 +11,13 @@ interface PageHeaderProps {
 
 export default function PageHeader({ title, icon }: PageHeaderProps) {
   const { logout, isAuthenticated, currentMember } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
     <div className="bg-card border-accent flex justify-between border-b px-4 py-2.5">
       <div className="flex items-center gap-x-2">
@@ -30,7 +38,7 @@ export default function PageHeader({ title, icon }: PageHeaderProps) {
               </Badge>
             </div>
           )}
-          <div className="text-primary flex cursor-pointer items-center gap-x-2" onClick={logout}>
+          <div className="text-primary flex cursor-pointer items-center gap-x-2" onClick={handleLogout}>
             <IconLogout stroke={2} />
             로그아웃
           </div>
