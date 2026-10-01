@@ -14,7 +14,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
-import { type Instrument, type InstrumentAbbr, INSTRUMENTS, type NonValidateMember } from '@/types';
+import {
+  type Instrument,
+  type InstrumentAbbr,
+  INSTRUMENTS,
+  type MemberRole,
+  type NonValidateMember,
+} from '@/types';
 
 const isTestMode = import.meta.env.VITE_TEST_MODE === 'true';
 
@@ -69,7 +75,7 @@ export default function LoginPage() {
     setFilteredMembers(findMembers);
   };
 
-  const handleTestLogin = async (role: 'member' | 'admin') => {
+  const handleTestLogin = async (role: MemberRole) => {
     try {
       await testLogin(role);
       navigate('/members', { replace: true });
@@ -152,7 +158,7 @@ export default function LoginPage() {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => handleTestLogin('member')}
+                  onClick={() => handleTestLogin('BASE')}
                   disabled={isLoading.testLogin}
                 >
                   일반회원 랜덤 로그인
@@ -160,7 +166,7 @@ export default function LoginPage() {
                 <Button
                   variant="outline"
                   className="flex-1"
-                  onClick={() => handleTestLogin('admin')}
+                  onClick={() => handleTestLogin('ADMIN')}
                   disabled={isLoading.testLogin}
                 >
                   관리자 랜덤 로그인
