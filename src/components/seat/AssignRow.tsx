@@ -4,6 +4,8 @@ import useMemberStore from '@/store/memberStore.ts';
 import { useRef } from 'react';
 import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { cn } from '@/lib/utils.ts';
+import { Badge } from '@/components/ui/badge';
+import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 
 interface AssignRowProps {
   section: Section;
@@ -20,16 +22,15 @@ export default function AssignRow({
   const { members } = useMemberStore();
   const triggerRef = useRef<HTMLButtonElement>(null);
 
-  // 기본값 oklch(98.4% 0.014 180.72)
   const assignedSeatColor = (id: number | null) =>
     members.find((v) => v.id === id)?.color ?? '#f0fdfa';
   const assignedSeatMemberName = (id: number | null) =>
     members.find((v) => v.id === id)?.name ?? '';
 
   return (
-    <div className="bg-surface-secondary text-content-primary flex flex-col gap-y-2 rounded-md p-4">
+    <div className={seatSectionClass}>
       <div className="flex items-center justify-between text-sm">
-        <span>{section.name}</span>
+        <Badge>{section.name}</Badge>
         <span>{section.rows.flatMap((r) => r.seats).length}석</span>
       </div>
       {section.rows.map((row) => (
@@ -47,10 +48,11 @@ export default function AssignRow({
                 key={seat.id}
                 ref={triggerRef}
                 className={cn(
-                  'h-10 w-10 text-sm',
-                  isVisible && 'bg-surface-primary text-content-primary border-0',
-                  !isVisible && 'pointer-events-none border-0 bg-transparent text-transparent',
-                  selectedSeatIds.has(seat.id) && 'ring-content-accent ring-2 ring-offset-1',
+                  emptySeatClass,
+                  'h-10 w-10',
+                  !isVisible && hideSeatClass,
+                  seat.assignedMemberId != null && 'border-0',
+                  selectedSeatIds.has(seat.id) && 'border-0 ring-2 ring-red-400 ring-offset-1',
                 )}
                 variant="outline"
                 style={

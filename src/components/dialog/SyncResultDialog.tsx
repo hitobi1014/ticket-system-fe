@@ -37,14 +37,14 @@ export default function SyncResultDialog({
 
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="bg-surface-primary sm:max-w-md">
-        <AlertDialogHeader className="text-content-primary">
+      <AlertDialogContent className="bg-primary sm:max-w-md">
+        <AlertDialogHeader className="text-primary">
           <AlertDialogTitle>
             {hasSkipped ? '⚠️ 동기화 완료 (일부 스킵)' : '✅ 동기화 완료'}
           </AlertDialogTitle>
 
           {/* 정상 처리 결과 */}
-          <AlertDialogDescription className="text-content-secondary">
+          <AlertDialogDescription className="text-secondary">
             <div className="space-y-1">
               <p>추가: {stats.inserted}건</p>
               <p>수정: {stats.updated}건</p>
@@ -56,29 +56,29 @@ export default function SyncResultDialog({
           {/* 스킵된 항목 */}
           {hasSkipped && (
             <>
-              <AlertDialogDescription className="text-surface-danger mt-4">
+              <AlertDialogDescription className="text-destructive mt-4">
                 <p className="font-bold mb-2">
                   배정 티켓 업데이트 스킵 ({skippedAllocations.length}건)
                 </p>
               </AlertDialogDescription>
-              <div className="max-h-48 overflow-y-auto space-y-2 bg-surface-secondary p-3 rounded-md">
+              <div className="max-h-48 overflow-y-auto space-y-2 bg-secondary p-3 rounded-md">
                 {skippedAllocations.map((skip) => (
-                  <div key={skip.memberId} className="text-sm text-content-secondary">
+                  <div key={skip.memberId} className="text-sm text-secondary">
                     <p className="font-semibold">
                       {skip.name} ({skip.instrumentAbbr})
                     </p>
-                    <p className="text-xs text-surface-danger">{skip.reason}</p>
+                    <p className="text-xs text-destructive">{skip.reason}</p>
                   </div>
                 ))}
               </div>
-              <AlertDialogDescription className="text-content-secondary text-xs mt-2">
+              <AlertDialogDescription className="text-secondary text-xs mt-2">
                 💡 확인 버튼을 누르면 스킵된 회원이 빨간색으로 표시됩니다.
               </AlertDialogDescription>
             </>
           )}
         </AlertDialogHeader>
 
-        <AlertDialogFooter className="bg-surface-primary">
+        <AlertDialogFooter className="bg-primary">
           <AlertDialogAction variant="primary" size="base" onClick={handleConfirm}>
             확인
           </AlertDialogAction>

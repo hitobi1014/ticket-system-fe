@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { IconLogout } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '@/store/authStore.ts';
+import { Badge } from '@/components/ui/badge.tsx';
 
 interface PageHeaderProps {
   title: string;
@@ -8,20 +10,38 @@ interface PageHeaderProps {
 }
 
 export default function PageHeader({ title, icon }: PageHeaderProps) {
-  const { logout, isAuthenticated } = useAuthStore();
+  const { logout, isAuthenticated, currentMember } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login', { replace: true });
+  };
+
   return (
-    <div className="flex justify-between bg-surface-secondary border-b border-surface-accent  py-2.5 px-4">
+    <div className="bg-card border-accent flex justify-between border-b px-4 py-2.5">
       <div className="flex items-center gap-x-2">
-        <div className="text-content-primary">{icon}</div>
-        <h2 className="text-content-primary text-lg font-medium">{title}</h2>
+        <div className="text-primary">{icon}</div>
+        <h2 className="text-primary text-lg font-medium">{title}</h2>
       </div>
       {isAuthenticated && (
-        <div
-          className="flex items-center gap-x-2 text-content-primary cursor-pointer"
-          onClick={logout}
-        >
-          <IconLogout stroke={2} />
-          로그아웃
+        <div className="flex items-center gap-x-3">
+          {currentMember && (
+            <div className="flex items-center gap-x-2">
+              <div
+                className="h-4 w-4 rounded-full border border-mist-300"
+                style={{ backgroundColor: currentMember.color || '#999' }}
+                title={`${currentMember.name}님의 색상`}
+              />
+              <Badge className="bg-accent-foreground text-text-foreground">
+                {currentMember.name} / {currentMember.instrumentAbbr}
+              </Badge>
+            </div>
+          )}
+          <div className="text-primary flex cursor-pointer items-center gap-x-2" onClick={handleLogout}>
+            <IconLogout stroke={2} />
+            로그아웃
+          </div>
         </div>
       )}
     </div>

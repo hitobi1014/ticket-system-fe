@@ -1,28 +1,28 @@
-  export const INSTRUMENTS = {
-    지휘: '지휘',
-    Pf: '피아노',
-    Fl: '플루트',
-    Ob: '오보에',
-    Cla: '클라리넷',
-    Hn: '호른',
-    Tp: '트럼펫',
-    Trb: '트롬본',
-    Vn1: '1st 바이올린',
-    Vn2: '2nd 바이올린',
-    Va: '비올라',
-    Vc: '첼로',
-    Cb: '콘트라베이스',
-    Sax: '색소폰',
-    Per: '퍼커션',
-  } as const;
+export const INSTRUMENTS = {
+  지휘: '지휘',
+  Pf: '피아노',
+  Fl: '플루트',
+  Ob: '오보에',
+  Cla: '클라리넷',
+  Hn: '호른',
+  Tp: '트럼펫',
+  Trb: '트롬본',
+  Vn1: '1st 바이올린',
+  Vn2: '2nd 바이올린',
+  Va: '비올라',
+  Vc: '첼로',
+  Cb: '콘트라베이스',
+  Sax: '색소폰',
+  Per: '퍼커션',
+} as const;
 
-  export type InstrumentAbbr = keyof typeof INSTRUMENTS;
-  export type InstrumentName = (typeof INSTRUMENTS)[InstrumentAbbr];
+export type InstrumentAbbr = keyof typeof INSTRUMENTS;
+export type InstrumentName = (typeof INSTRUMENTS)[InstrumentAbbr];
 
-  export interface Instrument {
-    abbr: InstrumentAbbr;
-    name: InstrumentName;
-  }
+export interface Instrument {
+  abbr: InstrumentAbbr;
+  name: InstrumentName;
+}
 
 // 서버 응답용
 export interface Member {
@@ -70,4 +70,21 @@ export interface TicketSummary {
   allocatedTickets: number; // 배정된 티켓 수
   usedTickets: number; // 사용한 티켓 수 (배정된 좌석 수)
   remainingTickets: number; // 잔여 티켓 (allocatedTickets - usedTickets)
+}
+
+/** 배정 좌석 1건 (파생 데이터: 층/구역/열 이름을 미리 resolve한 형태) */
+export interface AssignedSeatInfo {
+  seatId: number;
+  floorName: string; // ex) 2F
+  sectionName: string; // ex) 나
+  rowName: string; // ex) C
+  seatNumber: number;
+  guestName: string;
+  memo?: string;
+}
+
+/** 회원 + 배정 좌석 목록 (티켓 다운로드용 파생 데이터) */
+export interface MemberWithSeats {
+  member: Member;
+  seats: AssignedSeatInfo[]; // 1~n개
 }

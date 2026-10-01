@@ -13,11 +13,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { type Instrument, type InstrumentAbbr, INSTRUMENTS, type NonValidateMember } from '@/types';
+import { Separator } from '@/components/ui/separator';
+import {
+  type Instrument,
+  type InstrumentAbbr,
+  INSTRUMENTS,
+  type MemberRole,
+  type NonValidateMember,
+} from '@/types';
+
+const isTestMode = import.meta.env.VITE_TEST_MODE === 'true';
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { getMembers, nonValidateMembers, isAuthenticated, login, isLoading } = useAuthStore();
+  const { getMembers, nonValidateMembers, isAuthenticated, login, testLogin, isLoading } =
+    useAuthStore();
 
   const [part, setPart] = useState<Instrument>();
   const [filteredMembers, setFilteredMembers] = useState<NonValidateMember[]>([]);
@@ -65,21 +75,30 @@ export default function LoginPage() {
     setFilteredMembers(findMembers);
   };
 
+  const handleTestLogin = async (role: MemberRole) => {
+    try {
+      await testLogin(role);
+      navigate('/members', { replace: true });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '테스트 로그인에 실패했습니다.');
+    }
+  };
+
   return (
-    <div className="bg-surface-primary flex min-h-screen items-center justify-center">
-      <div className="bg-surface-secondary flex w-full max-w-sm flex-col gap-y-6 rounded-lg p-8">
+    <div className="bg-background flex min-h-screen items-center justify-center">
+      <div className="bg-card border-border flex w-full max-w-sm flex-col gap-y-6 rounded-lg border p-8">
         <div className="flex flex-col gap-y-1">
-          <h1 className="text-content-primary text-lg font-semibold">Orchestra</h1>
-          <p className="text-content-secondary text-sm">로그인</p>
+          <h1 className="text-primary text-lg font-semibold">Orchestra</h1>
+          <p className="text-primary text-sm">로그인</p>
         </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-y-3">
           <Field>
-            <FieldLabel className="text-content-primary">파트</FieldLabel>
+            <FieldLabel className="text-primary">파트</FieldLabel>
             <Select value={part?.abbr ?? ''} onValueChange={handlePartChange}>
-              <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-background border-border text-primary w-45">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-surface-primary text-content-primary">
+              <SelectContent>
                 <SelectGroup>
                   {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
                     <SelectItem key={abbr} value={abbr}>
@@ -92,15 +111,15 @@ export default function LoginPage() {
             </Select>
           </Field>
           <Field>
-            <FieldLabel className="text-content-primary">이름</FieldLabel>
+            <FieldLabel className="text-primary">이름</FieldLabel>
             <Select
               value={memberId != null ? String(memberId) : ''}
               onValueChange={(v) => setMemberId(Number(v))}
             >
-              <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="bg-background border-border text-primary w-45 border">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-surface-primary text-content-primary">
+              <SelectContent>
                 <SelectGroup>
                   {filteredMembers.map((member) => (
                     <SelectItem key={member.id} value={String(member.id)}>
@@ -113,7 +132,7 @@ export default function LoginPage() {
           </Field>
           <Input
             type="password"
-            className="text-content-primary"
+            className="text-primary"
             aria-label="disabled"
             placeholder="비밀번호"
             value={memberCode}
@@ -124,6 +143,38 @@ export default function LoginPage() {
             {isLoading.login ? '로그인 중...' : '로그인'}
           </Button>
         </form>
+
+        {isTestMode && (
+          <>
+            <Separator className="bg-border" />
+            <div className="flex flex-col gap-y-3">
+              <div className="flex items-center gap-x-2">
+                <span className="bg-warning text-warning-foreground rounded px-1.5 py-0.5 text-xs font-medium">
+                  TEST
+                </span>
+                <span className="text-muted-foreground text-sm">테스트 모드</span>
+              </div>
+              <div className="flex gap-x-2">
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleTestLogin('BASE')}
+                  disabled={isLoading.testLogin}
+                >
+                  일반회원 랜덤 로그인
+                </Button>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => handleTestLogin('ADMIN')}
+                  disabled={isLoading.testLogin}
+                >
+                  관리자 랜덤 로그인
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

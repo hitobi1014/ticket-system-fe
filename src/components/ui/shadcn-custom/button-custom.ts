@@ -1,12 +1,12 @@
 export const customVariants = {
-  close: 'bg-gray-800 text-content-secondary rounded-md hover:bg-gray-900',
-  confirm: 'bg-surface-primary text-content-secondary rounded-md hover:bg-surface-primary-hover', // 승인, 확인, 배정 등 긍정 관련된 기능
-  cancel:
-    'bg-surface-danger text-content-danger font-bold rounded-md hover:bg-surface-danger-hover]', // 취소, 부정 관련된 기능
-  modify: 'bg-sky-800 text-content-secondary rounded-md hover:bg-sky-900', // 수정 관련된 기능
-  primary: 'border border-content-primary text-content-primary hover:bg-surface-primary-hover',
-  secondary: 'bg-surface-primary border border-content-primary text-content-primary',
-  dialog: 'border text-content-primary border-content-primary hover:bg-mist-800',
+  close: 'bg-gray-800 text-secondary rounded-md hover:bg-gray-900 hover:text-text-foreground',
+  confirm:
+    'bg-primary text-secondary rounded-md hover:bg-primary-foreground hover:text-text-foreground', // 승인, 확인, 배정 등 긍정 관련된 기능
+  cancel: 'bg-danger text-text-foreground font-semibold rounded-md hover:bg-danger-foreground', // 취소, 부정 관련된 기능
+  modify: 'bg-sky-800 text-secondary rounded-md hover:bg-sky-900', // 수정 관련된 기능
+  primary:
+    'bg-primary border border-primary text-primary hover:bg-primary-foreground hover:text-text-foreground',
+  dialog: 'border text-primary border-primary hover:bg-primary hover:text-text-foreground',
   // 페이지: primary/secondary/danger
 } as const;
 

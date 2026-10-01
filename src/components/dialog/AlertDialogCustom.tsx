@@ -20,8 +20,8 @@ export interface DialogAction {
 }
 
 interface Props {
-  variant: VariantProps<typeof buttonVariants>['variant'];
-  size: VariantProps<typeof buttonVariants>['size'];
+  variant?: VariantProps<typeof buttonVariants>['variant'];
+  size?: VariantProps<typeof buttonVariants>['size'];
   title: string;
   triggerText: string;
   description: React.ReactNode;
@@ -32,8 +32,8 @@ interface Props {
 
 export default function AlertDialogCustom({
   icon,
-  variant,
-  size,
+  variant = 'default',
+  size = 'default',
   triggerText,
   title,
   description,
@@ -43,18 +43,23 @@ export default function AlertDialogCustom({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant={variant} disabled={disabled} onClick={(e) => e.stopPropagation()}>
+        <Button
+          variant={variant}
+          size={size}
+          disabled={disabled}
+          onClick={(e) => e.stopPropagation()}
+        >
           {icon}
           {triggerText}
         </Button>
       </AlertDialogTrigger>
-      <AlertDialogContent className="bg-surface-primary">
-        <AlertDialogHeader className="text-content-primary">
+      <AlertDialogContent>
+        <AlertDialogHeader className="text-primary">
           <AlertDialogTitle>{title}</AlertDialogTitle>
           {description}
         </AlertDialogHeader>
-        <AlertDialogFooter className="bg-surface-primary border-t-surface-secondary">
-          <AlertDialogCancel variant={variant} size={size}>
+        <AlertDialogFooter className="border-t-secondary">
+          <AlertDialogCancel variant="dialog" size={size}>
             닫기
           </AlertDialogCancel>
           {actions.map((action, i) => (

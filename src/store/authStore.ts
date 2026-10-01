@@ -1,18 +1,31 @@
 import { create } from 'zustand/react';
 import { persist } from 'zustand/middleware';
-import type { LoginRequest, LoginResponse, NonValidateMember } from '@/types';
+import type {
+  LoginRequest,
+  LoginResponse,
+  NonValidateMember,
+  MemberInfo,
+  MemberRole,
+} from '@/types';
 import fetchApi from '@/lib/api';
 
 interface AuthLoadingState {
   fetch: boolean;
   login: boolean;
+  testLogin: boolean;
 }
 
 interface AuthStore {
   token: string | null;
   isLoading: AuthLoadingState;
   isAuthenticated: boolean;
+  currentMember: MemberInfo | null;
+
+  getRole: () => MemberRole | null;
+  isAdmin: () => boolean;
+
   login: (req: LoginRequest) => Promise<void>;
+  testLogin: (role: MemberRole) => Promise<void>;
   logout: () => void;
 
   nonValidateMembers: NonValidateMember[];
@@ -23,28 +36,51 @@ const AUTH_API_PREFIX = '/auth';
 
 const useAuthStore = create<AuthStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isLoading: {
         fetch: false,
         login: false,
+        testLogin: false,
       },
       nonValidateMembers: [],
       token: null,
       isAuthenticated: false,
+      currentMember: null,
+
+      getRole: () => get().currentMember?.role ?? null,
+      isAdmin: () => get().currentMember?.role === 'ADMIN',
+
       login: async (req) => {
         set((state) => ({ isLoading: { ...state.isLoading, login: true } }));
         try {
-          const { accessToken } = await fetchApi<LoginResponse>(`${AUTH_API_PREFIX}/login`, {
-            method: 'POST',
-            body: JSON.stringify(req),
-          });
-          set({ token: accessToken, isAuthenticated: true });
+          const { accessToken, member } = await fetchApi<LoginResponse>(
+            `${AUTH_API_PREFIX}/login`,
+            {
+              method: 'POST',
+              body: JSON.stringify(req),
+            },
+          );
+          set({ token: accessToken, isAuthenticated: true, currentMember: member });
         } finally {
           set((state) => ({ isLoading: { ...state.isLoading, login: false } }));
         }
       },
+      testLogin: async (role) => {
+        set((state) => ({ isLoading: { ...state.isLoading, testLogin: true } }));
+        try {
+          const { accessToken, member } = await fetchApi<LoginResponse>(
+            `${AUTH_API_PREFIX}/test-login?role=${role}`,
+            {
+              method: 'POST',
+            },
+          );
+          set({ token: accessToken, isAuthenticated: true, currentMember: member });
+        } finally {
+          set((state) => ({ isLoading: { ...state.isLoading, testLogin: false } }));
+        }
+      },
       logout: () => {
-        set({ token: null, isAuthenticated: false });
+        set({ token: null, isAuthenticated: false, currentMember: null });
       },
       getMembers: async () => {
         set((state) => ({ isLoading: { ...state.isLoading, fetch: true } }));

@@ -5,23 +5,18 @@ import useVenueStore from '@/store/venueStore';
 import useMemberStore from '@/store/memberStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { IconMapPin, IconMinus, IconPlus, IconX, IconZoomIn } from '@tabler/icons-react';
-import { getChoseong } from 'es-hangul';
-import {
-  Combobox,
-  ComboboxContent,
-  ComboboxInput,
-  ComboboxItem,
-  ComboboxList,
-} from '@/components/ui/combobox';
+import { IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
 import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
+import { pageContentClass } from '@/constant/styles.ts';
+import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
+import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
+import { getMockMemberWithSeats } from '@/mocks/tickets.ts';
 
 export default function SeatViewPage() {
   const { floors } = useFloorStore();
   const { venue } = useVenueStore();
-  const { members, getMemberRemainTicketsByMemberId } = useMemberStore();
+  const { members } = useMemberStore();
 
   const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
@@ -69,14 +64,6 @@ export default function SeatViewPage() {
   // eslint-disable-next-line react-hooks/refs
   const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
 
-  const filteredMembers = useMemo(() => {
-    if (!searchQuery.trim()) return members;
-    return members.filter((m) => {
-      const choseong = getChoseong(m.name);
-      return choseong.includes(searchQuery) || m.name.includes(searchQuery.trim());
-    });
-  }, [searchQuery, members]);
-
   const selectedMembers = useMemo(
     () => members.filter((m) => selectedMemberIds.includes(m.id)),
     [selectedMemberIds, members],
@@ -109,147 +96,57 @@ export default function SeatViewPage() {
     );
   }, [floors, highlightColorMap]);
 
-  const handleSelectMember = (memberIdStr: string | null) => {
-    if (memberIdStr == null) return;
-    const memberId = Number(memberIdStr);
-    if (!selectedMemberIds.includes(memberId)) {
-      setSelectedMemberIds((prev) => [...prev, memberId]);
-      setPulsingMemberIds((prev) => new Set(prev).add(memberId));
-      setTimeout(() => {
-        setPulsingMemberIds((prev) => {
-          const next = new Set(prev);
-          next.delete(memberId);
-          return next;
-        });
-      }, 3000);
-    }
-    setSearchQuery('');
-  };
-
-  const handleRemoveMember = (memberId: number) => {
-    setSelectedMemberIds((prev) => prev.filter((id) => id !== memberId));
-  };
-
   return (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/* 공연장명 + 공연일 */}
-      <div className="bg-surface-secondary border-b border-surface-accent py-3 px-4">
+      <header className="px-4 py-3">
         <div className="flex items-center gap-x-2">
-          <IconMapPin stroke={1.5} className="text-content-primary" />
+          <IconMapPin stroke={1.5} className="text-primary" />
           <div>
-            <h2 className="text-content-primary text-lg font-medium leading-tight">
+            <p className="text-primary text-lg leading-tight font-semibold">
               {venue?.name ?? '공연장'}
-            </h2>
+            </p>
             {venue?.performanceDate && (
-              <p className="text-content-secondary text-sm">{venue.performanceDate}</p>
+              <p className="text-secondary text-sm">{venue.performanceDate}</p>
             )}
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="flex flex-col flex-1 overflow-hidden p-4 gap-y-4">
-        {/* 회원 검색 Combobox */}
-        <Combobox
-          value=""
-          onValueChange={handleSelectMember}
-          inputValue={searchQuery}
-          onInputValueChange={(v) => setSearchQuery(v)}
-          filter={() => true}
-        >
-          <ComboboxInput
-            showTrigger={false}
-            placeholder="회원 이름으로 좌석 찾기"
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-60 text-content-primary"
+      <main className="flex flex-1 flex-col gap-y-4 overflow-hidden p-4">
+        {/* 상단 콤보박스, 기능 버튼 */}
+        <div className="flex items-center justify-between gap-x-4">
+          <MemberSearchComboBox
+            selectedMemberIds={selectedMemberIds}
+            setSelectedMemberIds={setSelectedMemberIds}
+            setPulsingMemberIds={setPulsingMemberIds}
+            searchQuery={searchQuery}
+            setSearchQuery={setSearchQuery}
+            selectedMembers={selectedMembers}
           />
-          {/* 선택된 회원 목록
-            간략하게 color 이름 표기
-            ex) o 김안나
-            화면 범위를 넘어가면 잘리지 않고 가로 스크롤되도록 처리
-            */}
-          {selectedMembers.length > 0 && (
-            <div className="flex gap-x-2 overflow-x-auto no-scrollbar py-1">
-              {selectedMembers.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex justify-center items-center gap-x-1 rounded-md bg-surface-accent px-2 shrink-0"
-                >
-                  <div
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: member.color ?? '#cccccc' }}
-                  />
-                  <span className="text-content-primary text-sm whitespace-nowrap">
-                    {member.name}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    className="shrink-0 text-content-primary"
-                    onClick={() => handleRemoveMember(member.id)}
-                  >
-                    <IconX stroke={2} size={14} />
-                  </Button>
-                </div>
-              ))}
-            </div>
-          )}
-          {
-            <ComboboxContent>
-              <ComboboxList>
-                {filteredMembers.length === 0 ? (
-                  <p className="py-2 text-center text-sm text-muted-foreground">검색 결과 없음</p>
-                ) : (
-                  filteredMembers.map((member) => {
-                    const remain = getMemberRemainTicketsByMemberId(member.id);
-                    return (
-                      <ComboboxItem key={member.id} value={String(member.id)}>
-                        <div
-                          className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: member.color ?? '#cccccc' }}
-                        />
-                        <Badge variant="secondary" className="px-1.5 py-0 w-8 text-xs">
-                          {member.instrument.abbr}
-                        </Badge>
-                        <span className="flex-1 text-sm">{member.name}</span>
-                        <span className="text-muted-foreground text-xs ml-auto">
-                          잔여:{remain} / 배정:{member.allocatedTickets}
-                        </span>
-                      </ComboboxItem>
-                    );
-                  })
-                )}
-              </ComboboxList>
-            </ComboboxContent>
-          }
-        </Combobox>
-
+          <TicketDownloadDialog memberWithSeats={getMockMemberWithSeats(1)} />
+        </div>
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
-        <div className="flex gap-x-4 flex-1 overflow-hidden">
+        <div className="flex flex-1 gap-x-4 overflow-hidden">
           {/* 좌석 그리드 */}
           <Tabs
-            className="flex flex-col flex-1 overflow-hidden"
+            className="flex flex-1 flex-col overflow-hidden"
             value={String(selectedFloorId)}
             onValueChange={(v) => setSelectedFloorId(Number(v))}
           >
             <div className="flex items-center justify-between">
-              <TabsList className="bg-transparent flex gap-x-2">
+              <TabsList variant="default">
                 {floors.map((floor) => (
                   <TabsTrigger
                     key={floor.id}
+                    variant="default"
                     value={String(floor.id)}
-                    className={cn(
-                      `cursor-pointer text-content-primary text-base rounded-none border-b-2 border-transparent
-                      hover:text-content-danger
-                      data-[state=active]:text-content-primary
-                      data-[state=active]:bg-transparent
-                      data-[state=active]:shadow-none
-                      data-[state=active]:border-b-white`,
-                      highlightedFloorIds.has(floor.id) && 'gap-x-1.5',
-                    )}
+                    /*TODO 사용안하면 삭제*/
+                    // className={cn(highlightedFloorIds.has(floor.id) && 'gap-x-1.5')}
                   >
                     {floor.name}
                     {highlightedFloorIds.has(floor.id) && (
-                      <span className="w-1.5 h-1.5 rounded-full bg-content-primary shrink-0" />
+                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
                     )}
                   </TabsTrigger>
                 ))}
@@ -260,28 +157,28 @@ export default function SeatViewPage() {
                 <Button
                   variant="ghost"
                   size="lg"
-                  className="text-content-primary"
+                  className="text-primary"
                   onClick={() => setShowZoomDropdown((v) => !v)}
                 >
                   <IconZoomIn stroke={1.5} size={18} />
                 </Button>
                 {showZoomDropdown && (
-                  <div className="absolute top-full right-0 mt-1 flex items-center gap-x-0.5 bg-popover rounded-md px-1.5 py-1 shadow-md z-50 border border-surface-accent">
+                  <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-content-accent"
+                      className="text-primary"
                       onClick={() => activeTransform?.zoomOut(0.25)}
                     >
                       <IconMinus stroke={2} size={14} />
                     </Button>
-                    <span className="text-content-accent text-xs w-10 text-center tabular-nums">
+                    <span className="text-primary w-10 text-center text-xs tabular-nums">
                       {Math.round(currentScale * 100)}%
                     </span>
                     <Button
                       variant="ghost"
                       size="icon-xs"
-                      className="text-content-accent"
+                      className="text-primary"
                       onClick={() => activeTransform?.zoomIn(0.25)}
                     >
                       <IconPlus stroke={2} size={14} />
@@ -308,7 +205,7 @@ export default function SeatViewPage() {
             ))}
           </Tabs>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

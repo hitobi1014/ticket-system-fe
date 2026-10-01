@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import useVenueStore from '@/store/venueStore.ts';
 import { VenueInfoDialog } from '@/components/dialog/VenueInfoDialog.tsx';
 import { cn } from '@/lib/utils.ts';
+import { pageContentClass } from '@/constant/styles.ts';
 
 const COL_WIDTHS = ['5%', '14%', '11%', '10%', '10%', '10%', '10%', '11%'];
 const ColGroup = () => (
@@ -96,7 +97,7 @@ export default function MembersPage() {
       confirm: {
         title: '회원 목록 가져오기',
         description: (
-          <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+          <AlertDialogDescription className="text-danger font-semibold whitespace-pre-line">
             출석 앱에 등록된 회원 목록을 기반으로 가져옵니다. {'\n'}💡목록에 없는 회원은 삭제됩니다.
           </AlertDialogDescription>
         ),
@@ -127,20 +128,6 @@ export default function MembersPage() {
       },
       icon: <IconUserPlus stroke={2} />,
     },
-    // TODD삭제 예정
-    // {
-    //   text: '티켓 균등 배분',
-    //   icon: <IconTicket stroke={2} />,
-    //   onClick: async () => {
-    //     try {
-    //       await distributeTickets();
-    //       toast.success('티켓 균등 배분이 완료되었습니다.');
-    //     } catch (e) {
-    //       toast.error(e instanceof Error ? e.message : '티켓 배분에 실패했습니다.');
-    //     }
-    //   },
-    //   disabled: members.length === 0 || getTotalSeatCount() === 0 || isLoading.distribute,
-    // },
   ];
 
   if (isLoading.fetch) {
@@ -148,7 +135,7 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="flex h-full flex-col gap-y-4 overflow-hidden">
+    <div className={cn(pageContentClass, 'flex h-full flex-col gap-y-4 overflow-hidden')}>
       <FunctionButtons buttons={functionButtons} />
       <div className="flex gap-3">
         {memberInfoCards.map((card) => (
@@ -165,18 +152,15 @@ export default function MembersPage() {
         <p>등록된 회원이 없습니다.</p>
       ) : (
         /* 테이블 wrapper - flex-col로 테이블 헤더/바디 분리 */
-        <div className="flex flex-1 flex-col overflow-hidden rounded-lg">
+        <div className="flex flex-1 flex-col overflow-hidden rounded-lg border">
           {/*헤더 고정*/}
           <div className="shrink-0">
-            <Table className="bg-surface-secondary">
+            <Table className="bg-card">
               <ColGroup />
               <TableHeader className="w-25">
                 <TableRow>
                   {TABLE_HEADS.map((head) => (
-                    <TableHead
-                      key={head}
-                      className="border-b border-b-mist-300 text-center text-gray-300"
-                    >
+                    <TableHead key={head} className="text-primary text-center">
                       {head}
                     </TableHead>
                   ))}
@@ -187,7 +171,7 @@ export default function MembersPage() {
 
           {/* 바디만 스크롤 */}
           <div className="no-scrollbar flex-1 overflow-y-auto">
-            <Table className="bg-surface-secondary text-content-primary">
+            <Table className="bg-card text-primary">
               <ColGroup />
               <TableBody className="divide-y divide-mist-300">
                 {/*'이름', '악기', '배정 티켓', '잔여 티켓', '배정된 좌석 수', '티켓색상', '삭제',*/}
@@ -199,7 +183,7 @@ export default function MembersPage() {
                       key={member.id}
                       className={cn(
                         'cursor-pointer text-center',
-                        isHighlighted && 'bg-surface-danger text-content-danger font-bold',
+                        isHighlighted && 'bg-destructive text-danger font-bold',
                       )}
                       onClick={() => {
                         highlightedMemberIds.delete(member.id);
@@ -210,7 +194,7 @@ export default function MembersPage() {
                       <TableCell>{member.seq}</TableCell>
                       <TableCell>{member.name}</TableCell>
                       <TableCell>
-                        <Badge className="bg-mist-500 text-white">
+                        <Badge className="bg-accent-foreground text-text-foreground">
                           {member.instrument.abbr} /{' '}
                           {INSTRUMENTS[member.instrument.abbr as keyof typeof INSTRUMENTS] ??
                             '알 수 없음'}

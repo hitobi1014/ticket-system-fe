@@ -28,13 +28,13 @@ export interface ButtonItem {
 
 export default function FunctionButtons({ buttons }: FunctionButtonsProps) {
   const getVariant = (variant: VariantProps<typeof buttonVariants>['variant']) => {
-    return variant ?? 'primary';
+    return variant ?? 'default';
   };
   const getSize = (size: VariantProps<typeof buttonVariants>['size']) => {
     return size ?? 'base';
   };
   return (
-    <div className="flex gap-x-2 justify-end" onClick={(e) => e.stopPropagation()}>
+    <div className="flex justify-end gap-x-2" onClick={(e) => e.stopPropagation()}>
       {buttons.map((btn, i) =>
         btn.dialog ? (
           <React.Fragment key={i}>{btn.dialog}</React.Fragment>

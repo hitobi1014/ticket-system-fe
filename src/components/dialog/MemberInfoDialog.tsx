@@ -30,6 +30,9 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   const { addMember, updateMember, removeMember, getAssignedCountMap, isLoading } =
     useMemberStore();
   const { getUnallocatedTickedCount } = useFloorStore();
+
+  // ✅ 추가: 초기 allocatedTickets 저장
+  const [initialAllocatedTickets] = useState<number>(member?.allocatedTickets ?? 0);
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
     instrumentAbbr: member?.instrument.abbr ?? '지휘',
@@ -37,7 +40,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     color: member?.color ?? '#000000',
   });
   const [assignedSeatCount, setAssignedSeatsCount] = useState<number | null>(null);
-
   const isEditMode = member !== undefined;
 
   useEffect(() => {
@@ -54,14 +56,16 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       const numValue = value as number; // 타입 단언
       if (assignedSeatCount != null && numValue < assignedSeatCount) {
         toast.error(
-          `변경한 배정티켓 수량(${numValue})이 좌석 배정 완료된수(${assignedSeatCount})보다 적을 수 없습니다.`,
+          `변경한 배정티켓 수량(${numValue})이 좌석 배정 완료된 수(${assignedSeatCount})보다 적을 수 없습니다.`,
         );
         return;
       }
 
-      console.log(`입력한 value:${numValue}, 현재 미배분: ${getUnallocatedTickedCount()}`);
-      if (numValue > getUnallocatedTickedCount()) {
-        toast.error(`미배분 티켓(${getUnallocatedTickedCount()})보다 많이 배정할 수 없습니다.`);
+      const availableAllocatedTicket = getUnallocatedTickedCount() + initialAllocatedTickets;
+      if (numValue > availableAllocatedTicket) {
+        toast.error(
+          `배정 가능한 최대 티켓 수(${availableAllocatedTicket}장)를 초과할 수 없습니다.`,
+        );
         return;
       }
     }
@@ -88,25 +92,22 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       toast.success(`${member.name} 회원이 삭제되었습니다.`);
       onClose();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : '회원 삭제에 실패햇습니다.');
+      toast.error(e instanceof Error ? e.message : '회원 삭제에 실패했습니다.');
     }
   };
 
   return (
-    <DialogContent
-      className="bg-surface-secondary border-content-primary border sm:max-w-106.25"
-      // onInteractOutside={onClose}
-    >
+    <DialogContent className="border sm:max-w-106.25">
       <DialogHeader>
         {/* 회원 등록/수정 */}
-        <DialogTitle className="text-content-primary flex items-center gap-x-2">
-          회원 등록
+        <DialogTitle className="text-primary flex items-center gap-x-2 text-lg font-semibold">
+          {isEditMode ? '회원 수정' : '회원 등록'}
         </DialogTitle>
       </DialogHeader>
       {/*등록수정항목*/}
 
       {/*[ '이름', '악기', '배정 티켓', '배정된 좌석 수', */}
-      <div className="text-content-primary flex flex-col gap-y-2">
+      <div className="flex flex-col gap-y-2">
         {/* 이름, 악기, 색상*/}
         <div className="flex items-center gap-x-2">
           {/*  이름 */}
@@ -117,7 +118,6 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               aria-label="name"
               value={form?.name}
               type="triggerText"
-              className="bg-surface-primary border-0"
               placeholder="이름을 입력하세요"
               onChange={(e) => handleChange('name', e.target.value)}
             />
@@ -132,10 +132,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
                 handleChange('instrumentAbbr', v as InstrumentAbbr);
               }}
             >
-              <SelectTrigger className="bg-surface-primary text-content-primary w-45 border-0">
+              <SelectTrigger className="w-45">
                 <SelectValue placeholder="선택" />
               </SelectTrigger>
-              <SelectContent className="bg-surface-primary text-content-primary">
+              <SelectContent>
                 <SelectGroup>
                   {Object.entries(INSTRUMENTS).map(([abbr, name]) => (
                     <SelectItem key={abbr} value={abbr}>
@@ -154,7 +154,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             <Popover>
               <PopoverTrigger asChild>
                 <button
-                  className="border-surface-accent h-8 w-8 shrink-0 cursor-pointer rounded-full border"
+                  className="border-accent h-8 w-8 shrink-0 cursor-pointer rounded-full border"
                   style={{ backgroundColor: form?.color }}
                 />
               </PopoverTrigger>
@@ -171,21 +171,26 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         <div className="flex gap-x-4">
           {/*  배정 티켓수 */}
           <Field className="max-w-sm">
-            <FieldLabel htmlFor="allow-ticket-input">배정티켓</FieldLabel>
+            <FieldLabel htmlFor="allow-ticket-input">
+              배정티켓
+              <span className="text-muted-foreground ml-2 text-xs">
+                (최대: {getUnallocatedTickedCount() + initialAllocatedTickets}장)
+              </span>
+            </FieldLabel>
             <Input
               id="allow-ticket-input"
               aria-label="allow-ticket-input"
               type="number"
-              className="bg-surface-primary no-spinners border-0"
+              className="no-spinners"
               min={0}
-              max={getUnallocatedTickedCount()}
+              max={getUnallocatedTickedCount() + initialAllocatedTickets}
               value={form?.allocatedTickets}
               placeholder="배정할 티켓 수량을 입력하세요."
               onChange={(e) => handleChange('allocatedTickets', Number(e.target.value))}
             />
             {assignedSeatCount != null && assignedSeatCount > 0 && (
-              <FieldDescription className="text-surface-danger text-xs">
-                이미 배정된 좌석({assignedSeatCount})보다 적게 설정할 수 없습니다.
+              <FieldDescription className="text-danger text-xs">
+                이미 배정된 좌석({assignedSeatCount}석)보다 적게 설정할 수 없습니다.
               </FieldDescription>
             )}
           </Field>
@@ -196,7 +201,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               aria-label="assigned-ticket-input"
               readOnly={true}
               value={assignedSeatCount ?? 0}
-              className="bg-surface-accent border-0"
+              className="bg-muted-foreground text-muted border-0"
             />
           </Field>
         </div>
@@ -204,7 +209,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
 
       <DialogFooter
         className={cn(
-          'bg-surface-secondary flex pb-2.5',
+          'flex pb-2.5',
           isEditMode && 'justify-between!',
           !isEditMode && 'justify-end!',
         )}
@@ -217,10 +222,10 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
             title={'확인'}
             description={
               <>
-                <AlertDialogDescription className="text-content-secondary whitespace-pre-line">
+                <AlertDialogDescription className="text-danger whitespace-pre-line">
                   [{form.name}]님을 목록에서 제거 하시겠습니까?
                 </AlertDialogDescription>
-                <AlertDialogDescription className="text-surface-danger mt-2">
+                <AlertDialogDescription className="text-danger mt-2">
                   <p className="font-bold">⚠️ 주의: 이 작업은 되돌릴 수 없습니다.</p>
                   {assignedSeatCount != null && assignedSeatCount > 0 && (
                     <p className="text-xs">배정 완료된 좌석({assignedSeatCount}석)도 삭제됩니다.</p>
