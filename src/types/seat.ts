@@ -33,6 +33,14 @@ export interface AssignSeatRequest {
 }
 export type UnAssignSeatRequest = Omit<AssignSeatRequest, 'memberId'>;
 
+export interface SeatGuestNameUpdate {
+  seatId: number;
+  guestName: string;
+}
+export interface UpdateSeatGuestNamesRequest {
+  updates: SeatGuestNameUpdate[];
+}
+
 export interface Aisle {
   id: number;
   kind: 'aisle';

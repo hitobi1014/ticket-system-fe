@@ -3,6 +3,7 @@ import { cn } from '@/lib/utils';
 import useFloorStore from '@/store/floorStore';
 import useVenueStore from '@/store/venueStore';
 import useMemberStore from '@/store/memberStore';
+import useAuthStore from '@/store/authStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
@@ -11,12 +12,15 @@ import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
 import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
-import { getMockMemberWithSeats } from '@/mocks/tickets.ts';
+import GuestNameInputModal from '@/components/dialog/GuestNameInputModal.tsx';
+import { findSeatsByMemberId, toAssignedSeatInfo } from '@/lib/seatUtils.ts';
+import type { MemberWithSeats } from '@/types';
 
 export default function SeatViewPage() {
   const { floors } = useFloorStore();
   const { venue } = useVenueStore();
   const { members } = useMemberStore();
+  const { currentMember } = useAuthStore();
 
   const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
@@ -68,6 +72,16 @@ export default function SeatViewPage() {
     () => members.filter((m) => selectedMemberIds.includes(m.id)),
     [selectedMemberIds, members],
   );
+
+  const myMemberWithSeats: MemberWithSeats | null = useMemo(() => {
+    const member = members.find((m) => m.id === currentMember?.id);
+    if (!member) return null;
+
+    return {
+      member,
+      seats: findSeatsByMemberId(floors, member.id).map(toAssignedSeatInfo),
+    };
+  }, [members, floors, currentMember]);
 
   const highlightColorMap = useMemo(
     () => new Map(selectedMembers.map((m) => [m.id, m.color ?? '#4f46e5'])),
@@ -124,7 +138,10 @@ export default function SeatViewPage() {
             setSearchQuery={setSearchQuery}
             selectedMembers={selectedMembers}
           />
-          <TicketDownloadDialog memberWithSeats={getMockMemberWithSeats(1)} />
+          <div className="flex items-center gap-x-2">
+            <GuestNameInputModal />
+            {myMemberWithSeats && <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />}
+          </div>
         </div>
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
         <div className="flex flex-1 gap-x-4 overflow-hidden">

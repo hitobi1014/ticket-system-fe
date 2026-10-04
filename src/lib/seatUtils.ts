@@ -1,4 +1,4 @@
-import type { Floor, Member, Section } from '@/types';
+import type { AssignedSeatInfo, Floor, Member, Section } from '@/types';
 
 export function findSeatContext(floors: Floor[], seatId: number) {
   for (const floor of floors) {
@@ -58,6 +58,39 @@ export function getAssignableMember(
     if (aEmpty !== bEmpty) return aEmpty - bEmpty; // 잔여 0이면 후순위
     return a.seq - b.seq; // 기본 정렬은 seq
   });
+}
+
+export function findSeatsByMemberId(floors: Floor[], memberId: number) {
+  const result: NonNullable<ReturnType<typeof findSeatContext>>[] = [];
+
+  for (const floor of floors) {
+    for (const floorRow of floor.rows) {
+      for (const item of floorRow.items) {
+        if (item.kind !== 'section') continue;
+        for (const row of item.rows) {
+          for (const seat of row.seats) {
+            if (seat.assignedMemberId === memberId) {
+              result.push({ floor, floorRow, section: item, row, seat });
+            }
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+
+// 배정 좌석 조회 결과(findSeatsByMemberId)를 티켓 다운로드용 파생 데이터로 변환
+export function toAssignedSeatInfo(ctx: NonNullable<ReturnType<typeof findSeatContext>>): AssignedSeatInfo {
+  return {
+    seatId: ctx.seat.id,
+    floorName: ctx.floor.name,
+    sectionName: ctx.section.name,
+    rowName: ctx.row.rowName,
+    seatNumber: ctx.seat.seatNumber,
+    guestName: ctx.seat.guestName ?? '',
+    memo: ctx.seat.memo,
+  };
 }
 
 export function findSectionRowInfoByRowId(section: Section, rowId: number) {
