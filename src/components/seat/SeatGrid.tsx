@@ -1,6 +1,7 @@
 import type { Floor, StagePosition } from '@/types';
 import { TabsContent } from '@/components/ui/tabs';
 import useMemberStore from '@/store/memberStore.ts';
+import useAuthStore from '@/store/authStore.ts';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
 import { getContrastTextColor } from '@/lib/uiUtils';
@@ -13,6 +14,7 @@ import {
 import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
+import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
 
 interface SeatGridProps {
   floor: Floor;
@@ -23,6 +25,8 @@ interface SeatGridProps {
   isActive?: boolean;
   transformRef?: React.Ref<ReactZoomPanPinchContentRef>;
   onScaleChange?: (scale: number) => void;
+  displayMode?: 'member' | 'guest';
+  currentMemberId?: number;
 }
 
 function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
@@ -41,8 +45,11 @@ export default function SeatGrid({
   isActive = false,
   transformRef,
   onScaleChange,
+  displayMode,
+  currentMemberId,
 }: SeatGridProps) {
   const { members } = useMemberStore();
+  const { isAdmin } = useAuthStore();
 
   const getMemberColor = (memberId: number) =>
     members.find((m) => m.id === memberId)?.color ?? '#f0fdfa';
@@ -92,15 +99,26 @@ export default function SeatGrid({
                     (pulsingMemberIds?.has(seat.assignedMemberId) ?? false);
                   const isDimmed = isHighlightMode && seat.assignedMemberId != null && !isSelected;
 
+                  const displayInfo = getSeatDisplayInfo({
+                    seat,
+                    memberName: seat.assignedMemberId
+                      ? getMemberName(seat.assignedMemberId)
+                      : '',
+                    displayMode,
+                    currentMemberId,
+                    isAdmin: isAdmin(),
+                  });
+
                   return (
                     <div
                       key={seat.id}
                       className={cn(
                         emptySeatClass,
-                        'flex h-10 w-10 items-center justify-center rounded-md text-sm',
+                        'relative flex h-10 w-10 items-center justify-center rounded-md text-sm',
                         seat.assignedMemberId != null && 'border-0',
                         !isVisible && hideSeatClass,
                         isPulsing && 'animate-pulse',
+                        displayInfo.showMyself && 'ring-primary ring-2',
                       )}
                       style={{
                         ...(isVisible && bgColor
@@ -113,12 +131,26 @@ export default function SeatGrid({
                       }}
                     >
                       {isVisible && (
-                        <div className="text-center leading-tight">
-                          <p>{seat.seatNumber}</p>
-                          {seat.assignedMemberId != null && (
-                            <p className="text-xs">{getMemberName(seat.assignedMemberId)}</p>
+                        <>
+                          {displayInfo.showMyself && (
+                            <span className="bg-primary text-primary-foreground absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold shadow-sm">
+                              나
+                            </span>
                           )}
-                        </div>
+                          <div className="flex w-full flex-col items-center justify-center px-0.5 text-center leading-tight">
+                            <p className="font-medium">{seat.seatNumber}</p>
+                            {seat.assignedMemberId != null && (
+                              <p
+                                className={cn(
+                                  'max-w-full truncate text-xs',
+                                  displayInfo.isTBD && 'text-muted-foreground opacity-60',
+                                )}
+                              >
+                                {displayInfo.displayName}
+                              </p>
+                            )}
+                          </div>
+                        </>
                       )}
                     </div>
                   );

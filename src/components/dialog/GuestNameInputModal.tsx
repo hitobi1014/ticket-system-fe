@@ -17,12 +17,14 @@ import { cn } from '@/lib/utils.ts';
 import { headerTitleClass } from '@/constant/styles.ts';
 import useAuthStore from '@/store/authStore.ts';
 import useFloorStore from '@/store/floorStore.ts';
+import useSeatGuideStore from '@/store/seatGuideStore.ts';
 import { findSeatsByMemberId } from '@/lib/seatUtils.ts';
 import type { SeatGuestNameUpdate } from '@/types';
 
 export default function GuestNameInputModal() {
   const { currentMember } = useAuthStore();
   const { floors, updateSeatGuestNames } = useFloorStore();
+  const { fetchFloors: fetchSeatGuideFloors } = useSeatGuideStore();
   const [isOpen, setIsOpen] = useState(false);
   const [guestNames, setGuestNames] = useState<Record<number, string>>({});
   const [isSaving, setIsSaving] = useState(false);
@@ -71,6 +73,7 @@ export default function GuestNameInputModal() {
     setIsSaving(true);
     try {
       await updateSeatGuestNames({ updates });
+      await fetchSeatGuideFloors();
       toast.success('게스트명이 저장되었습니다.');
       setIsOpen(false);
     } catch (e) {

@@ -100,3 +100,48 @@ export function findSectionRowInfoByRowId(section: Section, rowId: number) {
   }
   return null;
 }
+
+export interface SeatDisplayInfo {
+  displayName: string;
+  showMyself: boolean;
+  isTBD: boolean;
+}
+
+export function getSeatDisplayInfo(options: {
+  seat: { assignedMemberId?: number; guestName?: string | null };
+  memberName: string;
+  displayMode?: 'member' | 'guest';
+  currentMemberId?: number;
+  isAdmin: boolean;
+}): SeatDisplayInfo {
+  const { seat, memberName, displayMode = 'member', currentMemberId, isAdmin } = options;
+
+  if (seat.assignedMemberId == null) {
+    return { displayName: '', showMyself: false, isTBD: false };
+  }
+
+  const isMyself = !isAdmin && currentMemberId != null && seat.assignedMemberId === currentMemberId;
+  const isGuestNameEmpty = seat.guestName == null || seat.guestName.trim() === '';
+
+  if (isAdmin) {
+    if (displayMode === 'guest') {
+      return {
+        displayName: isGuestNameEmpty ? '미정' : seat.guestName!,
+        showMyself: false,
+        isTBD: isGuestNameEmpty,
+      };
+    } else {
+      return { displayName: memberName, showMyself: false, isTBD: false };
+    }
+  }
+
+  if (isMyself) {
+    return {
+      displayName: isGuestNameEmpty ? '미정' : seat.guestName!,
+      showMyself: true,
+      isTBD: isGuestNameEmpty,
+    };
+  }
+
+  return { displayName: memberName, showMyself: false, isTBD: false };
+}

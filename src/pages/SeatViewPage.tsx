@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import useFloorStore from '@/store/floorStore';
+import useSeatGuideStore from '@/store/seatGuideStore';
 import useVenueStore from '@/store/venueStore';
 import useMemberStore from '@/store/memberStore';
 import useAuthStore from '@/store/authStore';
@@ -15,12 +15,13 @@ import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
 import GuestNameInputModal from '@/components/dialog/GuestNameInputModal.tsx';
 import { findSeatsByMemberId, toAssignedSeatInfo } from '@/lib/seatUtils.ts';
 import type { MemberWithSeats } from '@/types';
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 export default function SeatViewPage() {
-  const { floors } = useFloorStore();
+  const { floors, displayMode, setDisplayMode, fetchFloors, clearStore } = useSeatGuideStore();
   const { venue } = useVenueStore();
   const { members } = useMemberStore();
-  const { currentMember } = useAuthStore();
+  const { currentMember, isAdmin } = useAuthStore();
 
   const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,6 +37,11 @@ export default function SeatViewPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [floors]);
+
+  useEffect(() => {
+    clearStore();
+    fetchFloors();
+  }, [currentMember?.id, clearStore, fetchFloors]);
 
   const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
   const zoomDropdownRef = useRef<HTMLDivElement>(null);
@@ -169,39 +175,59 @@ export default function SeatViewPage() {
                 ))}
               </TabsList>
 
-              {/* Zoom controls */}
-              <div ref={zoomDropdownRef} className="relative">
-                <Button
-                  variant="ghost"
-                  size="lg"
-                  className="text-primary"
-                  onClick={() => setShowZoomDropdown((v) => !v)}
-                >
-                  <IconZoomIn stroke={1.5} size={18} />
-                </Button>
-                {showZoomDropdown && (
-                  <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      className="text-primary"
-                      onClick={() => activeTransform?.zoomOut(0.25)}
-                    >
-                      <IconMinus stroke={2} size={14} />
-                    </Button>
-                    <span className="text-primary w-10 text-center text-xs tabular-nums">
-                      {Math.round(currentScale * 100)}%
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon-xs"
-                      className="text-primary"
-                      onClick={() => activeTransform?.zoomIn(0.25)}
-                    >
-                      <IconPlus stroke={2} size={14} />
-                    </Button>
-                  </div>
+              <div className="flex items-center gap-x-2">
+                {isAdmin() && (
+                  <ToggleGroup
+                    type="single"
+                    value={displayMode}
+                    onValueChange={(value) => {
+                      if (value) setDisplayMode(value as 'member' | 'guest');
+                    }}
+                    spacing={0}
+                  >
+                    <ToggleGroupItem value="member" variant="outline" size="sm">
+                      연주자
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value="guest" variant="outline" size="sm">
+                      게스트
+                    </ToggleGroupItem>
+                  </ToggleGroup>
                 )}
+
+                {/* Zoom controls */}
+                <div ref={zoomDropdownRef} className="relative">
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="text-primary"
+                    onClick={() => setShowZoomDropdown((v) => !v)}
+                  >
+                    <IconZoomIn stroke={1.5} size={18} />
+                  </Button>
+                  {showZoomDropdown && (
+                    <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-primary"
+                        onClick={() => activeTransform?.zoomOut(0.25)}
+                      >
+                        <IconMinus stroke={2} size={14} />
+                      </Button>
+                      <span className="text-primary w-10 text-center text-xs tabular-nums">
+                        {Math.round(currentScale * 100)}%
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon-xs"
+                        className="text-primary"
+                        onClick={() => activeTransform?.zoomIn(0.25)}
+                      >
+                        <IconPlus stroke={2} size={14} />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -218,6 +244,8 @@ export default function SeatViewPage() {
                   transformRefs.current.set(floor.id, ref);
                 }}
                 onScaleChange={handleScaleChange}
+                displayMode={displayMode}
+                currentMemberId={currentMember?.id}
               />
             ))}
           </Tabs>
