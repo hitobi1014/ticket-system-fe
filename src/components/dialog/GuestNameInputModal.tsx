@@ -23,8 +23,8 @@ import type { SeatGuestNameUpdate } from '@/types';
 
 export default function GuestNameInputModal() {
   const { currentMember } = useAuthStore();
-  const { floors, updateSeatGuestNames } = useFloorStore();
-  const { fetchFloors: fetchSeatGuideFloors } = useSeatGuideStore();
+  const { updateSeatGuestNames } = useFloorStore();
+  const { floors, fetchFloors: fetchSeatGuideFloors } = useSeatGuideStore();
   const [isOpen, setIsOpen] = useState(false);
   const [guestNames, setGuestNames] = useState<Record<number, string>>({});
   const [isSaving, setIsSaving] = useState(false);
