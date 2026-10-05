@@ -80,6 +80,26 @@ export function findSeatsByMemberId(floors: Floor[], memberId: number) {
   return result;
 }
 
+export function groupMySeatsByFloor(mySeats: NonNullable<ReturnType<typeof findSeatContext>>[]) {
+  const grouped = new Map<
+    number,
+    {
+      floor: Floor;
+      seats: NonNullable<ReturnType<typeof findSeatContext>>[];
+    }
+  >();
+
+  for (const seatCtx of mySeats) {
+    const floorId = seatCtx.floor.id;
+    if (!grouped.has(floorId)) {
+      grouped.set(floorId, { floor: seatCtx.floor, seats: [] });
+    }
+    grouped.get(floorId)!.seats.push(seatCtx);
+  }
+
+  return grouped;
+}
+
 // 배정 좌석 조회 결과(findSeatsByMemberId)를 티켓 다운로드용 파생 데이터로 변환
 export function toAssignedSeatInfo(
   ctx: NonNullable<ReturnType<typeof findSeatContext>>,
