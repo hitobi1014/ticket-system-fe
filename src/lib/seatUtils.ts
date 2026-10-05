@@ -123,18 +123,18 @@ export function getSeatDisplayInfo(options: {
     return { displayName: '', showMyself: false, isTBD: false };
   }
 
-  const isMyself = !isAdmin && currentMemberId != null && seat.assignedMemberId === currentMemberId;
+  const isMyself = currentMemberId != null && seat.assignedMemberId === currentMemberId;
   const isGuestNameEmpty = seat.guestName == null || seat.guestName.trim() === '';
 
   if (isAdmin) {
     if (displayMode === 'guest') {
       return {
         displayName: isGuestNameEmpty ? EMPTY_GUEST_NAME : seat.guestName!,
-        showMyself: false,
+        showMyself: isMyself,
         isTBD: isGuestNameEmpty,
       };
     } else {
-      return { displayName: memberName, showMyself: false, isTBD: false };
+      return { displayName: memberName, showMyself: isMyself, isTBD: false };
     }
   }
 

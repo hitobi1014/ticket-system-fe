@@ -101,9 +101,7 @@ export default function SeatGrid({
 
                   const displayInfo = getSeatDisplayInfo({
                     seat,
-                    memberName: seat.assignedMemberId
-                      ? getMemberName(seat.assignedMemberId)
-                      : '',
+                    memberName: seat.assignedMemberId ? getMemberName(seat.assignedMemberId) : '',
                     displayMode,
                     currentMemberId,
                     isAdmin: isAdmin(),
@@ -133,19 +131,14 @@ export default function SeatGrid({
                       {isVisible && (
                         <>
                           {displayInfo.showMyself && (
-                            <span className="bg-primary text-primary-foreground absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold shadow-sm">
+                            <span className="bg-primary absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm">
                               나
                             </span>
                           )}
                           <div className="flex w-full flex-col items-center justify-center px-0.5 text-center leading-tight">
                             <p className="font-medium">{seat.seatNumber}</p>
                             {seat.assignedMemberId != null && (
-                              <p
-                                className={cn(
-                                  'max-w-full truncate text-xs',
-                                  displayInfo.isTBD && 'text-muted-foreground opacity-60',
-                                )}
-                              >
+                              <p className="max-w-full truncate text-xs">
                                 {displayInfo.displayName}
                               </p>
                             )}

@@ -99,7 +99,7 @@ export default function GuestNameInputModal() {
 
         <div className="bg-accent flex items-center justify-between rounded-md px-3 py-2 text-xs">
           <span className="text-muted-foreground">
-            비워둔 좌석은 티켓에 <span className="text-primary font-semibold">"미정"</span>으로
+            비워둔 좌석은 티켓에 <span className="text-primary font-semibold">"-"</span>으로
             표시됩니다
           </span>
           <button
@@ -127,7 +127,7 @@ export default function GuestNameInputModal() {
                 <span
                   className={cn(
                     'h-2 w-2 shrink-0 rounded-full',
-                    isFilled ? 'bg-primary' : 'border border-input',
+                    isFilled ? 'bg-primary' : 'border-input border',
                   )}
                 />
                 <div className="flex shrink-0 items-center gap-1 text-xs whitespace-nowrap">
