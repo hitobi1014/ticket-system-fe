@@ -81,7 +81,9 @@ export function findSeatsByMemberId(floors: Floor[], memberId: number) {
 }
 
 // 배정 좌석 조회 결과(findSeatsByMemberId)를 티켓 다운로드용 파생 데이터로 변환
-export function toAssignedSeatInfo(ctx: NonNullable<ReturnType<typeof findSeatContext>>): AssignedSeatInfo {
+export function toAssignedSeatInfo(
+  ctx: NonNullable<ReturnType<typeof findSeatContext>>,
+): AssignedSeatInfo {
   return {
     seatId: ctx.seat.id,
     floorName: ctx.floor.name,
@@ -114,6 +116,7 @@ export function getSeatDisplayInfo(options: {
   currentMemberId?: number;
   isAdmin: boolean;
 }): SeatDisplayInfo {
+  const EMPTY_GUEST_NAME = '-';
   const { seat, memberName, displayMode = 'member', currentMemberId, isAdmin } = options;
 
   if (seat.assignedMemberId == null) {
@@ -126,7 +129,7 @@ export function getSeatDisplayInfo(options: {
   if (isAdmin) {
     if (displayMode === 'guest') {
       return {
-        displayName: isGuestNameEmpty ? '미정' : seat.guestName!,
+        displayName: isGuestNameEmpty ? EMPTY_GUEST_NAME : seat.guestName!,
         showMyself: false,
         isTBD: isGuestNameEmpty,
       };
@@ -137,7 +140,7 @@ export function getSeatDisplayInfo(options: {
 
   if (isMyself) {
     return {
-      displayName: isGuestNameEmpty ? '미정' : seat.guestName!,
+      displayName: isGuestNameEmpty ? EMPTY_GUEST_NAME : seat.guestName!,
       showMyself: true,
       isTBD: isGuestNameEmpty,
     };

@@ -185,10 +185,20 @@ export default function SeatViewPage() {
                     }}
                     spacing={0}
                   >
-                    <ToggleGroupItem value="member" variant="outline" size="sm">
+                    <ToggleGroupItem
+                      value="member"
+                      variant="outline"
+                      size="sm"
+                      className="data-[state=on]:bg-primary cursor-pointer data-[state=on]:text-white"
+                    >
                       연주자
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="guest" variant="outline" size="sm">
+                    <ToggleGroupItem
+                      value="guest"
+                      variant="outline"
+                      size="sm"
+                      className="data-[state=on]:bg-primary cursor-pointer data-[state=on]:text-white"
+                    >
                       게스트
                     </ToggleGroupItem>
                   </ToggleGroup>
