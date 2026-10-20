@@ -3,7 +3,7 @@ import { create } from 'zustand/react';
 import useFloorStore from '@/store/floorStore.ts';
 import type { Section } from '@/types';
 import fetchApi from '@/lib/api.ts';
-import { getRemainTickets } from '@/lib/seatUtils.ts';
+import { getAssignedCountMapFromFloors, getRemainTickets } from '@/lib/seatUtils.ts';
 
 interface MemberLoadingState {
   fetch: boolean;
@@ -78,23 +78,7 @@ const useMemberStore = create<MemberStore>((set, get) => ({
       .flatMap((r) => r.seats)
       .filter((seat) => seat.assignedMemberId === memberId).length,
 
-  getAssignedCountMap: () => {
-    const seats = useFloorStore
-      .getState()
-      .floors.flatMap((f) => f.rows.flatMap((r) => r.items))
-      .filter((item): item is Section => item.kind === 'section')
-      .flatMap((s) => s.rows)
-      .flatMap((r) => r.seats)
-      .filter(
-        (seat): seat is typeof seat & { assignedMemberId: number } =>
-          seat.assignedMemberId !== undefined,
-      );
-
-    return seats.reduce<Record<number, number>>((acc, seat) => {
-      acc[seat.assignedMemberId] = (acc[seat.assignedMemberId] ?? 0) + 1;
-      return acc;
-    }, {});
-  },
+  getAssignedCountMap: () => getAssignedCountMapFromFloors(useFloorStore.getState().floors),
 
   // 잔여티켓: 배정티켓 - 배정된 좌석수 (getRemainTickets 공식 재사용)
   getMemberRemainTicketsByMemberId: (memberId) => {

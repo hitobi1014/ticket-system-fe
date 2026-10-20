@@ -135,7 +135,7 @@ export default function SeatViewPage() {
 
       <main className="flex flex-1 flex-col gap-y-4 overflow-hidden p-4">
         {/* 상단 콤보박스, 기능 버튼 */}
-        <div className="flex items-center justify-between gap-x-4">
+        <div className="flex items-start justify-between gap-x-4">
           <MemberSearchComboBox
             selectedMemberIds={selectedMemberIds}
             setSelectedMemberIds={setSelectedMemberIds}
@@ -144,7 +144,7 @@ export default function SeatViewPage() {
             setSearchQuery={setSearchQuery}
             selectedMembers={selectedMembers}
           />
-          <div className="flex items-center gap-x-2">
+          <div className="flex shrink-0 items-center gap-x-2">
             <GuestNameInputModal />
             {myMemberWithSeats && <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />}
           </div>

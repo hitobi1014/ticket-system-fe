@@ -39,6 +39,25 @@ export function findSeatContextByRowId(floors: Floor[], rowId: number) {
   return null;
 }
 
+// 회원별 배정된 좌석수 집계 (memberId -> 좌석수)
+export function getAssignedCountMapFromFloors(floors: Floor[]): Record<number, number> {
+  const countMap: Record<number, number> = {};
+  for (const floor of floors) {
+    for (const floorRow of floor.rows) {
+      for (const item of floorRow.items) {
+        if (item.kind !== 'section') continue;
+        for (const row of item.rows) {
+          for (const seat of row.seats) {
+            if (seat.assignedMemberId === undefined) continue;
+            countMap[seat.assignedMemberId] = (countMap[seat.assignedMemberId] ?? 0) + 1;
+          }
+        }
+      }
+    }
+  }
+  return countMap;
+}
+
 // 잔여티켓: 배정티켓 - 배정된 좌석수 (assignedCountMap 기반, 단일 계산식)
 export function getRemainTickets(member: Member, assignedCountMap: Record<number, number>): number {
   return member.allocatedTickets - (assignedCountMap[member.id] ?? 0);
