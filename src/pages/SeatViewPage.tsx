@@ -7,7 +7,7 @@ import useAuthStore from '@/store/authStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
-import { IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
+import { IconHelp, IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
 import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
@@ -15,6 +15,7 @@ import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
 import GuestNameInputModal from '@/components/dialog/GuestNameInputModal.tsx';
 import { findSeatsByMemberId, toAssignedSeatInfo } from '@/lib/seatUtils.ts';
 import type { MemberWithSeats } from '@/types';
+import useSeatViewTour from '@/hooks/use-seat-view-tour.ts';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 export default function SeatViewPage() {
@@ -42,6 +43,9 @@ export default function SeatViewPage() {
     clearStore();
     fetchFloors();
   }, [currentMember?.id, clearStore, fetchFloors]);
+
+  // 좌석 데이터와 회원 정보가 모두 로드된 뒤 온보딩 투어 실행 (첫 방문 1회)
+  const { startTour } = useSeatViewTour(floors.length > 0 && members.length > 0 && selectedFloorId !== undefined);
 
   const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
   const zoomDropdownRef = useRef<HTMLDivElement>(null);
@@ -119,7 +123,7 @@ export default function SeatViewPage() {
   return (
     <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/* 공연장명 + 공연일 */}
-      <header className="px-4 py-3">
+      <header className="flex items-center justify-between gap-x-2 px-4 py-3">
         <div className="flex items-center gap-x-2">
           <IconMapPin stroke={1.5} className="text-primary" />
           <div>
@@ -131,6 +135,15 @@ export default function SeatViewPage() {
             )}
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-primary"
+          aria-label="사용 방법 보기"
+          onClick={startTour}
+        >
+          <IconHelp stroke={1.5} className="size-5" />
+        </Button>
       </header>
 
       <main className="flex flex-1 flex-col gap-y-4 overflow-hidden p-4">
@@ -145,8 +158,14 @@ export default function SeatViewPage() {
             selectedMembers={selectedMembers}
           />
           <div className="flex shrink-0 items-center gap-x-2">
-            <GuestNameInputModal />
-            {myMemberWithSeats && <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />}
+            <div data-tour="guest-name">
+              <GuestNameInputModal />
+            </div>
+            {myMemberWithSeats && (
+              <div data-tour="my-ticket">
+                <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />
+              </div>
+            )}
           </div>
         </div>
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
@@ -205,7 +224,7 @@ export default function SeatViewPage() {
                 )}
 
                 {/* Zoom controls */}
-                <div ref={zoomDropdownRef} className="relative">
+                <div ref={zoomDropdownRef} data-tour="zoom" className="relative">
                   <Button
                     variant="ghost"
                     size="lg"

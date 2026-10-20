@@ -80,6 +80,7 @@ export default function MemberSearchComboBox({
 
   return (
     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
+      <div data-tour="member-search">
       <Combobox
         value=""
         onValueChange={handleSelectMember}
@@ -129,6 +130,7 @@ export default function MemberSearchComboBox({
           </ComboboxList>
         </ComboboxContent>
       </Combobox>
+      </div>
       {/* 선택된 회원 카드: 콤보박스 바로 옆에 이어 배치, 공간이 부족하면 줄바꿈
           ex) o 김안나 */}
       {selectedMembers.map((member) => (
