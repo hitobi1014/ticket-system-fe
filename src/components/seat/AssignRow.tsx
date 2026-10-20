@@ -68,7 +68,7 @@ export default function AssignRow({
                 {isVisible && (
                   <div>
                     <p>{seat.seatNumber}</p>
-                    <p>{assignedSeatMemberName(seat.assignedMemberId!)}</p>
+                    <p className="text-xs">{assignedSeatMemberName(seat.assignedMemberId!)}</p>
                   </div>
                 )}
               </Button>

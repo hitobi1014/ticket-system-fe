@@ -15,6 +15,7 @@ import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
+import { getDisplayMemberName } from '@/lib/formatUtils.ts';
 
 interface SeatGridProps {
   floor: Floor;
@@ -54,7 +55,10 @@ export default function SeatGrid({
   const getMemberColor = (memberId: number) =>
     members.find((m) => m.id === memberId)?.color ?? '#f0fdfa';
 
-  const getMemberName = (memberId: number) => members.find((m) => m.id === memberId)?.name ?? '';
+  const getMemberName = (memberId: number) => {
+    const name = members.find((m) => m.id === memberId)?.name;
+    return name ? getDisplayMemberName(name) : '';
+  };
 
   const floorRows = floor.rows.map((floorRow) => (
     <div key={floorRow.id} className="flex gap-x-4 py-2">

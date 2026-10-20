@@ -12,6 +12,7 @@ import { type Dispatch, type KeyboardEvent, type SetStateAction, useMemo, useRef
 import useMemberStore from '@/store/memberStore.ts';
 import useSeatGuideStore from '@/store/seatGuideStore.ts';
 import { getAssignedCountMapFromFloors, getRemainTickets } from '@/lib/seatUtils.ts';
+import { getDisplayMemberName } from '@/lib/formatUtils.ts';
 import { getChoseong } from 'es-hangul';
 import type { Member } from '@/types';
 
@@ -109,7 +110,7 @@ export default function MemberSearchComboBox({
                     <Badge variant="default" className="w-8 px-1.5 py-0 text-xs">
                       {member.instrument.abbr}
                     </Badge>
-                    <span className="flex-1 text-sm">{member.name}</span>
+                    <span className="flex-1 text-sm">{getDisplayMemberName(member.name)}</span>
                     <span className="text-muted-foreground ml-auto text-xs">
                       잔여: {remain} / 배정완료석: {assigned}
                     </span>
@@ -132,7 +133,9 @@ export default function MemberSearchComboBox({
             className="h-2.5 w-2.5 shrink-0 rounded-full"
             style={{ backgroundColor: member.color ?? '#cccccc' }}
           />
-          <span className="text-text-primary text-sm whitespace-nowrap">{member.name}</span>
+          <span className="text-text-primary text-sm whitespace-nowrap">
+            {getDisplayMemberName(member.name)}
+          </span>
           <Button
             variant="ghost"
             size="icon-xs"

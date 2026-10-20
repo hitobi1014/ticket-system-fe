@@ -56,6 +56,15 @@ export function joinPerformanceAt(date: string, time: string): string {
   return `${date}T${time}:00${KST_OFFSET}`;
 }
 
+/**
+ * 화면 표시용 회원명: 동명이인 구분용 끝 숫자를 제거 (악기 약어로 구분 가능)
+ * @example '김종훈2' -> '김종훈'
+ */
+export function getDisplayMemberName(name: string): string {
+  const stripped = name.replace(/\d+$/, '').trim();
+  return stripped || name;
+}
+
 /** 연주자명 표기: 악기가 있으면 '이름(악기)', 없으면 '이름' */
 export function formatPlayerName(name: string, instrument?: string | null): string {
   return instrument ? `${name}(${instrument})` : name;

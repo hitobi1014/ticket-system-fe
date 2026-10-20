@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import Ticket from '@/components/Ticket.tsx';
 import { cn } from '@/lib/utils.ts';
-import { formatPlayerName } from '@/lib/formatUtils.ts';
+import { formatPlayerName, getDisplayMemberName } from '@/lib/formatUtils.ts';
 import { headerTitleClass } from '@/constant/styles.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import type { AssignedSeatInfo, Member, MemberWithSeats } from '@/types';
@@ -37,7 +37,7 @@ function toTicketProps(
     sectionName: seat.sectionName,
     rowName: seat.rowName,
     seatNumber: seat.seatNumber,
-    inviterName: formatPlayerName(member.name, member.instrument?.name),
+    inviterName: formatPlayerName(getDisplayMemberName(member.name), member.instrument?.name),
     guestName: seat.guestName,
     memo: seat.memo,
   };
