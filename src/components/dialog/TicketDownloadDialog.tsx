@@ -85,7 +85,7 @@ export default function TicketDownloadDialog({ memberWithSeats }: TicketDownload
     }
   };
 
-  const [previewSeat, ...hiddenSeats] = seats;
+  const previewSeat = seats[0];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -99,19 +99,16 @@ export default function TicketDownloadDialog({ memberWithSeats }: TicketDownload
         <div>
           <p className="text-primary text-base font-semibold">미리보기</p>
           {previewSeat && (
-            <Ticket
-              ref={(el) => {
-                ticketRefs.current[previewSeat.seatId] = el;
-              }}
-              {...toTicketProps(member, previewSeat, venueName, performanceDateTime)}
-            />
+            <Ticket {...toTicketProps(member, previewSeat, venueName, performanceDateTime)} />
           )}
         </div>
 
-        {/* PNG 캡처 전용: 화면 밖에 렌더링 (display:none 금지 — 캡처 불가) */}
-        {hiddenSeats.length > 0 && (
+        {/* PNG 캡처 전용: 화면 밖 고정 너비(w-96)에 모든 티켓을 렌더링해 이미지 크기를 통일
+            (미리보기는 다이얼로그 너비에 따라 크기가 달라지므로 캡처 대상에서 제외)
+            display:none 금지 — 캡처 불가 */}
+        {seats.length > 0 && (
           <div className="fixed top-0 left-[-9999px] w-96" aria-hidden>
-            {hiddenSeats.map((seat) => (
+            {seats.map((seat) => (
               <Ticket
                 key={seat.seatId}
                 ref={(el) => {
