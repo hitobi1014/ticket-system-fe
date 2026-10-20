@@ -7,7 +7,14 @@ import useAuthStore from '@/store/authStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
-import { IconArmchair, IconHelp, IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
+import {
+  IconArmchair,
+  IconHelp,
+  IconMapPin,
+  IconMinus,
+  IconPlus,
+  IconZoomIn,
+} from '@tabler/icons-react';
 import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
@@ -46,7 +53,9 @@ export default function SeatViewPage() {
   }, [currentMember?.id, clearStore, fetchFloors]);
 
   // 좌석 데이터와 회원 정보가 모두 로드된 뒤 온보딩 투어 실행 (첫 방문 1회)
-  const { startTour } = useSeatViewTour(floors.length > 0 && members.length > 0 && selectedFloorId !== undefined);
+  const { startTour } = useSeatViewTour(
+    floors.length > 0 && members.length > 0 && selectedFloorId !== undefined,
+  );
 
   // 회원 선택(검색): 좌석 하이라이트 대상에 추가하고 잠시 강조 (콤보박스 선택과 내 좌석 보기 공용)
   const handleSelectMember = (memberId: number) => {
@@ -176,7 +185,11 @@ export default function SeatViewPage() {
               <GuestNameInputModal />
             </div>
             {currentMember && (
-              <Button variant="dialog" size="base" onClick={() => handleSelectMember(currentMember.id)}>
+              <Button
+                variant="dialog"
+                size="base"
+                onClick={() => handleSelectMember(currentMember.id)}
+              >
                 <IconArmchair stroke={1.5} />내 좌석 보기
               </Button>
             )}
@@ -198,13 +211,7 @@ export default function SeatViewPage() {
             <div className="flex items-center justify-between">
               <TabsList variant="default">
                 {floors.map((floor) => (
-                  <TabsTrigger
-                    key={floor.id}
-                    variant="default"
-                    value={String(floor.id)}
-                    /*TODO 사용안하면 삭제*/
-                    // className={cn(highlightedFloorIds.has(floor.id) && 'gap-x-1.5')}
-                  >
+                  <TabsTrigger key={floor.id} variant="default" value={String(floor.id)}>
                     {floor.name}
                     {highlightedFloorIds.has(floor.id) && (
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
@@ -280,21 +287,23 @@ export default function SeatViewPage() {
             </div>
 
             {floors.map((floor) => (
-              <SeatGrid
-                key={floor.id}
-                floor={floor}
-                stagePosition={venue?.stagePosition ?? 'front'}
-                highlightColorMap={highlightColorMap}
-                pulsingMemberIds={pulsingMemberIds}
-                enableZoom
-                isActive={floor.id === selectedFloorId}
-                transformRef={(ref) => {
-                  transformRefs.current.set(floor.id, ref);
-                }}
-                onScaleChange={handleScaleChange}
-                displayMode={displayMode}
-                currentMemberId={currentMember?.id}
-              />
+              <div data-tour="seat-grid">
+                <SeatGrid
+                  key={floor.id}
+                  floor={floor}
+                  stagePosition={venue?.stagePosition ?? 'front'}
+                  highlightColorMap={highlightColorMap}
+                  pulsingMemberIds={pulsingMemberIds}
+                  enableZoom
+                  isActive={floor.id === selectedFloorId}
+                  transformRef={(ref) => {
+                    transformRefs.current.set(floor.id, ref);
+                  }}
+                  onScaleChange={handleScaleChange}
+                  displayMode={displayMode}
+                  currentMemberId={currentMember?.id}
+                />
+              </div>
             ))}
           </Tabs>
         </div>

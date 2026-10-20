@@ -6,6 +6,14 @@ const TOUR_DONE_KEY = 'seat-view-tour-done';
 
 const TOUR_STEPS: DriveStep[] = [
   {
+    element: '[data-tour="seat-grid"]',
+    popover: {
+      title: '좌석 안내',
+      description:
+        '본인 좌석은 초대하려는 게스트명이 표기되고, 좌석별 좌측 상단에 "나" 텍스트 마커가 작게 표기됩니다.',
+    },
+  },
+  {
     element: '[data-tour="member-search"]',
     popover: {
       title: '회원 검색',
