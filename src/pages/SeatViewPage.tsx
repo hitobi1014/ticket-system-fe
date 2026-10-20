@@ -15,6 +15,7 @@ import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
 import GuestNameInputModal from '@/components/dialog/GuestNameInputModal.tsx';
 import { findSeatsByMemberId, toAssignedSeatInfo } from '@/lib/seatUtils.ts';
 import type { MemberWithSeats } from '@/types';
+import { formatPerformanceAt } from '@/lib/formatUtils.ts';
 import useSeatViewTour from '@/hooks/use-seat-view-tour.ts';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
@@ -143,8 +144,8 @@ export default function SeatViewPage() {
             <p className="text-primary text-lg leading-tight font-semibold">
               {venue?.name ?? '공연장'}
             </p>
-            {venue?.performanceDate && (
-              <p className="text-secondary text-sm">{venue.performanceDate}</p>
+            {venue?.performanceAt && (
+              <p className="text-secondary text-sm">{formatPerformanceAt(venue.performanceAt)}</p>
             )}
           </div>
         </div>

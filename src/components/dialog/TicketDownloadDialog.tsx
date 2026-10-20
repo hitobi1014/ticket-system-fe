@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import Ticket from '@/components/Ticket.tsx';
 import { cn } from '@/lib/utils.ts';
+import { formatPlayerName } from '@/lib/formatUtils.ts';
 import { headerTitleClass } from '@/constant/styles.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import type { AssignedSeatInfo, Member, MemberWithSeats } from '@/types';
@@ -27,16 +28,16 @@ function toTicketProps(
   member: Member,
   seat: AssignedSeatInfo,
   venueName: string,
-  performanceDateTime: string,
+  performanceAt: string,
 ) {
   return {
     venueName,
-    performanceDateTime,
+    performanceAt,
     floorName: seat.floorName,
     sectionName: seat.sectionName,
     rowName: seat.rowName,
     seatNumber: seat.seatNumber,
-    inviterName: member.name,
+    inviterName: formatPlayerName(member.name, member.instrument?.name),
     guestName: seat.guestName,
     memo: seat.memo,
   };
@@ -50,7 +51,7 @@ export default function TicketDownloadDialog({ memberWithSeats }: TicketDownload
   const { venue } = useVenueStore();
   const { member, seats } = memberWithSeats;
   const venueName = venue?.name ?? '';
-  const performanceDateTime = venue?.performanceDate ?? '';
+  const performanceAt = venue?.performanceAt ?? '';
 
   const handleExport = async () => {
     if (isExporting || seats.length === 0) return;
@@ -99,7 +100,7 @@ export default function TicketDownloadDialog({ memberWithSeats }: TicketDownload
         <div>
           <p className="text-primary text-base font-semibold">미리보기</p>
           {previewSeat && (
-            <Ticket {...toTicketProps(member, previewSeat, venueName, performanceDateTime)} />
+            <Ticket {...toTicketProps(member, previewSeat, venueName, performanceAt)} />
           )}
         </div>
 
@@ -114,7 +115,7 @@ export default function TicketDownloadDialog({ memberWithSeats }: TicketDownload
                 ref={(el) => {
                   ticketRefs.current[seat.seatId] = el;
                 }}
-                {...toTicketProps(member, seat, venueName, performanceDateTime)}
+                {...toTicketProps(member, seat, venueName, performanceAt)}
               />
             ))}
           </div>

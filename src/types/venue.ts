@@ -5,7 +5,7 @@ export interface Venue {
   id: number;
   name: string; // 공연장 이름
   // floors: Floor[]; // 층 배열
-  performanceDate: string;
+  performanceAt: string; // 공연 일시 (ISO 8601, 오프셋 포함. 예: 2026-12-19T19:00:00+09:00)
   totalSeats: number;
   address: string;
   stagePosition: StagePosition;

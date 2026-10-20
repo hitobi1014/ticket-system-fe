@@ -22,8 +22,6 @@ interface MemberSearchComboBoxProps {
   searchQuery: string;
   setSearchQuery: Dispatch<SetStateAction<string>>;
   selectedMembers: Member[];
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
 }
 
 export default function MemberSearchComboBox({
