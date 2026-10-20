@@ -1,5 +1,5 @@
 export const INSTRUMENTS = {
-  지휘: '지휘',
+  Cond: '지휘',
   Pf: '피아노',
   Fl: '플루트',
   Ob: '오보에',

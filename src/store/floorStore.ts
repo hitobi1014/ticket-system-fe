@@ -7,6 +7,7 @@ import type {
   Floor,
   Section,
   UnAssignSeatRequest,
+  UpdateSeatGuestNamesRequest,
   Venue,
 } from '@/types';
 
@@ -55,6 +56,7 @@ interface FloorStore {
 
   assignSeat: (req: AssignSeatRequest) => Promise<void>;
   unAssignSeat: (req: UnAssignSeatRequest) => Promise<void>;
+  updateSeatGuestNames: (req: UpdateSeatGuestNamesRequest) => Promise<void>;
 
   // ====== Member Seat Management ======
   clearMemberSeats: (memberId: number) => void;
@@ -266,6 +268,14 @@ const useFloorStore = create<FloorStore>()(
 
     unAssignSeat: async (req: UnAssignSeatRequest) => {
       const floors = await fetchApi<Floor[]>(`${SEAT_API_PREFIX}/unassign`, {
+        method: 'PATCH',
+        body: JSON.stringify(req),
+      });
+      floors.map((f) => get().syncSection(f));
+    },
+
+    updateSeatGuestNames: async (req: UpdateSeatGuestNamesRequest) => {
+      const floors = await fetchApi<Floor[]>(`${SEAT_API_PREFIX}/guest-names`, {
         method: 'PATCH',
         body: JSON.stringify(req),
       });
