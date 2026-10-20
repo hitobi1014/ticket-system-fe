@@ -18,16 +18,18 @@ import type { Member } from '@/types';
 interface MemberSearchComboBoxProps {
   selectedMemberIds: number[];
   setSelectedMemberIds: Dispatch<SetStateAction<number[]>>;
-  setPulsingMemberIds: Dispatch<SetStateAction<Set<number>>>;
+  onSelectMember: (memberId: number) => void;
   searchQuery: string;
   setSearchQuery: Dispatch<SetStateAction<string>>;
   selectedMembers: Member[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export default function MemberSearchComboBox({
   selectedMemberIds,
   setSelectedMemberIds,
-  setPulsingMemberIds,
+  onSelectMember,
   searchQuery,
   setSearchQuery,
   selectedMembers,
@@ -43,17 +45,7 @@ export default function MemberSearchComboBox({
     if (memberIdStr == null) return;
     highlightedValueRef.current = null;
     const memberId = Number(memberIdStr);
-    if (!selectedMemberIdSet.has(memberId)) {
-      setSelectedMemberIds((prev) => [...prev, memberId]);
-      setPulsingMemberIds((prev) => new Set(prev).add(memberId));
-      setTimeout(() => {
-        setPulsingMemberIds((prev) => {
-          const next = new Set(prev);
-          next.delete(memberId);
-          return next;
-        });
-      }, 3000);
-    }
+    if (!selectedMemberIdSet.has(memberId)) onSelectMember(memberId);
     setSearchQuery('');
   };
 

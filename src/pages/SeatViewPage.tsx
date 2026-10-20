@@ -7,7 +7,7 @@ import useAuthStore from '@/store/authStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
-import { IconHelp, IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
+import { IconArmchair, IconHelp, IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
 import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
@@ -46,6 +46,19 @@ export default function SeatViewPage() {
 
   // 좌석 데이터와 회원 정보가 모두 로드된 뒤 온보딩 투어 실행 (첫 방문 1회)
   const { startTour } = useSeatViewTour(floors.length > 0 && members.length > 0 && selectedFloorId !== undefined);
+
+  // 회원 선택(검색): 좌석 하이라이트 대상에 추가하고 잠시 강조 (콤보박스 선택과 내 좌석 보기 공용)
+  const handleSelectMember = (memberId: number) => {
+    setSelectedMemberIds((prev) => (prev.includes(memberId) ? prev : [...prev, memberId]));
+    setPulsingMemberIds((prev) => new Set(prev).add(memberId));
+    setTimeout(() => {
+      setPulsingMemberIds((prev) => {
+        const next = new Set(prev);
+        next.delete(memberId);
+        return next;
+      });
+    }, 3000);
+  };
 
   const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
   const zoomDropdownRef = useRef<HTMLDivElement>(null);
@@ -152,7 +165,7 @@ export default function SeatViewPage() {
           <MemberSearchComboBox
             selectedMemberIds={selectedMemberIds}
             setSelectedMemberIds={setSelectedMemberIds}
-            setPulsingMemberIds={setPulsingMemberIds}
+            onSelectMember={handleSelectMember}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             selectedMembers={selectedMembers}
@@ -161,6 +174,11 @@ export default function SeatViewPage() {
             <div data-tour="guest-name">
               <GuestNameInputModal />
             </div>
+            {currentMember && (
+              <Button variant="dialog" size="base" onClick={() => handleSelectMember(currentMember.id)}>
+                <IconArmchair stroke={1.5} />내 좌석 보기
+              </Button>
+            )}
             {myMemberWithSeats && (
               <div data-tour="my-ticket">
                 <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />
