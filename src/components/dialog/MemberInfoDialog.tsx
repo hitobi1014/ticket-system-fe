@@ -35,7 +35,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
   const [initialAllocatedTickets] = useState<number>(member?.allocatedTickets ?? 0);
   const [form, setForm] = useState<CreateMemberRequest>({
     name: member?.name ?? '',
-    instrumentAbbr: member?.instrument.abbr ?? '지휘',
+    instrumentAbbr: member?.instrument.abbr ?? 'Cond',
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color ?? '#000000',
   });
