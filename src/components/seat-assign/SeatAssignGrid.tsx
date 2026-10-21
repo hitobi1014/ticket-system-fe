@@ -9,9 +9,10 @@ import StageBar from '@/components/seat-assign/StageBar.tsx';
 import {
   TransformWrapper,
   TransformComponent,
-  useTransformEffect,
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
+import ScaleTracker from '@/components/common/ScaleTracker.tsx';
+import { ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 
 interface SeatAssignGridProps {
@@ -24,13 +25,6 @@ interface SeatAssignGridProps {
   setIsModalOpen: (isModalOpen: boolean) => void;
   transformRef?: React.Ref<ReactZoomPanPinchContentRef>;
   onScaleChange?: (scale: number) => void;
-}
-
-function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
-  useTransformEffect((state) => {
-    onScaleChange?.(state.state.scale);
-  });
-  return null;
 }
 
 export default function SeatAssignGrid({
@@ -61,8 +55,6 @@ export default function SeatAssignGrid({
       setIsModalOpen(true);
     }
   };
-
-  const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   return (
     <TabsContent value={String(floor.id)} className="flex min-h-0 flex-1 flex-col gap-y-4">
@@ -104,15 +96,7 @@ export default function SeatAssignGrid({
           <StageBar position={stagePosition} />
         )}
         <div className="min-h-0 flex-1 cursor-grab overflow-hidden active:cursor-grabbing">
-          <TransformWrapper
-            ref={transformRef}
-            initialScale={1}
-            minScale={0.5}
-            maxScale={2}
-            wheel={{ step: isMac ? 0.01 : 0.5, activationKeys: [isMac ? 'Meta' : 'Control'] }}
-            panning={{ allowLeftClickPan: true }}
-            doubleClick={{ disabled: true }}
-          >
+          <TransformWrapper ref={transformRef} {...ZOOM_WRAPPER_PROPS}>
             <ScaleTracker onScaleChange={onScaleChange} />
             <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
               <div className="flex w-max flex-col gap-y-2 px-2 pb-4">

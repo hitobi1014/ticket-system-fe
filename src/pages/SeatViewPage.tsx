@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import useSeatGuideStore from '@/store/seatGuideStore';
 import useVenueStore from '@/store/venueStore';
@@ -7,15 +7,9 @@ import useAuthStore from '@/store/authStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
-import {
-  IconArmchair,
-  IconHelp,
-  IconMapPin,
-  IconMinus,
-  IconPlus,
-  IconZoomIn,
-} from '@tabler/icons-react';
-import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
+import { IconArmchair, IconHelp, IconMapPin } from '@tabler/icons-react';
+import ZoomControl from '@/components/common/ZoomControl.tsx';
+import useZoomControls from '@/hooks/use-zoom-controls.ts';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
 import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
@@ -36,8 +30,6 @@ export default function SeatViewPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
-  const [currentScale, setCurrentScale] = useState(1);
-  const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
   useEffect(() => {
     if (floors.length > 0 && selectedFloorId == undefined) {
@@ -70,36 +62,8 @@ export default function SeatViewPage() {
     }, 3000);
   };
 
-  const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
-  const zoomDropdownRef = useRef<HTMLDivElement>(null);
-  const selectedFloorIdRef = useRef(selectedFloorId);
-
-  useEffect(() => {
-    selectedFloorIdRef.current = selectedFloorId;
-  }, [selectedFloorId]);
-
-  useEffect(() => {
-    if (!showZoomDropdown) return;
-    const handler = (e: MouseEvent) => {
-      if (!zoomDropdownRef.current?.contains(e.target as Node)) {
-        setShowZoomDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showZoomDropdown]);
-
-  const handleScaleChange = useCallback(
-    (scale: number) => {
-      if (selectedFloorIdRef.current === selectedFloorId) {
-        setCurrentScale(scale);
-      }
-    },
-    [selectedFloorId],
-  );
-
-  // eslint-disable-next-line react-hooks/refs
-  const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+  const { currentScale, handleScaleChange, setTransformRef, zoomIn, zoomOut } =
+    useZoomControls(selectedFloorId);
 
   const selectedMembers = useMemo(
     () => members.filter((m) => selectedMemberIds.includes(m.id)),
@@ -250,55 +214,25 @@ export default function SeatViewPage() {
                 )}
 
                 {/* Zoom controls */}
-                <div ref={zoomDropdownRef} data-tour="zoom" className="relative">
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    className="text-primary"
-                    onClick={() => setShowZoomDropdown((v) => !v)}
-                  >
-                    <IconZoomIn stroke={1.5} size={18} />
-                  </Button>
-                  {showZoomDropdown && (
-                    <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-primary"
-                        onClick={() => activeTransform?.zoomOut(0.25)}
-                      >
-                        <IconMinus stroke={2} size={14} />
-                      </Button>
-                      <span className="text-primary w-10 text-center text-xs tabular-nums">
-                        {Math.round(currentScale * 100)}%
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-primary"
-                        onClick={() => activeTransform?.zoomIn(0.25)}
-                      >
-                        <IconPlus stroke={2} size={14} />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <ZoomControl
+                  data-tour="zoom"
+                  scale={currentScale}
+                  onZoomIn={zoomIn}
+                  onZoomOut={zoomOut}
+                />
               </div>
             </div>
 
             {floors.map((floor) => (
-              <div data-tour="seat-grid">
+              <div key={floor.id} data-tour="seat-grid">
                 <SeatGrid
-                  key={floor.id}
                   floor={floor}
                   stagePosition={venue?.stagePosition ?? 'front'}
                   highlightColorMap={highlightColorMap}
                   pulsingMemberIds={pulsingMemberIds}
                   enableZoom
                   isActive={floor.id === selectedFloorId}
-                  transformRef={(ref) => {
-                    transformRefs.current.set(floor.id, ref);
-                  }}
+                  transformRef={setTransformRef(floor.id)}
                   onScaleChange={handleScaleChange}
                   displayMode={displayMode}
                   currentMemberId={currentMember?.id}

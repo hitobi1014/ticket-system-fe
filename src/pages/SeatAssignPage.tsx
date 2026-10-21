@@ -1,14 +1,13 @@
 import useFloorStore from '@/store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog } from '@/components/ui/dialog.tsx';
 import { AssignMemberModal } from '@/components/dialog/AssignMemberModal.tsx';
 import SeatAssignSidebar from '@/components/seat-assign/SeatAssignSidebar.tsx';
 import SeatAssignGrid from '@/components/seat-assign/SeatAssignGrid.tsx';
-import { Button } from '@/components/ui/button.tsx';
-import { IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
-import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
+import ZoomControl from '@/components/common/ZoomControl.tsx';
+import useZoomControls from '@/hooks/use-zoom-controls.ts';
 import { cn } from '@/lib/utils.ts';
 import { pageContentClass } from '@/constant/styles.ts';
 
@@ -20,8 +19,6 @@ export default function SeatAssignPage() {
   const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [isBulkEditMode, setIsBulkEditMode] = useState(false);
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
-  const [currentScale, setCurrentScale] = useState(1);
-  const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
   useEffect(() => {
     if (floors.length > 0 && selectedFloorId == undefined) {
@@ -31,36 +28,8 @@ export default function SeatAssignPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [floors]);
 
-  const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
-  const zoomDropdownRef = useRef<HTMLDivElement>(null);
-  const selectedFloorIdRef = useRef(selectedFloorId);
-
-  useEffect(() => {
-    selectedFloorIdRef.current = selectedFloorId;
-  }, [selectedFloorId]);
-
-  useEffect(() => {
-    if (!showZoomDropdown) return;
-    const handler = (e: MouseEvent) => {
-      if (!zoomDropdownRef.current?.contains(e.target as Node)) {
-        setShowZoomDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showZoomDropdown]);
-
-  const handleScaleChange = useCallback(
-    (scale: number) => {
-      if (selectedFloorIdRef.current === selectedFloorId) {
-        setCurrentScale(scale);
-      }
-    },
-    [selectedFloorId],
-  );
-
-  // eslint-disable-next-line react-hooks/refs
-  const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+  const { currentScale, handleScaleChange, setTransformRef, zoomIn, zoomOut } =
+    useZoomControls(selectedFloorId);
 
   return (
     <div className="flex h-full overflow-hidden">
@@ -79,39 +48,7 @@ export default function SeatAssignPage() {
           </TabsList>
 
           {/* Zoom controls */}
-          <div ref={zoomDropdownRef} className="relative">
-            <Button
-              variant="ghost"
-              size="lg"
-              className="text-primary"
-              onClick={() => setShowZoomDropdown((v) => !v)}
-            >
-              <IconZoomIn stroke={1.5} size={18} />
-            </Button>
-            {showZoomDropdown && (
-              <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  className="text-accent"
-                  onClick={() => activeTransform?.zoomOut(0.25)}
-                >
-                  <IconMinus stroke={2} size={14} />
-                </Button>
-                <span className="text-accent w-10 text-center text-xs tabular-nums">
-                  {Math.round(currentScale * 100)}%
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon-xs"
-                  className="text-accent"
-                  onClick={() => activeTransform?.zoomIn(0.25)}
-                >
-                  <IconPlus stroke={2} size={14} />
-                </Button>
-              </div>
-            )}
-          </div>
+          <ZoomControl scale={currentScale} onZoomIn={zoomIn} onZoomOut={zoomOut} />
         </div>
 
         {/* 좌측 메인 */}
@@ -126,9 +63,7 @@ export default function SeatAssignPage() {
               selectedSeatIds={selectedSeatIds}
               setSelectedSeatIds={setSelectedSeatIds}
               setIsModalOpen={setIsModalOpen}
-              transformRef={(ref) => {
-                transformRefs.current.set(floor.id, ref);
-              }}
+              transformRef={setTransformRef(floor.id)}
               onScaleChange={handleScaleChange}
             />
           ))}
