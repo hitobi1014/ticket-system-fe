@@ -18,6 +18,8 @@ export interface FloorCanvasProps {
   onSelectedRowId: (id: number | undefined) => void;
   transformRef?: React.Ref<ReactZoomPanPinchContentRef>;
   onScaleChange?: (scale: number) => void;
+  /** Space를 누르고 있는 동안 true — 구역 선택 중에도 드래그로 화면 이동 */
+  isSpacePressed?: boolean;
 }
 
 /** 무대 + 확대/이동 가능한 구역/통로 배치도 */
@@ -32,7 +34,11 @@ export default function FloorCanvas({
   onSelectedRowId,
   transformRef,
   onScaleChange,
+  isSpacePressed = false,
 }: FloorCanvasProps) {
+  // 구역이 선택되면 드래그는 좌석 선택에 사용하므로 화면 이동(패닝)을 끈다. Space를 누르면 다시 이동 가능
+  const isPanDisabled = selectedSectionId !== undefined && !isSpacePressed;
+
   return (
     <div
       className={cn(
@@ -43,8 +49,17 @@ export default function FloorCanvas({
       {(stagePosition === 'front' || stagePosition === 'left') && (
         <StageBar position={stagePosition} />
       )}
-      <div className="min-h-0 flex-1 cursor-grab overflow-hidden active:cursor-grabbing">
-        <TransformWrapper ref={transformRef} {...ZOOM_WRAPPER_PROPS}>
+      <div
+        className={cn(
+          'min-h-0 flex-1 overflow-hidden',
+          !isPanDisabled && 'cursor-grab active:cursor-grabbing',
+        )}
+      >
+        <TransformWrapper
+          ref={transformRef}
+          {...ZOOM_WRAPPER_PROPS}
+          panning={{ ...ZOOM_WRAPPER_PROPS.panning, disabled: isPanDisabled }}
+        >
           <ScaleTracker onScaleChange={onScaleChange} />
           <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
             <div className="flex w-max flex-col gap-y-4 px-2 pt-1 pb-4">
@@ -60,6 +75,7 @@ export default function FloorCanvas({
                       onSelectedSectionId={onSelectedSectionId}
                       onSelectedAisleId={onSelectedAisleId}
                       onSelectedRowId={onSelectedRowId}
+                      isSpacePressed={isSpacePressed}
                     />
                   ))}
                 </div>

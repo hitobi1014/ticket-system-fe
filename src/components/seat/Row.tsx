@@ -10,7 +10,12 @@ interface RowProps {
   onClick: (rowId: number) => void;
   selectedSeatIds?: Set<number>;
   onSeatClick?: (seatId: number) => void;
+  /** 좌석 영역 클릭 시 (구역 선택 전) 구역만 선택 — 열은 선택하지 않음 */
+  onSelectSection?: () => void;
+  /** 구역이 선택되어 좌석을 선택할 수 있는 상태 */
   isEditMode?: boolean;
+  /** 선택된 좌석 기준 번호 미리보기 (있으면 서버 번호 대신 표시, null은 숨겨질 좌석) */
+  seatNumberPreview?: Map<number, number | null>;
 }
 
 export default function Row({
@@ -19,7 +24,9 @@ export default function Row({
   onClick,
   selectedSeatIds,
   onSeatClick,
+  onSelectSection,
   isEditMode,
+  seatNumberPreview,
 }: RowProps) {
   return (
     <div
@@ -41,8 +48,18 @@ export default function Row({
             const isVisible = seat.visible;
 
             return (
-              <div key={seat.id} className="flex items-center">
+              <div
+                key={seat.id}
+                className="flex items-center"
+                onClick={(e) => {
+                  // 좌석 영역 클릭은 열 선택으로 전파하지 않음 (열 선택은 열 이름/빈 영역 클릭)
+                  e.stopPropagation();
+                  if (!isEditMode) onSelectSection?.();
+                }}
+              >
                 <Button
+                  data-seat-id={seat.id}
+                  data-selectable={seat.assignedMemberId == null}
                   className={cn(
                     emptySeatClass,
                     'h-8 w-8',
@@ -54,12 +71,15 @@ export default function Row({
                   )}
                   onClick={(e) => {
                     if (isEditMode && onSeatClick && seat.assignedMemberId == null) {
-                      e.stopPropagation();
                       onSeatClick(seat.id);
                     }
                   }}
                 >
-                  {isVisible ? seat.seatNumber : ''}
+                  {seatNumberPreview
+                    ? (seatNumberPreview.get(seat.id) ?? '')
+                    : isVisible
+                      ? seat.seatNumber
+                      : ''}
                 </Button>
               </div>
             );

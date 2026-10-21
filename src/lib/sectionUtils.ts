@@ -1,4 +1,4 @@
-import type { SeatNumbering, SectionRowConfig } from '@/types';
+import type { SeatNumbering, Section, SectionRowConfig } from '@/types';
 
 export type RowNameType = 'number' | 'alpha';
 
@@ -74,6 +74,42 @@ export const buildConfigSeatNumbers = (
     offset += Math.max(config.seatCount, 0);
     return nums;
   });
+};
+
+/**
+ * 구역 설정 화면용 좌석 번호 미리보기 (숨김 처리 전 힌트)
+ * 선택된 좌석의 표시 상태가 반전된다고 가정하고, 구역의 번호 방식에 따라 번호를 다시 계산한다.
+ * - 서버 데이터는 건드리지 않는 파생 값이며, 실제 번호는 숨김 처리 후 서버 응답으로 갱신됨
+ * - 반환: seatId -> 미리보기 번호 (숨겨질 좌석은 null)
+ * @example [1][숨김][2][3][숨김][4]에서 2번째(숨김)와 3번째(2)를 선택 -> [1][2][ ][3][ ][4]
+ */
+export const buildSeatNumberPreview = (
+  section: Section,
+  selectedSeatIds: Set<number>,
+): Map<number, number | null> => {
+  const numbering = section.seatNumbering ?? DEFAULT_SEAT_NUMBERING;
+  const preview = new Map<number, number | null>();
+  let counter = 0;
+  let rowIndex = 0;
+
+  for (const row of section.rows) {
+    if (row.kind === 'gap') continue;
+    if (numbering.mode === 'PER_ROW') counter = 0;
+
+    // 구역별 번호 방식의 행 내부 번호 진행 방향 (서버 규칙과 동일)
+    const reversed =
+      numbering.mode === 'SECTION' &&
+      (numbering.start === 'RIGHT') !== (numbering.pattern === 'ZIGZAG' && rowIndex % 2 === 1);
+    const seats = reversed ? [...row.seats].reverse() : row.seats;
+
+    for (const seat of seats) {
+      const willBeVisible = selectedSeatIds.has(seat.id) ? !seat.visible : seat.visible;
+      counter += willBeVisible ? 1 : 0;
+      preview.set(seat.id, willBeVisible ? counter : null);
+    }
+    rowIndex += 1;
+  }
+  return preview;
 };
 
 /** 번호 방식 요약 문구 (ex. 구역별 · 왼쪽 시작 · 지그재그) */

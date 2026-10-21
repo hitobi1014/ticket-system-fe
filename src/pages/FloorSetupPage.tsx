@@ -9,6 +9,7 @@ import SectionButtons from '@/components/floor/SectionButtons.tsx';
 import FloorCanvas from '@/components/floor/FloorCanvas.tsx';
 import ZoomControl from '@/components/common/ZoomControl.tsx';
 import useZoomControls from '@/hooks/use-zoom-controls.ts';
+import useSpaceKey from '@/hooks/use-space-key.ts';
 
 export default function FloorSetupPage() {
   const isInitalized = useRef(false);
@@ -23,6 +24,8 @@ export default function FloorSetupPage() {
 
   const { currentScale, handleScaleChange, setTransformRef, zoomIn, zoomOut } =
     useZoomControls(selectedFloorId);
+  // 구역 선택 중에는 Space를 누른 채 드래그해서 화면 이동
+  const isSpacePressed = useSpaceKey(selectedSectionId !== undefined);
 
   useEffect(() => {
     if (!isInitalized.current && floors.length > 0 && selectedFloorId == undefined) {
@@ -92,6 +95,7 @@ export default function FloorSetupPage() {
               onSelectedRowId={setSelectedRowId}
               transformRef={setTransformRef(floor.id)}
               onScaleChange={handleScaleChange}
+              isSpacePressed={isSpacePressed}
             />
           </TabsContent>
         ))}
