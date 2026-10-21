@@ -1,4 +1,9 @@
-import type { AssignedSeatInfo, Floor, Member, Section } from '@/types';
+import type { AssignedSeatInfo, Floor, Member, Rows, Section, SectionRow } from '@/types';
+
+/** 좌석이 있는 일반 열인지 (빈 줄(gap)이 아닌지) 판별 */
+export function isSeatRow(row: SectionRow): row is Rows {
+  return row.kind === 'row';
+}
 
 export function findSeatContext(floors: Floor[], seatId: number) {
   for (const floor of floors) {
@@ -6,6 +11,7 @@ export function findSeatContext(floors: Floor[], seatId: number) {
       for (const item of floorRow.items) {
         if (item.kind !== 'section') continue;
         for (const row of item.rows) {
+          if (!isSeatRow(row)) continue;
           const seat = row.seats.find((s) => s.id === seatId);
           if (seat) {
             return { floor, floorRow, section: item, row, seat };
@@ -29,7 +35,7 @@ export function findSeatContextByRowId(floors: Floor[], rowId: number) {
     for (const floorRow of floor.rows) {
       for (const item of floorRow.items) {
         if (item.kind !== 'section') continue;
-        const row = item.rows.find((r) => r.id === rowId);
+        const row = item.rows.find((r): r is Rows => isSeatRow(r) && r.id === rowId);
         if (row) {
           return { floor, floorRow, section: item, row };
         }
@@ -87,6 +93,7 @@ export function findSeatsByMemberId(floors: Floor[], memberId: number) {
       for (const item of floorRow.items) {
         if (item.kind !== 'section') continue;
         for (const row of item.rows) {
+          if (!isSeatRow(row)) continue;
           for (const seat of row.seats) {
             if (seat.assignedMemberId === memberId) {
               result.push({ floor, floorRow, section: item, row, seat });
@@ -135,7 +142,7 @@ export function toAssignedSeatInfo(
 }
 
 export function findSectionRowInfoByRowId(section: Section, rowId: number) {
-  const row = section.rows.find((r) => r.id === rowId);
+  const row = section.rows.find((r): r is Rows => isSeatRow(r) && r.id === rowId);
   if (row) {
     return { section: section, row };
   }

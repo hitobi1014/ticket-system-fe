@@ -1,10 +1,5 @@
 export type RowNameType = 'number' | 'alpha';
 
-export interface RowConfig {
-  name: string;
-  seatCount: number;
-}
-
 /**
  * 입력받은 숫자 또는 알파벳으로 순차적으로 값 생성
  * */

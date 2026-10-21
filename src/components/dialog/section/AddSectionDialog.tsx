@@ -79,6 +79,8 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
             onApplyBulk={form.applyBulkSeatCount}
             rowConfigs={form.rowConfigs}
             onRowSeatCountChange={form.updateRowSeatCount}
+            onInsertGapAfter={form.insertGapAfter}
+            onRemoveGap={form.removeGap}
           />
         )}
 

@@ -10,20 +10,34 @@ export interface Seat {
 export interface CreateSeatRequest {
   addSeatCount: number;
 }
-/** 열 */
+/** 열 (좌석이 있는 일반 열) */
 export interface Rows {
+  kind: 'row';
   id: number;
   rowName: string; // 숫자, 문자열 받아야함 표기방법 다양 => ex) A열 1, 01열 1, 1열 1...
   seats: Seat[];
 }
-export type CreateRowsRequest = Omit<Rows, 'id' | 'seats'>;
+/** 빈 줄 (좌석 없이 1줄 높이의 빈 공간만 차지, 열 번호를 소비하지 않음) */
+export interface GapRows {
+  kind: 'gap';
+  id: number;
+  rowName: null;
+  seats: Seat[]; // 항상 빈 배열
+}
+/** 구역 내 한 줄 (서버가 화면 순서대로 내려줌 — 재정렬 금지) */
+export type SectionRow = Rows | GapRows;
+export type CreateRowsRequest = Omit<Rows, 'kind' | 'id' | 'seats'>;
+/** 구역 생성 요청의 rowConfig 항목 (배열 순서가 곧 화면 순서, 위→아래) */
+export type SectionRowConfig =
+  | { type: 'ROW'; name: string; seatCount: number }
+  | { type: 'GAP' }; // 빈 줄: name, seatCount 없음
 
 /** 구역 */
 export interface Section {
   kind: 'section';
   id: number;
   name: string; // 구역명 (가구역, 나구역 등)
-  rows: Rows[];
+  rows: SectionRow[];
 }
 export type CreateSectionRequest = Omit<Section, 'kind' | 'rows'>;
 

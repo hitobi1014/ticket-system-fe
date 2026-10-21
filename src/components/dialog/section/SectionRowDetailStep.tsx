@@ -1,7 +1,10 @@
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input';
-import type { RowConfig, RowNameType } from '@/lib/sectionUtils.ts';
+import { IconPlus } from '@tabler/icons-react';
+import type { RowNameType } from '@/lib/sectionUtils.ts';
+import type { SectionRowConfig } from '@/types';
 import RowSeatCountEditor from '@/components/dialog/section/RowSeatCountEditor.tsx';
+import RowGapItem from '@/components/dialog/section/RowGapItem.tsx';
 
 export interface SectionRowDetailStepProps {
   sectionName: string;
@@ -10,8 +13,10 @@ export interface SectionRowDetailStepProps {
   bulkCount: number;
   onBulkCountChange: (value: number) => void;
   onApplyBulk: () => void;
-  rowConfigs: RowConfig[];
+  rowConfigs: SectionRowConfig[];
   onRowSeatCountChange: (index: number, seatCount: number) => void;
+  onInsertGapAfter: (index: number) => void;
+  onRemoveGap: (index: number) => void;
 }
 
 /** 2단계: 열별 좌석 수 상세 설정 */
@@ -24,6 +29,8 @@ export default function SectionRowDetailStep({
   onApplyBulk,
   rowConfigs,
   onRowSeatCountChange,
+  onInsertGapAfter,
+  onRemoveGap,
 }: SectionRowDetailStepProps) {
   return (
     <div className="flex min-h-0 flex-col gap-y-2">
@@ -62,14 +69,32 @@ export default function SectionRowDetailStep({
       </div>
       {/* step02-content-03*/}
       <div className="flex min-h-0 flex-col gap-y-1 overflow-y-auto pr-1">
-        {rowConfigs.map((config, i) => (
-          <RowSeatCountEditor
-            key={i}
-            rowName={config.name}
-            seatCount={config.seatCount}
-            onChange={(seatCount) => onRowSeatCountChange(i, seatCount)}
-          />
-        ))}
+        {rowConfigs.map((config, i) => {
+          if (config.type === 'GAP') {
+            return <RowGapItem key={i} onRemove={() => onRemoveGap(i)} />;
+          }
+          // 마지막 열 뒤, 이미 빈 줄이 있는 위치에는 추가할 수 없음 (연속/말미 빈 줄 방지)
+          const canInsertGap = i < rowConfigs.length - 1 && rowConfigs[i + 1].type === 'ROW';
+          return (
+            <div key={i} className="flex flex-col gap-y-1">
+              <RowSeatCountEditor
+                rowName={config.name}
+                seatCount={config.seatCount}
+                onChange={(seatCount) => onRowSeatCountChange(i, seatCount)}
+              />
+              {canInsertGap && (
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  className="text-secondary self-start"
+                  onClick={() => onInsertGapAfter(i)}
+                >
+                  <IconPlus stroke={2} />빈 줄 추가
+                </Button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

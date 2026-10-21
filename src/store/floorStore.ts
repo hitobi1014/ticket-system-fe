@@ -7,6 +7,7 @@ import type {
   Floor,
   Section,
   UnAssignSeatRequest,
+  SectionRowConfig,
   UpdateSeatGuestNamesRequest,
   Venue,
 } from '@/types';
@@ -19,7 +20,7 @@ import useVenueStore from '@/store/venueStore.ts';
 
 interface AddSectionWithRowsRequest {
   sectionName: string;
-  rowConfig: { name: string; seatCount: number }[];
+  rowConfig: SectionRowConfig[]; // 배열 순서가 곧 화면 순서 (빈 줄은 { type: 'GAP' })
   targetFloorRowId: number | 'new'; // FloorRow 인덱스 또는 'new'
 }
 

@@ -1,5 +1,6 @@
 import type { FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
+import RowGap from '@/components/seat/RowGap.tsx';
 import useFloorStore from '@/store/floorStore.ts';
 import { IconEyeOff, IconMinus } from '@tabler/icons-react';
 import { toast } from 'sonner';
@@ -107,20 +108,24 @@ export default function SectionCard({
         />
       )}
       <div className="flex flex-col gap-y-2">
-        {item.rows.map((row) => (
-          <Row
-            key={row.id}
-            row={row}
-            isSelected={selectedRowId === row.id}
-            onClick={(rowId) => {
-              handleSelectSection(item.id);
-              onSelectedRowId(rowId);
-            }}
-            selectedSeatIds={selectedSeatIds}
-            onSeatClick={handleSeatClick}
-            isEditMode={selectedRowId === row.id}
-          />
-        ))}
+        {item.rows.map((row) =>
+          row.kind === 'gap' ? (
+            <RowGap key={row.id} className="h-8" />
+          ) : (
+            <Row
+              key={row.id}
+              row={row}
+              isSelected={selectedRowId === row.id}
+              onClick={(rowId) => {
+                handleSelectSection(item.id);
+                onSelectedRowId(rowId);
+              }}
+              selectedSeatIds={selectedSeatIds}
+              onSeatClick={handleSeatClick}
+              isEditMode={selectedRowId === row.id}
+            />
+          ),
+        )}
       </div>
     </div>
   );

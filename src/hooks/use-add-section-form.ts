@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { generateRowNames, type RowConfig, type RowNameType } from '@/lib/sectionUtils.ts';
+import { generateRowNames, type RowNameType } from '@/lib/sectionUtils.ts';
+import type { SectionRowConfig } from '@/types';
 
 /**
  * 구역 추가 다이얼로그의 단계/폼 상태와 핸들러
@@ -17,10 +18,14 @@ export default function useAddSectionForm() {
   const [startValue, setStartValue] = useState('1');
 
   // 2단계 상태
-  const [rowConfigs, setRowConfigs] = useState<RowConfig[]>([]);
+  const [rowConfigs, setRowConfigs] = useState<SectionRowConfig[]>([]);
 
   const previewNames = generateRowNames(rowNameType, startValue, rowCount);
-  const totalSeatCount = rowConfigs.reduce((acc, row) => acc + row.seatCount, 0);
+  // 빈 줄(GAP)은 좌석이 없으므로 일반 열만 합산
+  const totalSeatCount = rowConfigs.reduce(
+    (acc, row) => (row.type === 'ROW' ? acc + row.seatCount : acc),
+    0,
+  );
 
   // 열 이름 형식 변경 시 시작값도 형식에 맞게 초기화
   const changeRowNameType = (type: RowNameType) => {
@@ -31,7 +36,9 @@ export default function useAddSectionForm() {
   // 1단계 → 2단계 이동 시 rowConfigs 초기화
   const goNext = () => {
     const names = generateRowNames(rowNameType, startValue, rowCount);
-    setRowConfigs(names.map((name) => ({ name, seatCount: defaultSeatCount })));
+    setRowConfigs(
+      names.map((name): SectionRowConfig => ({ type: 'ROW', name, seatCount: defaultSeatCount })),
+    );
     setStep(2);
   };
 
@@ -48,11 +55,24 @@ export default function useAddSectionForm() {
   };
 
   const applyBulkSeatCount = () => {
-    setRowConfigs((prev) => prev.map((row) => ({ ...row, seatCount: Number(bulkCount) })));
+    setRowConfigs((prev) =>
+      prev.map((row) => (row.type === 'ROW' ? { ...row, seatCount: Number(bulkCount) } : row)),
+    );
   };
 
   const updateRowSeatCount = (index: number, seatCount: number) => {
-    setRowConfigs((prev) => prev.map((row, idx) => (idx === index ? { ...row, seatCount } : row)));
+    setRowConfigs((prev) =>
+      prev.map((row, idx) => (idx === index && row.type === 'ROW' ? { ...row, seatCount } : row)),
+    );
+  };
+
+  // 해당 열 바로 아래에 빈 줄 삽입
+  const insertGapAfter = (index: number) => {
+    setRowConfigs((prev) => [...prev.slice(0, index + 1), { type: 'GAP' }, ...prev.slice(index + 1)]);
+  };
+
+  const removeGap = (index: number) => {
+    setRowConfigs((prev) => prev.filter((row, idx) => !(idx === index && row.type === 'GAP')));
   };
 
   return {
@@ -79,5 +99,7 @@ export default function useAddSectionForm() {
     reset,
     applyBulkSeatCount,
     updateRowSeatCount,
+    insertGapAfter,
+    removeGap,
   };
 }

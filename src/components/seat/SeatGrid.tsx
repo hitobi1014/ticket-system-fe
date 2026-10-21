@@ -14,6 +14,7 @@ import ScaleTracker from '@/components/common/ScaleTracker.tsx';
 import { ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
 import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
+import RowGap from '@/components/seat/RowGap.tsx';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
 import { getDisplayMemberName } from '@/lib/formatUtils.ts';
@@ -79,7 +80,10 @@ export default function SeatGrid({
               <span>{item.name}</span>
               <span>{item.rows.flatMap((r) => r.seats).length}석</span>
             </div>
-            {item.rows.map((row) => (
+            {item.rows.map((row) =>
+              row.kind === 'gap' ? (
+                <RowGap key={row.id} className="h-10" />
+              ) : (
               <div key={row.id} className="flex items-center gap-x-1.5">
                 <p>{row.rowName}</p>
                 {row.seats.map((seat) => {
@@ -147,7 +151,8 @@ export default function SeatGrid({
                   );
                 })}
               </div>
-            ))}
+              ),
+            )}
           </div>
         ),
       )}
