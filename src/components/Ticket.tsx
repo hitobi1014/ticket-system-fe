@@ -1,14 +1,15 @@
 import { IconBrandInstagram } from '@tabler/icons-react';
+import { formatPerformanceAt } from '@/lib/formatUtils.ts';
 
 export interface TicketProps {
   ticketNo?: string; // ex) A-014579, 없으면 상단 표기 생략
   venueName: string;
-  performanceDateTime: string;
+  performanceAt: string; // ISO 8601 (오프셋 포함)
   floorName: string;
   sectionName: string;
   rowName: string;
-  seatNumber: number;
-  inviterName: string; // 초대자명 = 배정 회원명 (member.name), 필수
+  seatNumber: number | null;
+  inviterName: string; // 초대자명 = 배정 회원명 + 악기 (formatPlayerName), 필수
   guestName?: string; // 초대받는 분, 추후 Seat에 필드 추가 후 연결 예정 — 현재는 옵션
   memo?: string;
   ref?: React.Ref<HTMLDivElement>;
@@ -17,7 +18,7 @@ export interface TicketProps {
 export default function Ticket({
   ticketNo,
   venueName,
-  performanceDateTime,
+  performanceAt,
   floorName,
   sectionName,
   rowName,
@@ -42,13 +43,13 @@ export default function Ticket({
           </div>
           <div className="flex flex-col gap-y-1">
             <p className="text-base font-bold">{venueName}</p>
-            <p className="text-text-foreground/50 text-xs">{performanceDateTime}</p>
+            <p className="text-text-foreground/50 text-xs">{formatPerformanceAt(performanceAt)}</p>
           </div>
         </header>
         <div className="flex flex-col gap-y-2">
           <p className="text-xs font-semibold tracking-widest text-amber-400">INVITATION</p>
           <p className="text-text-foreground/70 text-sm">아래 연주자가 당신을 공연에 초대합니다</p>
-          <p className="text-lg font-bold">{inviterName}</p>
+          <p className="truncate text-lg font-bold">{inviterName}</p>
         </div>
         <div className="flex flex-col gap-y-1">
           <p className="text-text-foreground/50 text-xs">초대받는 분</p>
@@ -80,12 +81,12 @@ export default function Ticket({
           </div>
           <div className="flex flex-col gap-y-1">
             <p className="text-text-foreground/50 text-base">좌석</p>
-            <p className="text-2xl font-bold">{seatNumber}</p>
+            <p className="text-2xl font-bold">{seatNumber ?? '-'}</p>
           </div>
         </header>
         <div className="bg-text-foreground/5 flex flex-col items-center gap-y-1 rounded-2xl py-6">
           <p className="text-xs font-semibold tracking-widest text-amber-400">SEAT NUMBER</p>
-          <p className="text-5xl font-bold text-amber-400">{seatNumber}</p>
+          <p className="text-5xl font-bold text-amber-400">{seatNumber ?? '-'}</p>
         </div>
       </section>
     </div>

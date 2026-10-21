@@ -8,13 +8,16 @@ import { getContrastTextColor } from '@/lib/uiUtils';
 import {
   TransformWrapper,
   TransformComponent,
-  useTransformEffect,
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
+import ScaleTracker from '@/components/common/ScaleTracker.tsx';
+import { ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
 import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
+import RowGap from '@/components/seat/RowGap.tsx';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
+import { getDisplayMemberName } from '@/lib/formatUtils.ts';
 
 interface SeatGridProps {
   floor: Floor;
@@ -27,13 +30,6 @@ interface SeatGridProps {
   onScaleChange?: (scale: number) => void;
   displayMode?: 'member' | 'guest';
   currentMemberId?: number;
-}
-
-function ScaleTracker({ onScaleChange }: { onScaleChange?: (scale: number) => void }) {
-  useTransformEffect((state) => {
-    onScaleChange?.(state.state.scale);
-  });
-  return null;
 }
 
 export default function SeatGrid({
@@ -54,7 +50,10 @@ export default function SeatGrid({
   const getMemberColor = (memberId: number) =>
     members.find((m) => m.id === memberId)?.color ?? '#f0fdfa';
 
-  const getMemberName = (memberId: number) => members.find((m) => m.id === memberId)?.name ?? '';
+  const getMemberName = (memberId: number) => {
+    const name = members.find((m) => m.id === memberId)?.name;
+    return name ? getDisplayMemberName(name) : '';
+  };
 
   const floorRows = floor.rows.map((floorRow) => (
     <div key={floorRow.id} className="flex gap-x-4 py-2">
@@ -81,7 +80,10 @@ export default function SeatGrid({
               <span>{item.name}</span>
               <span>{item.rows.flatMap((r) => r.seats).length}석</span>
             </div>
-            {item.rows.map((row) => (
+            {item.rows.map((row) =>
+              row.kind === 'gap' ? (
+                <RowGap key={row.id} className="h-10" />
+              ) : (
               <div key={row.id} className="flex items-center gap-x-1.5">
                 <p>{row.rowName}</p>
                 {row.seats.map((seat) => {
@@ -149,14 +151,13 @@ export default function SeatGrid({
                   );
                 })}
               </div>
-            ))}
+              ),
+            )}
           </div>
         ),
       )}
     </div>
   ));
-
-  const isMac = navigator.platform.toUpperCase().includes('MAC');
 
   return (
     <TabsContent
@@ -175,15 +176,7 @@ export default function SeatGrid({
 
         {enableZoom ? (
           <div className="min-h-0 flex-1 overflow-hidden">
-            <TransformWrapper
-              ref={transformRef}
-              initialScale={1}
-              minScale={0.5}
-              maxScale={2}
-              wheel={{ step: isMac ? 0.01 : 0.5, activationKeys: [isMac ? 'Meta' : 'Control'] }}
-              panning={{ allowLeftClickPan: true }}
-              doubleClick={{ disabled: true }}
-            >
+            <TransformWrapper ref={transformRef} {...ZOOM_WRAPPER_PROPS}>
               <ScaleTracker onScaleChange={onScaleChange} />
               <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
                 <div className="flex w-max flex-col gap-y-2 px-2 pb-4">{floorRows}</div>

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { cn } from '@/lib/utils';
 import useSeatGuideStore from '@/store/seatGuideStore';
 import useVenueStore from '@/store/venueStore';
@@ -7,14 +7,17 @@ import useAuthStore from '@/store/authStore';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
-import { IconMapPin, IconMinus, IconPlus, IconZoomIn } from '@tabler/icons-react';
-import type { ReactZoomPanPinchContentRef } from 'react-zoom-pan-pinch';
+import { IconArmchair, IconHelp, IconMapPin } from '@tabler/icons-react';
+import ZoomControl from '@/components/common/ZoomControl.tsx';
+import useZoomControls from '@/hooks/use-zoom-controls.ts';
 import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
 import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
 import GuestNameInputModal from '@/components/dialog/GuestNameInputModal.tsx';
 import { findSeatsByMemberId, toAssignedSeatInfo } from '@/lib/seatUtils.ts';
 import type { MemberWithSeats } from '@/types';
+import { formatPerformanceAt } from '@/lib/formatUtils.ts';
+import useSeatViewTour from '@/hooks/use-seat-view-tour.ts';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
 export default function SeatViewPage() {
@@ -27,8 +30,6 @@ export default function SeatViewPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
   const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
-  const [currentScale, setCurrentScale] = useState(1);
-  const [showZoomDropdown, setShowZoomDropdown] = useState(false);
 
   useEffect(() => {
     if (floors.length > 0 && selectedFloorId == undefined) {
@@ -43,36 +44,26 @@ export default function SeatViewPage() {
     fetchFloors();
   }, [currentMember?.id, clearStore, fetchFloors]);
 
-  const transformRefs = useRef(new Map<number, ReactZoomPanPinchContentRef | null>());
-  const zoomDropdownRef = useRef<HTMLDivElement>(null);
-  const selectedFloorIdRef = useRef(selectedFloorId);
-
-  useEffect(() => {
-    selectedFloorIdRef.current = selectedFloorId;
-  }, [selectedFloorId]);
-
-  useEffect(() => {
-    if (!showZoomDropdown) return;
-    const handler = (e: MouseEvent) => {
-      if (!zoomDropdownRef.current?.contains(e.target as Node)) {
-        setShowZoomDropdown(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showZoomDropdown]);
-
-  const handleScaleChange = useCallback(
-    (scale: number) => {
-      if (selectedFloorIdRef.current === selectedFloorId) {
-        setCurrentScale(scale);
-      }
-    },
-    [selectedFloorId],
+  // 좌석 데이터와 회원 정보가 모두 로드된 뒤 온보딩 투어 실행 (첫 방문 1회)
+  const { startTour } = useSeatViewTour(
+    floors.length > 0 && members.length > 0 && selectedFloorId !== undefined,
   );
 
-  // eslint-disable-next-line react-hooks/refs
-  const activeTransform = transformRefs.current.get(selectedFloorId ?? -1);
+  // 회원 선택(검색): 좌석 하이라이트 대상에 추가하고 잠시 강조 (콤보박스 선택과 내 좌석 보기 공용)
+  const handleSelectMember = (memberId: number) => {
+    setSelectedMemberIds((prev) => (prev.includes(memberId) ? prev : [...prev, memberId]));
+    setPulsingMemberIds((prev) => new Set(prev).add(memberId));
+    setTimeout(() => {
+      setPulsingMemberIds((prev) => {
+        const next = new Set(prev);
+        next.delete(memberId);
+        return next;
+      });
+    }, 3000);
+  };
+
+  const { currentScale, handleScaleChange, setTransformRef, zoomIn, zoomOut } =
+    useZoomControls(selectedFloorId);
 
   const selectedMembers = useMemo(
     () => members.filter((m) => selectedMemberIds.includes(m.id)),
@@ -119,34 +110,58 @@ export default function SeatViewPage() {
   return (
     <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/* 공연장명 + 공연일 */}
-      <header className="px-4 py-3">
+      <header className="flex items-center justify-between gap-x-2 px-4 py-3">
         <div className="flex items-center gap-x-2">
           <IconMapPin stroke={1.5} className="text-primary" />
           <div>
             <p className="text-primary text-lg leading-tight font-semibold">
               {venue?.name ?? '공연장'}
             </p>
-            {venue?.performanceDate && (
-              <p className="text-secondary text-sm">{venue.performanceDate}</p>
+            {venue?.performanceAt && (
+              <p className="text-secondary text-sm">{formatPerformanceAt(venue.performanceAt)}</p>
             )}
           </div>
         </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-primary"
+          aria-label="사용 방법 보기"
+          onClick={startTour}
+        >
+          <IconHelp stroke={1.5} className="size-5" />
+        </Button>
       </header>
 
       <main className="flex flex-1 flex-col gap-y-4 overflow-hidden p-4">
         {/* 상단 콤보박스, 기능 버튼 */}
-        <div className="flex items-center justify-between gap-x-4">
+        <div className="flex items-start justify-between gap-x-4">
           <MemberSearchComboBox
             selectedMemberIds={selectedMemberIds}
             setSelectedMemberIds={setSelectedMemberIds}
-            setPulsingMemberIds={setPulsingMemberIds}
+            onSelectMember={handleSelectMember}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
             selectedMembers={selectedMembers}
           />
-          <div className="flex items-center gap-x-2">
-            <GuestNameInputModal />
-            {myMemberWithSeats && <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />}
+          <div className="flex shrink-0 items-center gap-x-2">
+            <div data-tour="guest-name">
+              <GuestNameInputModal />
+            </div>
+            {currentMember && (
+              <Button
+                variant="dialog"
+                size="base"
+                onClick={() => handleSelectMember(currentMember.id)}
+              >
+                <IconArmchair stroke={1.5} />내 좌석 보기
+              </Button>
+            )}
+            {myMemberWithSeats && (
+              <div data-tour="my-ticket">
+                <TicketDownloadDialog memberWithSeats={myMemberWithSeats} />
+              </div>
+            )}
           </div>
         </div>
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
@@ -160,13 +175,7 @@ export default function SeatViewPage() {
             <div className="flex items-center justify-between">
               <TabsList variant="default">
                 {floors.map((floor) => (
-                  <TabsTrigger
-                    key={floor.id}
-                    variant="default"
-                    value={String(floor.id)}
-                    /*TODO 사용안하면 삭제*/
-                    // className={cn(highlightedFloorIds.has(floor.id) && 'gap-x-1.5')}
-                  >
+                  <TabsTrigger key={floor.id} variant="default" value={String(floor.id)}>
                     {floor.name}
                     {highlightedFloorIds.has(floor.id) && (
                       <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
@@ -205,58 +214,30 @@ export default function SeatViewPage() {
                 )}
 
                 {/* Zoom controls */}
-                <div ref={zoomDropdownRef} className="relative">
-                  <Button
-                    variant="ghost"
-                    size="lg"
-                    className="text-primary"
-                    onClick={() => setShowZoomDropdown((v) => !v)}
-                  >
-                    <IconZoomIn stroke={1.5} size={18} />
-                  </Button>
-                  {showZoomDropdown && (
-                    <div className="bg-popover border-accent absolute top-full right-0 z-50 mt-1 flex items-center gap-x-0.5 rounded-md border px-1.5 py-1 shadow-md">
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-primary"
-                        onClick={() => activeTransform?.zoomOut(0.25)}
-                      >
-                        <IconMinus stroke={2} size={14} />
-                      </Button>
-                      <span className="text-primary w-10 text-center text-xs tabular-nums">
-                        {Math.round(currentScale * 100)}%
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon-xs"
-                        className="text-primary"
-                        onClick={() => activeTransform?.zoomIn(0.25)}
-                      >
-                        <IconPlus stroke={2} size={14} />
-                      </Button>
-                    </div>
-                  )}
-                </div>
+                <ZoomControl
+                  data-tour="zoom"
+                  scale={currentScale}
+                  onZoomIn={zoomIn}
+                  onZoomOut={zoomOut}
+                />
               </div>
             </div>
 
             {floors.map((floor) => (
-              <SeatGrid
-                key={floor.id}
-                floor={floor}
-                stagePosition={venue?.stagePosition ?? 'front'}
-                highlightColorMap={highlightColorMap}
-                pulsingMemberIds={pulsingMemberIds}
-                enableZoom
-                isActive={floor.id === selectedFloorId}
-                transformRef={(ref) => {
-                  transformRefs.current.set(floor.id, ref);
-                }}
-                onScaleChange={handleScaleChange}
-                displayMode={displayMode}
-                currentMemberId={currentMember?.id}
-              />
+              <div key={floor.id} data-tour="seat-grid">
+                <SeatGrid
+                  floor={floor}
+                  stagePosition={venue?.stagePosition ?? 'front'}
+                  highlightColorMap={highlightColorMap}
+                  pulsingMemberIds={pulsingMemberIds}
+                  enableZoom
+                  isActive={floor.id === selectedFloorId}
+                  transformRef={setTransformRef(floor.id)}
+                  onScaleChange={handleScaleChange}
+                  displayMode={displayMode}
+                  currentMemberId={currentMember?.id}
+                />
+              </div>
             ))}
           </Tabs>
         </div>

@@ -15,6 +15,7 @@ import type { CreateVenueRequest, StagePosition, UpdateVenueRequest } from '@/ty
 import useVenueStore from '@/store/venueStore.ts';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { joinPerformanceAt, splitPerformanceAt } from '@/lib/formatUtils.ts';
 
 interface VenueInfoDialogProps {
   venueId?: number;
@@ -57,19 +58,31 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
   const [open, setOpen] = useState(false);
   const { addVenue, updateVenue, isLoading } = useVenueStore();
 
-  const [form, setForm] = useState<CreateVenueRequest | UpdateVenueRequest>({
+  const [form, setForm] = useState<Omit<CreateVenueRequest | UpdateVenueRequest, 'performanceAt'>>({
     name: venue?.name ?? '',
     address: venue?.address ?? '',
-    performanceDate: venue?.performanceDate ?? '',
     stagePosition: venue?.stagePosition ?? 'front',
     totalSeats: venue?.totalSeats ?? 0,
   });
+  // 공연 일시는 날짜/시간(KST)을 따로 입력받아 저장 시 ISO 8601로 결합
+  const [performanceDate, setPerformanceDate] = useState(
+    () => splitPerformanceAt(venue?.performanceAt).date,
+  );
+  const [performanceTime, setPerformanceTime] = useState(
+    () => splitPerformanceAt(venue?.performanceAt).time,
+  );
 
   const handleChange = <K extends keyof typeof form>(field: K, value: (typeof form)[K]) => {
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSave = async () => {
+    if (!performanceDate || !performanceTime) {
+      toast.error('공연 날짜와 시간을 입력해주세요.');
+      return;
+    }
+    const performanceAt = joinPerformanceAt(performanceDate, performanceTime);
+
     if (isUpdate) {
       if (venueId == null) {
         toast.error('venue id 없음');
@@ -77,7 +90,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
       }
       const req: UpdateVenueRequest = {
         totalSeats: form.totalSeats,
-        performanceDate: form.performanceDate,
+        performanceAt,
         stagePosition: form.stagePosition,
         name: form.name,
         address: form.address,
@@ -91,7 +104,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
       toast.success('공연장 수정을 성공했습니다.');
     } else {
       const req: CreateVenueRequest = {
-        performanceDate: form.performanceDate,
+        performanceAt,
         stagePosition: form.stagePosition,
         name: form.name,
         address: form.address,
@@ -153,14 +166,22 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
             {/*3-1. 공연일시*/}
             <Field>
               <FieldLabel htmlFor="performance-date">공연일시</FieldLabel>
-              <Input
-                id="performance-date"
-                aria-label="performance-date"
-                value={form.performanceDate}
-                type="date"
-                placeholder="2026.01.01"
-                onChange={(e) => handleChange('performanceDate', e.target.value)}
-              />
+              <div className="flex gap-x-2">
+                <Input
+                  id="performance-date"
+                  aria-label="performance-date"
+                  value={performanceDate}
+                  type="date"
+                  onChange={(e) => setPerformanceDate(e.target.value)}
+                />
+                <Input
+                  id="performance-time"
+                  aria-label="performance-time"
+                  value={performanceTime}
+                  type="time"
+                  onChange={(e) => setPerformanceTime(e.target.value)}
+                />
+              </div>
             </Field>
             {/*3-2. 총 좌석 수*/}
             <Field>

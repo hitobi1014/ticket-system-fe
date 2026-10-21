@@ -5,6 +5,7 @@ import { useRef } from 'react';
 import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
+import RowGap from '@/components/seat/RowGap.tsx';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 
 interface AssignRowProps {
@@ -33,7 +34,10 @@ export default function AssignRow({
         <Badge>{section.name}</Badge>
         <span>{section.rows.flatMap((r) => r.seats).length}석</span>
       </div>
-      {section.rows.map((row) => (
+      {section.rows.map((row) =>
+        row.kind === 'gap' ? (
+          <RowGap key={row.id} className="h-10" />
+        ) : (
         <div key={row.id} className="flex items-center gap-x-1.5">
           <p>{row.rowName}</p>
           {row.seats.map((seat) => {
@@ -68,14 +72,15 @@ export default function AssignRow({
                 {isVisible && (
                   <div>
                     <p>{seat.seatNumber}</p>
-                    <p>{assignedSeatMemberName(seat.assignedMemberId!)}</p>
+                    <p className="text-xs">{assignedSeatMemberName(seat.assignedMemberId!)}</p>
                   </div>
                 )}
               </Button>
             );
           })}
         </div>
-      ))}
+        ),
+      )}
     </div>
   );
 }

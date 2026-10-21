@@ -1,7 +1,7 @@
 export const INSTRUMENTS = {
   Cond: '지휘',
   Pf: '피아노',
-  Fl: '플루트',
+  Fl: '플룻',
   Ob: '오보에',
   Cla: '클라리넷',
   Hn: '호른',
@@ -78,7 +78,7 @@ export interface AssignedSeatInfo {
   floorName: string; // ex) 2F
   sectionName: string; // ex) 나
   rowName: string; // ex) C
-  seatNumber: number;
+  seatNumber: number | null;
   guestName: string;
   memo?: string;
 }

@@ -34,7 +34,7 @@ const fetchApi = async <T>(url: string, options?: RequestInit): Promise<T> => {
     try {
       const errJson = JSON.parse(errText);
       if (errJson?.message) {
-        message = errJson.mesage;
+        message = errJson.message;
       }
     } catch {
       message = '오류발생';
