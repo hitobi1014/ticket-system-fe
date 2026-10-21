@@ -398,7 +398,7 @@ function SectionButtons({
     <ButtonGroup className="self-end">
       {/*열 버튼 그룹*/}
       <ButtonGroup>
-        <AddRowDialog item={item} />
+        <AddRowDialog item={item} selectedRowId={selectedRowId} />
         <AlertDialogCustom
           title={isGapSelected ? '빈 줄 삭제' : '행 삭제'}
           triggerText={isGapSelected ? '빈 줄 삭제' : '열 삭제'}

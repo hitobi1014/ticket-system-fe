@@ -42,7 +42,15 @@ export interface RowLayoutUpdate extends RowLayout {
 }
 /** 구역 내 한 줄 (서버가 화면 순서대로 내려줌 — 재정렬 금지) */
 export type SectionRow = Rows | GapRows;
-export type CreateRowsRequest = Omit<Rows, 'kind' | 'id' | 'seats' | 'layout'>;
+/** 열 추가 위치: 선택 열 이전/이후(baseRowId 필요), 첫 번째/마지막 열 */
+export type AddRowPosition = 'BEFORE' | 'AFTER' | 'FIRST' | 'LAST';
+export interface CreateRowsRequest {
+  rowName: string;
+  /** 생략 시 마지막 열로 추가 */
+  position?: AddRowPosition;
+  /** BEFORE/AFTER일 때 기준이 되는 줄(일반 열 또는 빈 줄) ID */
+  baseRowId?: number;
+}
 /** 구역 생성 요청의 rowConfig 항목 (배열 순서가 곧 화면 순서, 위→아래) */
 export type SectionRowConfig =
   | { type: 'ROW'; name: string; seatCount: number }
