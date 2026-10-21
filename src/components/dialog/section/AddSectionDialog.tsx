@@ -50,7 +50,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="max-h-[85vh] min-w-150 grid-rows-[auto_minmax(0,1fr)_auto]">
+      <DialogContent className="max-h-[85vh] min-w-150 grid-cols-[minmax(0,1fr)] grid-rows-[auto_minmax(0,1fr)_auto]">
         <AddSectionStepHeader step={form.step} />
 
         {form.step === 1 ? (
@@ -77,6 +77,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
             sectionName={form.sectionName}
             rowCount={form.rowCount}
             rowNameType={form.rowNameType}
+            seatNumbering={form.seatNumbering}
             bulkCount={form.bulkCount}
             onBulkCountChange={form.setBulkCount}
             onApplyBulk={form.applyBulkSeatCount}

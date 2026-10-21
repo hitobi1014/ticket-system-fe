@@ -1,8 +1,12 @@
 import { Button } from '@/components/ui/button.tsx';
 import { Input } from '@/components/ui/input';
 import { IconPlus } from '@tabler/icons-react';
-import type { RowNameType } from '@/lib/sectionUtils.ts';
-import type { SectionRowConfig } from '@/types';
+import {
+  buildConfigSeatNumbers,
+  describeSeatNumbering,
+  type RowNameType,
+} from '@/lib/sectionUtils.ts';
+import type { SeatNumbering, SectionRowConfig } from '@/types';
 import RowSeatCountEditor from '@/components/dialog/section/RowSeatCountEditor.tsx';
 import RowGapItem from '@/components/dialog/section/RowGapItem.tsx';
 
@@ -10,6 +14,7 @@ export interface SectionRowDetailStepProps {
   sectionName: string;
   rowCount: number;
   rowNameType: RowNameType;
+  seatNumbering: SeatNumbering;
   bulkCount: number;
   onBulkCountChange: (value: number) => void;
   onApplyBulk: () => void;
@@ -24,6 +29,7 @@ export default function SectionRowDetailStep({
   sectionName,
   rowCount,
   rowNameType,
+  seatNumbering,
   bulkCount,
   onBulkCountChange,
   onApplyBulk,
@@ -32,8 +38,11 @@ export default function SectionRowDetailStep({
   onInsertGapAfter,
   onRemoveGap,
 }: SectionRowDetailStepProps) {
+  // 1단계에서 선택한 번호 방식을 적용한 열별 좌석 번호 (빈 줄은 null)
+  const seatNumbersByRow = buildConfigSeatNumbers(rowConfigs, seatNumbering);
+
   return (
-    <div className="flex min-h-0 flex-col gap-y-2">
+    <div className="flex min-h-0 min-w-0 flex-col gap-y-2">
       {/* step02-content-01*/}
       <div className="flex shrink-0 gap-x-1 rounded-md py-2">
         <div className="text-muted bg-secondary flex gap-x-1 rounded-md px-2">
@@ -47,6 +56,10 @@ export default function SectionRowDetailStep({
         <div className="text-muted bg-secondary flex gap-x-1 rounded-md px-2">
           <p>형식:</p>
           <p>{rowNameType === 'number' ? '숫자' : '알파벳'}</p>
+        </div>
+        <div className="text-muted bg-secondary flex gap-x-1 rounded-md px-2">
+          <p>번호:</p>
+          <p>{describeSeatNumbering(seatNumbering)}</p>
         </div>
       </div>
       {/* step02-content-02*/}
@@ -80,6 +93,7 @@ export default function SectionRowDetailStep({
               <RowSeatCountEditor
                 rowName={config.name}
                 seatCount={config.seatCount}
+                seatNumbers={seatNumbersByRow[i] ?? []}
                 onChange={(seatCount) => onRowSeatCountChange(i, seatCount)}
               />
               {canInsertGap && (

@@ -7,18 +7,21 @@ import SeatBoxes from '@/components/dialog/section/SeatBoxes.tsx';
 export interface RowSeatCountEditorProps {
   rowName: string;
   seatCount: number;
+  /** 번호 방식이 적용된 좌석 번호 (화면 좌→우 순서) */
+  seatNumbers: number[];
   onChange: (seatCount: number) => void;
 }
 
 export default function RowSeatCountEditor({
   rowName,
   seatCount,
+  seatNumbers,
   onChange,
 }: RowSeatCountEditorProps) {
   return (
     <div className="flex items-center gap-x-3 rounded-md border px-2 py-1">
-      <p className="w-8 text-center">{rowName}열</p>
-      <div className="flex gap-x-2">
+      <p className="w-8 shrink-0 text-center">{rowName}열</p>
+      <div className="flex shrink-0 gap-x-2">
         <Button
           variant="dialog"
           className={cn('border-border h-6 w-6')}
@@ -42,9 +45,7 @@ export default function RowSeatCountEditor({
           <IconPlus stroke={2} />
         </Button>
       </div>
-      <div className="flex gap-x-1">
-        <SeatBoxes count={seatCount} />
-      </div>
+      <SeatBoxes numbers={seatNumbers} />
     </div>
   );
 }
