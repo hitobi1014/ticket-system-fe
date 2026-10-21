@@ -1,7 +1,7 @@
 /** 좌석 */
 export interface Seat {
   id: number;
-  seatNumber: number; // ex) 1열 1, 2열 5
+  seatNumber: number | null; // ex) 1열 1, 2열 5 (서버가 계산. 숨긴 좌석은 null)
   assignedMemberId?: number;
   visible: boolean; // 특정 좌석 안보이게할때, 기본값 true
   guestName?: string;
@@ -32,14 +32,26 @@ export type SectionRowConfig =
   | { type: 'ROW'; name: string; seatCount: number }
   | { type: 'GAP' }; // 빈 줄: name, seatCount 없음
 
+/**
+ * 구역 좌석 번호 방식
+ * - PER_ROW: 각 열별로 1번부터 시작 (기존 방식)
+ * - SECTION: 구역 전체에서 번호를 이어서 부여 (숨긴 좌석은 번호를 소비하지 않음)
+ *   - start: 번호가 시작되는 방향 (LEFT: 좌→우 증가, RIGHT: 우→좌 증가)
+ *   - pattern: SEQUENTIAL(모든 행 같은 방향) / ZIGZAG(행마다 방향 반대, ㄹ자)
+ */
+export type SeatNumbering =
+  | { mode: 'PER_ROW' }
+  | { mode: 'SECTION'; start: 'LEFT' | 'RIGHT'; pattern: 'SEQUENTIAL' | 'ZIGZAG' };
+
 /** 구역 */
 export interface Section {
   kind: 'section';
   id: number;
   name: string; // 구역명 (가구역, 나구역 등)
+  seatNumbering?: SeatNumbering; // 서버가 내려주는 현재 번호 방식 (없으면 PER_ROW)
   rows: SectionRow[];
 }
-export type CreateSectionRequest = Omit<Section, 'kind' | 'rows'>;
+export type CreateSectionRequest = Omit<Section, 'kind' | 'rows' | 'seatNumbering'>;
 
 export interface AssignSeatRequest {
   seatIds: number[];

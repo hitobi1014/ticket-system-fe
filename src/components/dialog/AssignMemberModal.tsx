@@ -67,7 +67,7 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
     ctx: { floor: Floor; section: Section; row: Rows; seat: Seat },
     memberName?: string | null,
   ): string => {
-    const base = `${ctx.floor.name}﹒${ctx.section.name}﹒${ctx.row.rowName}열﹒${ctx.seat.seatNumber}번`;
+    const base = `${ctx.floor.name}﹒${ctx.section.name}﹒${ctx.row.rowName}열﹒${ctx.seat.seatNumber ?? '-'}번`;
     return memberName ? `${base} (${memberName})` : base;
   };
 

@@ -8,7 +8,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select.tsx';
-import type { Floor } from '@/types';
+import type { Floor, SeatNumbering } from '@/types';
+import SeatNumberingOption from '@/components/dialog/section/SeatNumberingOption.tsx';
 import type { RowNameType } from '@/lib/sectionUtils.ts';
 import SectionRowPreview from '@/components/dialog/section/SectionRowPreview.tsx';
 
@@ -26,6 +27,8 @@ export interface SectionBasicInfoStepProps {
   onRowNameTypeChange: (value: RowNameType) => void;
   startValue: string;
   onStartValueChange: (value: string) => void;
+  seatNumbering: SeatNumbering;
+  onSeatNumberingChange: (value: SeatNumbering) => void;
   previewNames: string[];
 }
 
@@ -44,10 +47,12 @@ export default function SectionBasicInfoStep({
   onRowNameTypeChange,
   startValue,
   onStartValueChange,
+  seatNumbering,
+  onSeatNumberingChange,
   previewNames,
 }: SectionBasicInfoStepProps) {
   return (
-    <div>
+    <div className="min-h-0 overflow-y-auto pr-1">
       <FieldGroup>
         {/*필드1: 구역명*/}
         <div className="flex gap-x-4">
@@ -150,6 +155,8 @@ export default function SectionBasicInfoStep({
             />
           </Field>
         </div>
+
+        <SeatNumberingOption value={seatNumbering} onChange={onSeatNumberingChange} />
 
         <SectionRowPreview
           previewNames={previewNames}

@@ -8,7 +8,7 @@ export interface TicketProps {
   floorName: string;
   sectionName: string;
   rowName: string;
-  seatNumber: number;
+  seatNumber: number | null;
   inviterName: string; // 초대자명 = 배정 회원명 + 악기 (formatPlayerName), 필수
   guestName?: string; // 초대받는 분, 추후 Seat에 필드 추가 후 연결 예정 — 현재는 옵션
   memo?: string;
@@ -81,12 +81,12 @@ export default function Ticket({
           </div>
           <div className="flex flex-col gap-y-1">
             <p className="text-text-foreground/50 text-base">좌석</p>
-            <p className="text-2xl font-bold">{seatNumber}</p>
+            <p className="text-2xl font-bold">{seatNumber ?? '-'}</p>
           </div>
         </header>
         <div className="bg-text-foreground/5 flex flex-col items-center gap-y-1 rounded-2xl py-6">
           <p className="text-xs font-semibold tracking-widest text-amber-400">SEAT NUMBER</p>
-          <p className="text-5xl font-bold text-amber-400">{seatNumber}</p>
+          <p className="text-5xl font-bold text-amber-400">{seatNumber ?? '-'}</p>
         </div>
       </section>
     </div>

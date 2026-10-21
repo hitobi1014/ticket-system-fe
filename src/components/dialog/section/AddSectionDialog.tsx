@@ -31,6 +31,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
       await addSectionWithRows(floorId, {
         sectionName: form.sectionName,
         rowConfig: form.rowConfigs,
+        seatNumbering: form.seatNumbering,
         targetFloorRowId: form.selectRowId,
       });
       onConfirm(); // 콜백 실행
@@ -67,6 +68,8 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
             onRowNameTypeChange={form.changeRowNameType}
             startValue={form.startValue}
             onStartValueChange={form.setStartValue}
+            seatNumbering={form.seatNumbering}
+            onSeatNumberingChange={form.setSeatNumbering}
             previewNames={form.previewNames}
           />
         ) : (

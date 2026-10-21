@@ -50,7 +50,7 @@ export function RemoveSeatDialog({ triggerDisabled, selectedRowId }: RemoveSeatD
         (seat): seat is typeof seat & { assignedMemberId: number } => seat.assignedMemberId != null,
       );
 
-    const maxSeatNumber = Math.max(...assignedSeats.map((seat) => seat.seatNumber), 0);
+    const maxSeatNumber = Math.max(...assignedSeats.map((seat) => seat.seatNumber ?? 0), 0);
 
     // 삭제가능좌석 = row 총 좌석 - 배정된 좌석 중 가장 큰 번호
     // eslint-disable-next-line react-hooks/set-state-in-effect

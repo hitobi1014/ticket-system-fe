@@ -14,6 +14,7 @@ import { ButtonGroup } from '@/components/ui/button-group';
 import { Button } from '@/components/ui/button';
 import AddSeatDialog from '@/components/dialog/seat/AddSeatDialog.tsx';
 import AddRowDialog from '@/components/dialog/row/AddRowDialog.tsx';
+import ChangeSeatNumberingDialog from '@/components/dialog/section/ChangeSeatNumberingDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 import { findSectionRowInfoByRowId } from '@/lib/seatUtils.ts';
 
@@ -242,6 +243,10 @@ function SectionButtons({
             },
           ]}
         />
+      </ButtonGroup>
+      {/*좌석 번호 방식 변경*/}
+      <ButtonGroup>
+        <ChangeSeatNumberingDialog section={item} />
       </ButtonGroup>
       {/*빈 줄 버튼 그룹*/}
       <ButtonGroup>

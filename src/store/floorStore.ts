@@ -7,6 +7,7 @@ import type {
   Floor,
   Section,
   UnAssignSeatRequest,
+  SeatNumbering,
   SectionRowConfig,
   UpdateSeatGuestNamesRequest,
   Venue,
@@ -22,6 +23,7 @@ interface AddSectionWithRowsRequest {
   sectionName: string;
   rowConfig: SectionRowConfig[]; // 배열 순서가 곧 화면 순서 (빈 줄은 { type: 'GAP' })
   targetFloorRowId: number | 'new'; // FloorRow 인덱스 또는 'new'
+  seatNumbering?: SeatNumbering; // 생략 시 PER_ROW (기존 동작)
 }
 
 interface FloorStore {
@@ -43,6 +45,7 @@ interface FloorStore {
   syncSection: (floor: Floor) => void;
   addSectionWithRows: (floorId: number, req: AddSectionWithRowsRequest) => Promise<void>;
   removeSection: (sectionId: number) => Promise<void>;
+  updateSeatNumbering: (sectionId: number, seatNumbering: SeatNumbering) => Promise<void>;
 
   addAisle: (floorId: number, req: CreateAisleRequest) => Promise<void>;
   removeAisle: (aisleId: number) => Promise<void>;
@@ -157,6 +160,15 @@ const useFloorStore = create<FloorStore>()(
         body: JSON.stringify(req),
       });
 
+      get().syncSection(floor);
+    },
+
+    // 번호 방식 변경 시 서버가 구역 전체를 재채번하고 갱신된 Floor 전체를 반환
+    updateSeatNumbering: async (sectionId: number, seatNumbering: SeatNumbering) => {
+      const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/seat-numbering`, {
+        method: 'PATCH',
+        body: JSON.stringify(seatNumbering),
+      });
       get().syncSection(floor);
     },
 

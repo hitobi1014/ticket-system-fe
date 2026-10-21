@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import { generateRowNames, type RowNameType } from '@/lib/sectionUtils.ts';
-import type { SectionRowConfig } from '@/types';
+import {
+  DEFAULT_SEAT_NUMBERING,
+  generateRowNames,
+  type RowNameType,
+} from '@/lib/sectionUtils.ts';
+import type { SeatNumbering, SectionRowConfig } from '@/types';
 
 /**
  * 구역 추가 다이얼로그의 단계/폼 상태와 핸들러
@@ -16,6 +20,7 @@ export default function useAddSectionForm() {
   const [defaultSeatCount, setDefaultSeatCount] = useState(15); // 기본 좌석 수
   const [rowNameType, setRowNameType] = useState<RowNameType>('number');
   const [startValue, setStartValue] = useState('1');
+  const [seatNumbering, setSeatNumbering] = useState<SeatNumbering>(DEFAULT_SEAT_NUMBERING);
 
   // 2단계 상태
   const [rowConfigs, setRowConfigs] = useState<SectionRowConfig[]>([]);
@@ -91,6 +96,8 @@ export default function useAddSectionForm() {
     changeRowNameType,
     startValue,
     setStartValue,
+    seatNumbering,
+    setSeatNumbering,
     rowConfigs,
     previewNames,
     totalSeatCount,

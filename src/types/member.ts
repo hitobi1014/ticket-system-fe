@@ -78,7 +78,7 @@ export interface AssignedSeatInfo {
   floorName: string; // ex) 2F
   sectionName: string; // ex) 나
   rowName: string; // ex) C
-  seatNumber: number;
+  seatNumber: number | null;
   guestName: string;
   memo?: string;
 }
