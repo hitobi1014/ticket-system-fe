@@ -100,6 +100,7 @@ export default function SectionRowDetailStep({
                 <Button
                   variant="ghost"
                   size="xs"
+                  tabIndex={-1}
                   className="text-secondary self-start"
                   onClick={() => onInsertGapAfter(i)}
                 >
