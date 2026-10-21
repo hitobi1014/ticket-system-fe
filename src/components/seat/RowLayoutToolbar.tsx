@@ -4,6 +4,7 @@ import {
   IconArrowsVertical,
   IconCheck,
   IconRestore,
+  IconRotate,
   IconX,
 } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button.tsx';
@@ -22,6 +23,10 @@ export interface RowLayoutToolbarProps {
   onDistribute: (step?: number) => void;
   /** 간격을 균등하게 맞출 수 있는지 (일반 열 2개 이상) */
   canDistribute: boolean;
+  /** 1열 각도를 모든 열에 적용 */
+  onApplyFirstRowRotation: () => void;
+  /** 현재 1열 각도 (버튼 표시용) */
+  firstRowRotation: number;
   onUndo: () => void;
   onCancel: () => void;
   onSave: () => void;
@@ -40,6 +45,8 @@ export default function RowLayoutToolbar({
   onResetRow,
   onDistribute,
   canDistribute,
+  onApplyFirstRowRotation,
+  firstRowRotation,
   onUndo,
   onCancel,
   onSave,
@@ -140,6 +147,10 @@ export default function RowLayoutToolbar({
         </Button>
         <Button size="xs" disabled={!canDistribute} onClick={() => onDistribute()}>
           1·2열 간격으로 균등
+        </Button>
+        <Button size="xs" disabled={!canDistribute} onClick={onApplyFirstRowRotation}>
+          <IconRotate stroke={2} />
+          1열 각도({firstRowRotation}°) 전체 적용
         </Button>
       </ButtonGroup>
       <p className="text-secondary">

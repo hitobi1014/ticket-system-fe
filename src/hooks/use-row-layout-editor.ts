@@ -103,6 +103,28 @@ export default function useRowLayoutEditor(section: Section | null, selectedRowI
     [section, draft, getLayout, pushHistory],
   );
 
+  const firstSeatRow = section?.rows.find((r): r is Rows => r.kind === 'row');
+  const firstRowRotation = firstSeatRow ? getLayout(firstSeatRow).rotation : 0;
+
+  /** 첫 번째 열의 각도를 모든 열에 적용 (이동 값은 유지, 빈 줄 제외) */
+  const applyFirstRowRotation = useCallback(() => {
+    if (!section || !draft) return;
+    const seatRows = section.rows.filter((r): r is Rows => r.kind === 'row');
+    if (seatRows.length < 2) return;
+
+    const { rotation } = getLayout(seatRows[0]);
+
+    pushHistory();
+    setDraft((prev) => {
+      const next: Draft = { ...prev };
+      seatRows.forEach((row) => {
+        const current = prev?.[row.id] ?? row.layout ?? DEFAULT_ROW_LAYOUT;
+        next[row.id] = normalizeRowLayout({ ...current, rotation });
+      });
+      return next;
+    });
+  }, [section, draft, getLayout, pushHistory]);
+
   /** 서버에 보낼 변경분 (원본과 달라진 열만) */
   const buildPayload = useCallback((): RowLayoutUpdate[] => {
     if (!section || !draft) return [];
@@ -163,6 +185,8 @@ export default function useRowLayoutEditor(section: Section | null, selectedRowI
     undo,
     resetRow,
     distributeRows,
+    applyFirstRowRotation,
+    firstRowRotation,
     buildPayload,
   };
 }

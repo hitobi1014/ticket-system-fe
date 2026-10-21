@@ -19,6 +19,8 @@ import DragSelectBox from '@/components/seat/DragSelectBox.tsx';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 import { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import useSectionToolbarSlot from '@/hooks/use-section-toolbar-slot.ts';
 import type { PointerEventHandler } from 'react';
 import { buildSeatNumberPreview } from '@/lib/sectionUtils.ts';
 import { cn } from '@/lib/utils.ts';
@@ -83,6 +85,7 @@ export default function SectionCard({
   onSelectedRowId,
   isSpacePressed = false,
 }: SectionCardProps) {
+  const toolbarSlot = useSectionToolbarSlot();
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
   const isSectionSelected = item.kind === 'section' && selectedSectionId === item.id;
 
@@ -204,7 +207,11 @@ export default function SectionCard({
         <p>{item.rows.flatMap((r) => r.seats).length}석</p>
       </div>
       {selectedSectionId === item.id &&
-        (isLayoutEditing ? (
+        toolbarSlot &&
+        createPortal(
+          <div className="flex items-start justify-end gap-x-2">
+            <Badge className="shrink-0">{item.name}</Badge>
+            {isLayoutEditing ? (
           <RowLayoutToolbar
             selectedRow={(() => {
               const row = item.rows.find((r) => r.id === selectedRowId);
@@ -219,6 +226,8 @@ export default function SectionCard({
             onBeforeChange={layoutEditor.pushHistory}
             onResetRow={() => selectedRowId != null && layoutEditor.resetRow(selectedRowId)}
             onDistribute={layoutEditor.distributeRows}
+            onApplyFirstRowRotation={layoutEditor.applyFirstRowRotation}
+            firstRowRotation={layoutEditor.firstRowRotation}
             canDistribute={item.rows.filter((r) => r.kind === 'row').length >= 2}
             onUndo={layoutEditor.undo}
             onCancel={layoutEditor.cancel}
@@ -236,7 +245,10 @@ export default function SectionCard({
             onSelectedRowId={onSelectedRowId}
             onStartLayoutEdit={layoutEditor.start}
           />
-        ))}
+            )}
+          </div>,
+          toolbarSlot,
+        )}
       <FittedRows
         rows={item.rows}
         containerRef={rowsContainerRef}
