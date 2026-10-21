@@ -49,7 +49,7 @@ export default function AddSectionDialog({ floorId, onConfirm }: Props) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="min-w-150">
+      <DialogContent className="max-h-[85vh] min-w-150 grid-rows-[auto_minmax(0,1fr)_auto]">
         <AddSectionStepHeader step={form.step} />
 
         {form.step === 1 ? (
