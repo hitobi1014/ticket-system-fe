@@ -2,7 +2,7 @@ import type { FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
 import useFloorStore from '@/store/floorStore.ts';
-import { IconEyeOff, IconMinus } from '@tabler/icons-react';
+import { IconEyeOff, IconLineDashed, IconMinus, IconRowInsertBottom } from '@tabler/icons-react';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
 import { useState } from 'react';
@@ -105,12 +105,21 @@ export default function SectionCard({
           selectedRowId={selectedRowId}
           selectedSeatIds={selectedSeatIds}
           setSelectedSeatIds={setSelectedSeatIds}
+          onSelectedRowId={onSelectedRowId}
         />
       )}
       <div className="flex flex-col gap-y-2">
         {item.rows.map((row) =>
           row.kind === 'gap' ? (
-            <RowGap key={row.id} className="h-8" />
+            <RowGap
+              key={row.id}
+              className="h-8"
+              isSelected={selectedRowId === row.id}
+              onClick={() => {
+                handleSelectSection(item.id);
+                onSelectedRowId(row.id);
+              }}
+            />
           ) : (
             <Row
               key={row.id}
@@ -136,6 +145,7 @@ interface SectionButtonsProps {
   selectedRowId: number | undefined;
   selectedSeatIds: Set<number>;
   setSelectedSeatIds: (selectedSeatIds: Set<number>) => void;
+  onSelectedRowId: (id: number | undefined) => void;
 }
 
 function SectionButtons({
@@ -143,9 +153,17 @@ function SectionButtons({
   selectedRowId,
   selectedSeatIds,
   setSelectedSeatIds,
+  onSelectedRowId,
 }: SectionButtonsProps) {
   const toggleSeatVisible = useFloorStore((state) => state.toggleSeatVisible);
   const removeRow = useFloorStore((state) => state.removeRow);
+  const addGapRow = useFloorStore((state) => state.addGapRow);
+  const convertRowToGap = useFloorStore((state) => state.convertRowToGap);
+
+  // 선택된 줄: 일반 열 또는 빈 줄
+  const selectedRow = item.rows.find((r) => r.id === selectedRowId);
+  const isGapSelected = selectedRow?.kind === 'gap';
+  const isSeatRowSelected = selectedRow?.kind === 'row';
 
   const handleToggleSeatVisible = async () => {
     if (selectedSeatIds.size === 0) {
@@ -171,9 +189,33 @@ function SectionButtons({
   const handleRemoveRow = async (rowId: number, rowName: string | undefined) => {
     try {
       await removeRow(rowId);
-      toast.success(`[${rowName}]열 삭제를 성공했습니다.`);
+      onSelectedRowId(undefined); // 삭제된 줄의 선택 해제
+      toast.success(isGapSelected ? '빈 줄 삭제를 성공했습니다.' : `[${rowName}]열 삭제를 성공했습니다.`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : '행 삭제에 실패했습니다.');
+    }
+  };
+
+  // 선택한 열 바로 아래에 빈 줄 추가
+  const handleAddGap = async () => {
+    if (!isSeatRowSelected) return;
+    try {
+      await addGapRow(item.id, selectedRowId!);
+      toast.success('빈 줄을 추가했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '빈 줄 추가에 실패했습니다.');
+    }
+  };
+
+  // 선택한 열을 빈 줄로 변환 (배정된 좌석이 있으면 서버가 거부)
+  const handleConvertToGap = async () => {
+    if (!isSeatRowSelected) return;
+    try {
+      await convertRowToGap(selectedRowId!);
+      onSelectedRowId(undefined);
+      toast.success('빈 줄로 변경했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '빈 줄 변경에 실패했습니다.');
     }
   };
   return (
@@ -182,12 +224,16 @@ function SectionButtons({
       <ButtonGroup>
         <AddRowDialog item={item} />
         <AlertDialogCustom
-          title="행 삭제"
-          triggerText="열 삭제"
+          title={isGapSelected ? '빈 줄 삭제' : '행 삭제'}
+          triggerText={isGapSelected ? '빈 줄 삭제' : '열 삭제'}
           size="xs"
           icon={<IconMinus stroke={2} />}
           disabled={selectedRowId == undefined}
-          description={`선택한 [${getRowName()}]열을 삭제하시겠습니까?`}
+          description={
+            isGapSelected
+              ? '선택한 빈 줄을 삭제하시겠습니까?'
+              : `선택한 [${getRowName()}]열을 삭제하시겠습니까?`
+          }
           actions={[
             {
               text: '삭제',
@@ -197,15 +243,31 @@ function SectionButtons({
           ]}
         />
       </ButtonGroup>
+      {/*빈 줄 버튼 그룹*/}
+      <ButtonGroup>
+        <Button size="xs" disabled={!isSeatRowSelected} onClick={handleAddGap}>
+          <IconRowInsertBottom stroke={2} />
+          빈 줄 추가
+        </Button>
+        <AlertDialogCustom
+          title="빈 줄로 변경"
+          triggerText="빈 줄로 변경"
+          size="xs"
+          icon={<IconLineDashed stroke={2} />}
+          disabled={!isSeatRowSelected}
+          description={`선택한 [${getRowName()}]열의 좌석이 모두 삭제되고 빈 줄로 변경됩니다. 배정된 좌석이 있으면 변경할 수 없습니다.`}
+          actions={[{ text: '변경', size: 'xs', onClick: handleConvertToGap }]}
+        />
+      </ButtonGroup>
       {/*좌석 버튼 그룹*/}
       <ButtonGroup>
         <AddSeatDialog
-          triggerDisabled={selectedRowId == undefined}
+          triggerDisabled={!isSeatRowSelected}
           selectedRowId={selectedRowId!}
         />
         <RemoveSeatDialog
           key={selectedRowId}
-          triggerDisabled={selectedRowId === undefined}
+          triggerDisabled={!isSeatRowSelected}
           selectedRowId={selectedRowId!}
         />
       </ButtonGroup>

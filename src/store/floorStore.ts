@@ -50,6 +50,8 @@ interface FloorStore {
   // ====== Section - Row ======
   addRow: (sectionId: number, req: CreateRowsRequest) => Promise<void>;
   removeRow: (rowId: number) => Promise<void>;
+  addGapRow: (sectionId: number, afterRowId: number) => Promise<void>;
+  convertRowToGap: (rowId: number) => Promise<void>;
 
   // ====== Section - Row - Seat ======
   addSeat: (rowId: number, req: CreateSeatRequest) => Promise<void>;
@@ -218,30 +220,28 @@ const useFloorStore = create<FloorStore>()(
       get().syncSection(floor);
     },
 
+    // 일반 열/빈 줄 공통 삭제. 응답은 갱신된 Floor 전체
     removeRow: async (rowId: number) => {
-      await fetchApi(`${ROW_API_PREFIX}/${rowId}`, {
+      const floor = await fetchApi<Floor>(`${ROW_API_PREFIX}/${rowId}`, {
         method: 'DELETE',
       });
+      get().syncSection(floor);
+    },
 
-      set(
-        (state) => ({
-          floors: state.floors.map((f) => ({
-            ...f,
-            rows: f.rows.map((floorRow) => ({
-              ...floorRow,
-              items: floorRow.items.map((item) => {
-                if (item.kind !== 'section') return item;
-                return {
-                  ...item,
-                  rows: item.rows.filter((row) => row.id !== rowId),
-                };
-              }),
-            })),
-          })),
-        }),
-        undefined,
-        'removeRow',
-      );
+    addGapRow: async (sectionId: number, afterRowId: number) => {
+      const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows/gap`, {
+        method: 'POST',
+        body: JSON.stringify({ afterRowId }),
+      });
+      get().syncSection(floor);
+    },
+
+    // 배정된 좌석이 있으면 409, 이미 빈 줄이면 400
+    convertRowToGap: async (rowId: number) => {
+      const floor = await fetchApi<Floor>(`${ROW_API_PREFIX}/${rowId}/gap`, {
+        method: 'PATCH',
+      });
+      get().syncSection(floor);
     },
 
     addSeat: async (rowId: number, req: CreateSeatRequest) => {
