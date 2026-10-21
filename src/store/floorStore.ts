@@ -7,6 +7,7 @@ import type {
   Floor,
   Section,
   UnAssignSeatRequest,
+  RowLayoutUpdate,
   SeatNumbering,
   SectionRowConfig,
   UpdateSeatGuestNamesRequest,
@@ -54,6 +55,7 @@ interface FloorStore {
   addRow: (sectionId: number, req: CreateRowsRequest) => Promise<void>;
   removeRow: (rowId: number) => Promise<void>;
   addGapRow: (sectionId: number, afterRowId: number) => Promise<void>;
+  updateRowLayouts: (sectionId: number, rows: RowLayoutUpdate[]) => Promise<void>;
   convertRowToGap: (rowId: number) => Promise<void>;
 
   // ====== Section - Row - Seat ======
@@ -244,6 +246,15 @@ const useFloorStore = create<FloorStore>()(
       const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows/gap`, {
         method: 'POST',
         body: JSON.stringify({ afterRowId }),
+      });
+      get().syncSection(floor);
+    },
+
+    // 열 화면 배치(이동/회전) 일괄 저장. 응답은 갱신된 Floor 전체
+    updateRowLayouts: async (sectionId: number, rows: RowLayoutUpdate[]) => {
+      const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows/layout`, {
+        method: 'PUT',
+        body: JSON.stringify({ rows }),
       });
       get().syncSection(floor);
     },

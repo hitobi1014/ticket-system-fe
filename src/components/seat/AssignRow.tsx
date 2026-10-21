@@ -6,6 +6,7 @@ import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
 import RowGap from '@/components/seat/RowGap.tsx';
+import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 
 interface AssignRowProps {
@@ -38,7 +39,11 @@ export default function AssignRow({
         row.kind === 'gap' ? (
           <RowGap key={row.id} className="h-10" />
         ) : (
-        <div key={row.id} className="flex items-center gap-x-1.5">
+        <div
+          key={row.id}
+          style={getRowTransformStyle(row.layout, SEAT_SIZE_PX.assign)}
+          className="flex items-center gap-x-1.5"
+        >
           <p>{row.rowName}</p>
           {row.seats.map((seat) => {
             const isVisible = seat.visible;

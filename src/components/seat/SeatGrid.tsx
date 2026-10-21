@@ -15,6 +15,7 @@ import { ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
 import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
+import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
 import { getDisplayMemberName } from '@/lib/formatUtils.ts';
@@ -84,7 +85,11 @@ export default function SeatGrid({
               row.kind === 'gap' ? (
                 <RowGap key={row.id} className="h-10" />
               ) : (
-              <div key={row.id} className="flex items-center gap-x-1.5">
+              <div
+                key={row.id}
+                style={getRowTransformStyle(row.layout, SEAT_SIZE_PX.assign)}
+                className="flex items-center gap-x-1.5"
+              >
                 <p>{row.rowName}</p>
                 {row.seats.map((seat) => {
                   const isVisible = seat.visible;
