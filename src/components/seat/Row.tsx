@@ -69,7 +69,7 @@ export default function Row({
                     isSeatSelected && isEditMode && isVisible && 'bg-success/50 border-0',
                     isSeatSelected && isEditMode && !isVisible && 'ring-danger opacity-80 ring-2',
                   )}
-                  onClick={(e) => {
+                  onClick={() => {
                     if (isEditMode && onSeatClick && seat.assignedMemberId == null) {
                       onSeatClick(seat.id);
                     }
