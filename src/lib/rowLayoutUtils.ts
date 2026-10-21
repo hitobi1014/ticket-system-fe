@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { RowLayout } from '@/types';
+import type { RowLayout, SectionRow } from '@/types';
 
 export const DEFAULT_ROW_LAYOUT: RowLayout = { offsetX: 0, offsetY: 0, rotation: 0 };
 
@@ -37,6 +37,15 @@ export const isSameRowLayout = (a: RowLayout, b: RowLayout) =>
 
 export const isDefaultRowLayout = (layout: RowLayout | undefined) =>
   layout == null || isSameRowLayout(layout, DEFAULT_ROW_LAYOUT);
+
+/** 열 배치/좌석 수가 바뀌면 달라지는 값 (구역 크기 보정 재측정 트리거) */
+export const getRowsLayoutSignature = (rows: SectionRow[]) =>
+  rows
+    .map((row) => {
+      const layout = row.layout ?? DEFAULT_ROW_LAYOUT;
+      return `${row.id}:${row.seats.length}:${layout.offsetX},${layout.offsetY},${layout.rotation}`;
+    })
+    .join('|');
 
 /**
  * 열 컨테이너에 적용할 배치 스타일 (이동 후 중심 기준 회전)

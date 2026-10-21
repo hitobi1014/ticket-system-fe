@@ -15,6 +15,7 @@ import { ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
 import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
+import FittedRows from '@/components/seat/FittedRows.tsx';
 import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
@@ -81,6 +82,7 @@ export default function SeatGrid({
               <span>{item.name}</span>
               <span>{item.rows.flatMap((r) => r.seats).length}석</span>
             </div>
+            <FittedRows rows={item.rows}>
             {item.rows.map((row) =>
               row.kind === 'gap' ? (
                 <RowGap key={row.id} className="h-10" />
@@ -88,7 +90,7 @@ export default function SeatGrid({
               <div
                 key={row.id}
                 style={getRowTransformStyle(row.layout, SEAT_SIZE_PX.assign)}
-                className="flex items-center gap-x-1.5"
+                className="flex w-fit items-center gap-x-1.5"
               >
                 <p>{row.rowName}</p>
                 {row.seats.map((seat) => {
@@ -158,6 +160,7 @@ export default function SeatGrid({
               </div>
               ),
             )}
+            </FittedRows>
           </div>
         ),
       )}

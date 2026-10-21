@@ -6,6 +6,7 @@ import { getContrastTextColor } from '@/lib/uiUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
 import RowGap from '@/components/seat/RowGap.tsx';
+import FittedRows from '@/components/seat/FittedRows.tsx';
 import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
 import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
 
@@ -35,6 +36,7 @@ export default function AssignRow({
         <Badge>{section.name}</Badge>
         <span>{section.rows.flatMap((r) => r.seats).length}석</span>
       </div>
+      <FittedRows rows={section.rows}>
       {section.rows.map((row) =>
         row.kind === 'gap' ? (
           <RowGap key={row.id} className="h-10" />
@@ -42,7 +44,7 @@ export default function AssignRow({
         <div
           key={row.id}
           style={getRowTransformStyle(row.layout, SEAT_SIZE_PX.assign)}
-          className="flex items-center gap-x-1.5"
+          className="flex w-fit items-center gap-x-1.5"
         >
           <p>{row.rowName}</p>
           {row.seats.map((seat) => {
@@ -86,6 +88,7 @@ export default function AssignRow({
         </div>
         ),
       )}
+      </FittedRows>
     </div>
   );
 }

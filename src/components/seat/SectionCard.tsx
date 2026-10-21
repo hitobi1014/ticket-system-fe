@@ -2,6 +2,7 @@ import type { FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
 import useFloorStore from '@/store/floorStore.ts';
+import FittedRows from '@/components/seat/FittedRows.tsx';
 import RowLayoutToolbar from '@/components/seat/RowLayoutToolbar.tsx';
 import useRowLayoutEditor from '@/hooks/use-row-layout-editor.ts';
 import useRowLayoutDrag from '@/hooks/use-row-layout-drag.ts';
@@ -236,12 +237,11 @@ export default function SectionCard({
             onStartLayoutEdit={layoutEditor.start}
           />
         ))}
-      <div
-        ref={rowsContainerRef}
-        className={cn(
-          'flex flex-col gap-y-2',
-          isSectionSelected && !isSpacePressed && 'select-none',
-        )}
+      <FittedRows
+        rows={item.rows}
+        containerRef={rowsContainerRef}
+        fitEnabled={!isLayoutEditing}
+        className={cn(isSectionSelected && !isSpacePressed && 'select-none')}
         {...mergePointerHandlers(handlers, layoutDrag.handlers)}
         onClickCapture={(e) => {
           // 드래그 직후 발생하는 click(열 선택 등)은 무시
@@ -284,7 +284,7 @@ export default function SectionCard({
             />
           ),
         )}
-      </div>
+      </FittedRows>
     </div>
   );
 }

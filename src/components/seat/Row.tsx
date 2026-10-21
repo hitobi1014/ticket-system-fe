@@ -41,7 +41,8 @@ export default function Row({
       data-row-id={row.id}
       style={getRowTransformStyle(layout, SEAT_SIZE_PX.setup)}
       className={cn(
-        'relative flex items-center gap-x-2',
+        // w-fit: 열 너비를 좌석 내용에 맞춤 (구역 카드가 가장 긴 열에 맞고, 변환 후 경계 측정이 정확해짐)
+        'relative flex w-fit items-center gap-x-2',
         layoutEditing && 'cursor-move touch-none select-none',
       )}
       onClick={(e) => {
