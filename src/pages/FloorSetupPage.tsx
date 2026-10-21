@@ -6,7 +6,7 @@ import SectionCard from '@/components/seat/SectionCard.tsx';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { IconLayoutColumns, IconMinus, IconPlus, IconTrash, IconZoomIn } from '@tabler/icons-react';
 import { Button } from '@/components/ui/button';
-import AddSectionDialog from '@/components/dialog/AddSectionDialog.tsx';
+import AddSectionDialog from '@/components/dialog/section/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils.ts';
