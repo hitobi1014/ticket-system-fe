@@ -11,7 +11,7 @@ import {
   type ReactZoomPanPinchContentRef,
 } from 'react-zoom-pan-pinch';
 import ScaleTracker from '@/components/common/ScaleTracker.tsx';
-import { ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
+import { getFitScale, MOBILE_MEDIA_QUERY, ZOOM_WRAPPER_PROPS } from '@/lib/zoomUtils.ts';
 import SeatMinimap from '@/components/seat/SeatMinimap';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
@@ -83,83 +83,86 @@ export default function SeatGrid({
               <span>{item.rows.flatMap((r) => r.seats).length}석</span>
             </div>
             <FittedRows rows={item.rows}>
-            {item.rows.map((row) =>
-              row.kind === 'gap' ? (
-                <RowGap key={row.id} className="h-10" showLine={false} />
-              ) : (
-              <div
-                key={row.id}
-                style={getRowTransformStyle(row.layout, SEAT_SIZE_PX.assign)}
-                className="flex w-fit items-center gap-x-1.5"
-              >
-                <p>{row.rowName}</p>
-                {row.seats.map((seat) => {
-                  const isVisible = seat.visible;
-                  const bgColor =
-                    seat.assignedMemberId != null
-                      ? getMemberColor(seat.assignedMemberId)
-                      : undefined;
-                  const isHighlightMode = (highlightColorMap?.size ?? 0) > 0;
-                  const isSelected =
-                    seat.assignedMemberId != null &&
-                    (highlightColorMap?.has(seat.assignedMemberId) ?? false);
-                  const isPulsing =
-                    seat.assignedMemberId != null &&
-                    (pulsingMemberIds?.has(seat.assignedMemberId) ?? false);
-                  const isDimmed = isHighlightMode && seat.assignedMemberId != null && !isSelected;
+              {item.rows.map((row) =>
+                row.kind === 'gap' ? (
+                  <RowGap key={row.id} className="h-10" showLine={false} />
+                ) : (
+                  <div
+                    key={row.id}
+                    style={getRowTransformStyle(row.layout, SEAT_SIZE_PX.assign)}
+                    className="flex w-fit items-center gap-x-1.5"
+                  >
+                    <p>{row.rowName}</p>
+                    {row.seats.map((seat) => {
+                      const isVisible = seat.visible;
+                      const bgColor =
+                        seat.assignedMemberId != null
+                          ? getMemberColor(seat.assignedMemberId)
+                          : undefined;
+                      const isHighlightMode = (highlightColorMap?.size ?? 0) > 0;
+                      const isSelected =
+                        seat.assignedMemberId != null &&
+                        (highlightColorMap?.has(seat.assignedMemberId) ?? false);
+                      const isPulsing =
+                        seat.assignedMemberId != null &&
+                        (pulsingMemberIds?.has(seat.assignedMemberId) ?? false);
+                      const isDimmed =
+                        isHighlightMode && seat.assignedMemberId != null && !isSelected;
 
-                  const displayInfo = getSeatDisplayInfo({
-                    seat,
-                    memberName: seat.assignedMemberId ? getMemberName(seat.assignedMemberId) : '',
-                    displayMode,
-                    currentMemberId,
-                    isAdmin: isAdmin(),
-                  });
+                      const displayInfo = getSeatDisplayInfo({
+                        seat,
+                        memberName: seat.assignedMemberId
+                          ? getMemberName(seat.assignedMemberId)
+                          : '',
+                        displayMode,
+                        currentMemberId,
+                        isAdmin: isAdmin(),
+                      });
 
-                  return (
-                    <div
-                      key={seat.id}
-                      className={cn(
-                        emptySeatClass,
-                        'relative flex h-10 w-10 items-center justify-center rounded-md text-sm',
-                        seat.assignedMemberId != null && 'border-0',
-                        !isVisible && hideSeatClass,
-                        isPulsing && 'animate-pulse',
-                        displayInfo.showMyself && 'ring-primary ring-2',
-                      )}
-                      style={{
-                        ...(isVisible && bgColor
-                          ? {
-                              backgroundColor: bgColor,
-                              color: getContrastTextColor(bgColor),
-                              ...(isDimmed ? { filter: 'brightness(0.4)' } : {}),
-                            }
-                          : {}),
-                      }}
-                    >
-                      {isVisible && (
-                        <>
-                          {displayInfo.showMyself && (
-                            <span className="bg-primary absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm">
-                              나
-                            </span>
+                      return (
+                        <div
+                          key={seat.id}
+                          className={cn(
+                            emptySeatClass,
+                            'relative flex h-10 w-10 items-center justify-center rounded-md text-sm',
+                            seat.assignedMemberId != null && 'border-0',
+                            !isVisible && hideSeatClass,
+                            isPulsing && 'animate-pulse',
+                            displayInfo.showMyself && 'ring-primary ring-2',
                           )}
-                          <div className="flex w-full flex-col items-center justify-center px-0.5 text-center leading-tight">
-                            <p className="font-medium">{seat.seatNumber}</p>
-                            {seat.assignedMemberId != null && (
-                              <p className="max-w-full truncate text-xs">
-                                {displayInfo.displayName}
-                              </p>
-                            )}
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-              ),
-            )}
+                          style={{
+                            ...(isVisible && bgColor
+                              ? {
+                                  backgroundColor: bgColor,
+                                  color: getContrastTextColor(bgColor),
+                                  ...(isDimmed ? { filter: 'brightness(0.4)' } : {}),
+                                }
+                              : {}),
+                          }}
+                        >
+                          {isVisible && (
+                            <>
+                              {displayInfo.showMyself && (
+                                <span className="bg-primary absolute -top-1 -left-1 flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-sm">
+                                  나
+                                </span>
+                              )}
+                              <div className="flex w-full flex-col items-center justify-center px-0.5 text-center leading-tight">
+                                <p className="font-medium">{seat.seatNumber}</p>
+                                {seat.assignedMemberId != null && (
+                                  <p className="max-w-full truncate text-xs">
+                                    {displayInfo.displayName}
+                                  </p>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ),
+              )}
             </FittedRows>
           </div>
         ),
@@ -185,7 +188,23 @@ export default function SeatGrid({
 
         {enableZoom ? (
           <div className="min-h-0 flex-1 overflow-hidden">
-            <TransformWrapper ref={transformRef} {...ZOOM_WRAPPER_PROPS}>
+            <TransformWrapper
+              ref={transformRef}
+              {...ZOOM_WRAPPER_PROPS}
+              onInit={(ref) => {
+                // 모바일 첫 진입 시 배치도 폭이 화면보다 넓으면 폭에 맞춰 축소
+                if (!window.matchMedia(MOBILE_MEDIA_QUERY).matches) return;
+                const wrapper = ref.instance.wrapperComponent;
+                const content = ref.instance.contentComponent;
+                if (!wrapper || !content) return;
+                const scale = getFitScale(
+                  wrapper.offsetWidth,
+                  content.offsetWidth,
+                  ZOOM_WRAPPER_PROPS.minScale,
+                );
+                if (scale < 1) ref.setTransform(0, 0, scale, 0);
+              }}
+            >
               <ScaleTracker onScaleChange={onScaleChange} />
               <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
                 <div className="flex w-max flex-col gap-y-2 px-2 pb-4">{floorRows}</div>

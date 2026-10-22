@@ -60,7 +60,7 @@ export default function MemberSearchComboBox({
 
   return (
     <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
-      <div data-tour="member-search">
+      <div data-tour="member-search" className="w-full md:w-auto">
         <Combobox
           value=""
           onValueChange={handleSelectMember}
@@ -76,7 +76,7 @@ export default function MemberSearchComboBox({
             placeholder="이름으로 좌석 찾기 (초성 가능)"
             onChange={(e) => setSearchQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            className="text-primary border-primary w-60 border"
+            className="text-primary border-primary w-full border md:w-60"
           />
           <ComboboxContent>
             <ComboboxList>

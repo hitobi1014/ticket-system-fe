@@ -121,7 +121,7 @@ export default function SeatViewPage() {
   return (
     <div className={cn(pageContentClass, 'flex h-full flex-col overflow-hidden')}>
       {/* 공연장명 + 공연일 */}
-      <header className="flex items-center justify-between gap-x-2 px-4 py-3">
+      <header className="flex items-center justify-between gap-x-2 px-2 py-3 md:px-4">
         <div className="flex items-center gap-x-2">
           <IconMapPin stroke={1.5} className="text-primary" />
           <div>
@@ -144,16 +144,16 @@ export default function SeatViewPage() {
         </Button>
       </header>
 
-      <main className="flex flex-1 flex-col gap-y-4 overflow-hidden p-4">
+      <main className="flex flex-1 flex-col gap-y-4 overflow-hidden p-2 md:p-4">
         {/* 상단 콤보박스, 기능 버튼 */}
-        <div className="flex items-start justify-between gap-x-4">
+        <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between md:gap-x-4">
           <MemberSearchComboBox
             selectedMemberIds={selectedMemberIds}
             onSelectMember={handleSelectMember}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
           />
-          <div className="flex shrink-0 items-center gap-x-2">
+          <div className="flex flex-wrap items-center gap-2 md:shrink-0 md:flex-nowrap md:gap-x-2">
             <div data-tour="guest-name">
               <GuestNameInputModal />
             </div>

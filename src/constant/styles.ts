@@ -2,7 +2,7 @@ import { cn } from '@/lib/utils.ts';
 
 export const headerTitleClass = cn('text-primary text-lg font-semibold');
 
-export const pageContentClass = cn('px-6 py-4');
+export const pageContentClass = cn('px-3 py-3 md:px-6 md:py-4');
 
 export const seatSectionClass = cn(
   'hover:border-primary flex flex-col gap-y-2 rounded-md border border-transparent p-4 hover:border-dashed',
