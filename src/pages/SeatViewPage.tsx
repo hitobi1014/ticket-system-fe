@@ -4,7 +4,8 @@ import useSeatGuideStore from '@/store/seatGuideStore';
 import useVenueStore from '@/store/venueStore';
 import useMemberStore from '@/store/memberStore';
 import useAuthStore from '@/store/authStore';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs } from '@/components/ui/tabs';
+import FloorTabsList from '@/components/common/FloorTabsList.tsx';
 import SeatGrid from '@/components/seat/SeatGrid';
 import { Button } from '@/components/ui/button';
 import { IconArmchair, IconHelp, IconMapPin } from '@tabler/icons-react';
@@ -192,16 +193,14 @@ export default function SeatViewPage() {
             onValueChange={(v) => setSelectedFloorId(Number(v))}
           >
             <div className="flex items-center justify-between">
-              <TabsList variant="default">
-                {floors.map((floor) => (
-                  <TabsTrigger key={floor.id} variant="default" value={String(floor.id)}>
-                    {floor.name}
-                    {highlightedFloorIds.has(floor.id) && (
-                      <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
-                    )}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+              <FloorTabsList
+                floors={floors}
+                renderTabExtra={(floor) =>
+                  highlightedFloorIds.has(floor.id) && (
+                    <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-red-500" />
+                  )
+                }
+              />
 
               <div className="flex items-center gap-x-2">
                 {isAdmin() && (

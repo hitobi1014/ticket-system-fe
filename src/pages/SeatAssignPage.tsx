@@ -1,7 +1,8 @@
 import useFloorStore from '@/store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
+import { Tabs } from '@/components/ui/tabs.tsx';
+import FloorTabsList from '@/components/common/FloorTabsList.tsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Dialog } from '@/components/ui/dialog.tsx';
@@ -158,13 +159,7 @@ export default function SeatAssignPage() {
         onValueChange={(v) => setSelectedFloorId(Number(v))}
       >
         <div className="flex items-center justify-between">
-          <TabsList variant="default">
-            {floors.map((floor) => (
-              <TabsTrigger variant="default" key={floor.id} value={String(floor.id)}>
-                {floor.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <FloorTabsList floors={floors} />
 
           {/* Zoom controls */}
           <ZoomControl scale={currentScale} onZoomIn={zoomIn} onZoomOut={zoomOut} />
