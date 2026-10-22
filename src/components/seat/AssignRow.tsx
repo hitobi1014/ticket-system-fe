@@ -1,4 +1,5 @@
-import type { Section } from '@/types';
+import type { MouseEvent as ReactMouseEvent } from 'react';
+import type { Seat, Section } from '@/types';
 import { Button } from '@/components/ui/button.tsx';
 import useMemberStore from '@/store/memberStore.ts';
 import { useRef } from 'react';
@@ -15,11 +16,17 @@ interface AssignRowProps {
   isBulkEditMode: boolean;
   selectedSeatIds?: Set<number>;
   onSeatClick: (seatId: number) => void;
+  /** 일괄 편집 모드 좌석 선택(클릭/드래그). 클릭 토글도 mousedown에서 처리 */
+  onSeatMouseDown?: (seat: Seat, e: ReactMouseEvent) => void;
+  onSeatMouseEnter?: (seat: Seat, e: ReactMouseEvent) => void;
 }
 
 export default function AssignRow({
   section,
+  isBulkEditMode,
   onSeatClick,
+  onSeatMouseDown,
+  onSeatMouseEnter,
   selectedSeatIds = new Set(),
 }: AssignRowProps) {
   const { members } = useMemberStore();
@@ -52,9 +59,8 @@ export default function AssignRow({
 
             return (
               // 빈 좌석은 흰 배경, 배정된 좌석은 회원에게 할당된 색상
-              //  1. 단건 편집
-              //  2. 일괄 편집
-              //    - 일괄 편집시 기존 단건 편집 클릭 이벤트 막기 =>
+              //  1. 단건 편집: click → 회원 선택 모달
+              //  2. 일괄 편집: mousedown/mouseenter로 선택 (click은 무시)
               <Button
                 key={seat.id}
                 ref={triggerRef}
@@ -74,7 +80,11 @@ export default function AssignRow({
                       }
                     : undefined
                 }
-                onClick={() => isVisible && onSeatClick(seat.id)}
+                onClick={() => isVisible && !isBulkEditMode && onSeatClick(seat.id)}
+                onMouseDown={isBulkEditMode ? (e) => isVisible && onSeatMouseDown?.(seat, e) : undefined}
+                onMouseEnter={
+                  isBulkEditMode ? (e) => isVisible && onSeatMouseEnter?.(seat, e) : undefined
+                }
               >
                 {isVisible && (
                   <div>

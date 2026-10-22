@@ -1,9 +1,8 @@
+import type { ReactNode } from 'react';
+import type { MouseEvent as ReactMouseEvent } from 'react';
 import { TabsContent } from '@/components/ui/tabs.tsx';
-import { Toggle } from '@/components/ui/toggle.tsx';
-import { SquareIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button.tsx';
 import AssignRow from '@/components/seat/AssignRow.tsx';
-import type { Floor, StagePosition } from '@/types';
+import type { Floor, Seat, StagePosition } from '@/types';
 import { cn } from '@/lib/utils.ts';
 import StageBar from '@/components/seat-assign/StageBar.tsx';
 import {
@@ -19,10 +18,16 @@ interface SeatAssignGridProps {
   floor: Floor;
   stagePosition: StagePosition;
   isBulkEditMode: boolean;
-  setIsBulkEditMode: (isBulkEditMode: boolean) => void;
   selectedSeatIds: Set<number>;
-  setSelectedSeatIds: (selectedSeatIds: Set<number>) => void;
-  setIsModalOpen: (isModalOpen: boolean) => void;
+  /** 일괄 편집 모드가 아닐 때 좌석 클릭 (단건 배정 모달) */
+  onSeatClick: (seatId: number) => void;
+  /** 일괄 편집 모드 좌석 선택(클릭/드래그) */
+  onSeatMouseDown: (seat: Seat, e: ReactMouseEvent) => void;
+  onSeatMouseEnter: (seat: Seat, e: ReactMouseEvent) => void;
+  /** Space를 누르고 있는 동안 true — 일괄 편집 모드에서도 드래그로 화면 이동 */
+  isSpacePressed?: boolean;
+  /** 무대 위에 표시할 영역 (일괄 편집 상단 바) */
+  topBar?: ReactNode;
   transformRef?: React.Ref<ReactZoomPanPinchContentRef>;
   onScaleChange?: (scale: number) => void;
 }
@@ -31,61 +36,21 @@ export default function SeatAssignGrid({
   floor,
   stagePosition,
   isBulkEditMode,
-  setIsBulkEditMode,
   selectedSeatIds,
-  setSelectedSeatIds,
-  setIsModalOpen,
+  onSeatClick,
+  onSeatMouseDown,
+  onSeatMouseEnter,
+  isSpacePressed = false,
+  topBar,
   transformRef,
   onScaleChange,
 }: SeatAssignGridProps) {
-  const handleSeatClick = (seatId: number) => {
-    if (isBulkEditMode) {
-      // seat id 추가 => 배열로 저장
-      setIsModalOpen(false);
-
-      const next = new Set(selectedSeatIds);
-      if (next.has(seatId)) {
-        next.delete(seatId);
-      } else {
-        next.add(seatId);
-      }
-      setSelectedSeatIds(next);
-    } else {
-      setSelectedSeatIds(new Set([seatId]));
-      setIsModalOpen(true);
-    }
-  };
+  // 일괄 편집 모드에서는 드래그를 좌석 선택에 사용하므로 화면 이동(패닝)을 끈다. Space를 누르면 다시 이동 가능
+  const isPanDisabled = isBulkEditMode && !isSpacePressed;
 
   return (
     <TabsContent value={String(floor.id)} className="flex min-h-0 flex-1 flex-col gap-y-4">
-      <div className="flex items-center gap-x-4">
-        <Toggle
-          className={cn(
-            'text-primary cursor-pointer font-semibold',
-            // isBulkEditMode && 'bg-white text-black', TODO 필요없으면 삭제
-          )}
-          pressed={isBulkEditMode}
-          onPressedChange={(pressed) => {
-            setIsBulkEditMode(pressed);
-            if (!pressed) setSelectedSeatIds(new Set());
-          }}
-        >
-          <SquareIcon className="group-data-[state=on]/toggle:fill-foreground" />
-          일괄편집모드
-        </Toggle>
-        {isBulkEditMode && (
-          <>
-            <Button
-              size="base"
-              onClick={() => setIsModalOpen(true)}
-              disabled={selectedSeatIds.size === 0}
-            >
-              좌석배정
-            </Button>
-            <span>선택된 좌석: {selectedSeatIds.size}</span>
-          </>
-        )}
-      </div>
+      {topBar}
       <div
         className={cn(
           'bg-card mt-4 flex min-h-0 flex-1 gap-2 overflow-hidden rounded-md p-4',
@@ -95,8 +60,18 @@ export default function SeatAssignGrid({
         {(stagePosition === 'front' || stagePosition === 'left') && (
           <StageBar position={stagePosition} />
         )}
-        <div className="min-h-0 flex-1 cursor-grab overflow-hidden active:cursor-grabbing">
-          <TransformWrapper ref={transformRef} {...ZOOM_WRAPPER_PROPS}>
+        <div
+          className={cn(
+            'min-h-0 flex-1 overflow-hidden',
+            !isPanDisabled && 'cursor-grab active:cursor-grabbing',
+            isBulkEditMode && 'select-none',
+          )}
+        >
+          <TransformWrapper
+            ref={transformRef}
+            {...ZOOM_WRAPPER_PROPS}
+            panning={{ ...ZOOM_WRAPPER_PROPS.panning, disabled: isPanDisabled }}
+          >
             <ScaleTracker onScaleChange={onScaleChange} />
             <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
               <div className="flex w-max flex-col gap-y-2 px-2 pb-4">
@@ -111,7 +86,9 @@ export default function SeatAssignGrid({
                           section={item}
                           isBulkEditMode={isBulkEditMode}
                           selectedSeatIds={selectedSeatIds}
-                          onSeatClick={handleSeatClick}
+                          onSeatClick={onSeatClick}
+                          onSeatMouseDown={onSeatMouseDown}
+                          onSeatMouseEnter={onSeatMouseEnter}
                         />
                       ),
                     )}

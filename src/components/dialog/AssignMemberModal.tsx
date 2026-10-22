@@ -33,7 +33,7 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils.ts';
 
-// 모달에서 일괄/단건 회원 좌석 할당 가능하도록
+// 좌석 단건 클릭 시 회원 선택/배정/배정취소 (일괄 편집은 상단 바에서 처리)
 
 interface AssignMemberModalProps {
   seatIds: Set<number>;
@@ -60,7 +60,6 @@ export function AssignMemberModal({ seatIds, onClose }: AssignMemberModalProps) 
   const modalTitle = {
     N: '배정할 회원을 선택하세요.',
     U: '현재 배정된 인원을 변경하거나 배정을 취소합니다.',
-    B: '선택한 좌석 전체에 동일한 회원을 배정합니다.',
   };
 
   const formatSeatLabel = (

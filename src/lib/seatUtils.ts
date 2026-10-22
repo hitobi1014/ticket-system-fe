@@ -1,4 +1,4 @@
-import type { AssignedSeatInfo, Floor, Member, Rows, Section, SectionRow } from '@/types';
+import type { AssignedSeatInfo, Floor, Member, Rows, Seat, Section, SectionRow } from '@/types';
 
 /** 좌석이 있는 일반 열인지 (빈 줄(gap)이 아닌지) 판별 */
 export function isSeatRow(row: SectionRow): row is Rows {
@@ -21,6 +21,16 @@ export function findSeatContext(floors: Floor[], seatId: number) {
     }
   }
   return null;
+}
+
+/**
+ * 일괄 편집 모드에서 선택 가능한 좌석인지
+ * - 숨김 좌석, 이미 해당 회원에게 배정된 좌석은 제외
+ * - 다른 회원에게 배정된 좌석은 덮어쓰기(Shift)를 허용할 때만 선택 가능
+ */
+export function isSeatSelectable(seat: Seat, memberId: number, allowOverwrite: boolean): boolean {
+  if (!seat.visible || seat.assignedMemberId === memberId) return false;
+  return seat.assignedMemberId == null || allowOverwrite;
 }
 
 export function findVisibleSeatCountByRowId(floors: Floor[], rowId: number) {
