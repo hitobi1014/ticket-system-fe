@@ -29,7 +29,10 @@ export default function BulkAssignBar({
   onExit,
 }: BulkAssignBarProps) {
   return (
-    <div className="bg-card flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-4 py-2 text-sm">
+    <div
+      data-tour="bulk-bar"
+      className="bg-card flex flex-wrap items-center justify-between gap-x-6 gap-y-2 rounded-md px-4 py-2 text-sm"
+    >
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
         <Badge>{memberName}</Badge>
         <span>
@@ -41,7 +44,9 @@ export default function BulkAssignBar({
         <span>
           선택 {selectedCount}석{overwriteCount > 0 && ` (덮어쓰기 ${overwriteCount}석)`}
         </span>
-        <span className="text-secondary text-xs">Shift: 덮어쓰기 · Space: 화면 이동</span>
+        <span data-tour="bulk-shortcut" className="text-secondary text-xs">
+          Shift: 덮어쓰기 · Space: 화면 이동
+        </span>
       </div>
       <div className="flex items-center gap-x-2">
         {overwriteCount > 0 && (

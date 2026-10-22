@@ -52,6 +52,7 @@ export default function SeatAssignGrid({
     <TabsContent value={String(floor.id)} className="flex min-h-0 flex-1 flex-col gap-y-4">
       {topBar}
       <div
+        data-tour="assign-grid"
         className={cn(
           'bg-card mt-4 flex min-h-0 flex-1 gap-2 overflow-hidden rounded-md p-4',
           stagePosition === 'left' || stagePosition === 'right' ? 'flex-row' : 'flex-col',
