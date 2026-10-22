@@ -24,6 +24,7 @@ export default function RowSeatCountEditor({
       <div className="flex shrink-0 gap-x-2">
         <Button
           variant="dialog"
+          tabIndex={-1}
           className={cn('border-border h-6 w-6')}
           onClick={() => onChange(seatCount - 1)}
         >
@@ -39,6 +40,7 @@ export default function RowSeatCountEditor({
         />
         <Button
           variant="dialog"
+          tabIndex={-1}
           className={cn('border-border h-6 w-6')}
           onClick={() => onChange(seatCount + 1)}
         >

@@ -14,6 +14,7 @@ export default function RowGapItem({ onRemove }: RowGapItemProps) {
       <Button
         variant="ghost"
         size="icon-xs"
+        tabIndex={-1}
         className="text-primary shrink-0"
         aria-label="빈 줄 삭제"
         onClick={onRemove}

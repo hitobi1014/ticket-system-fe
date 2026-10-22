@@ -2,12 +2,12 @@ import { cn } from '@/lib/utils.ts';
 
 export const headerTitleClass = cn('text-primary text-lg font-semibold');
 
-export const pageContentClass = cn('px-6 py-4');
+export const pageContentClass = cn('px-3 py-3 md:px-6 md:py-4');
 
 export const seatSectionClass = cn(
-  'bg-card border-muted-foreground flex flex-col gap-y-2 rounded-md border p-4',
+  'hover:border-primary flex flex-col gap-y-2 rounded-md border border-transparent p-4 hover:border-dashed',
 );
-export const selectedSectionClass = cn('ring-primary bg-secondary/10 border-0 ring-2');
+export const selectedSectionClass = cn('ring-primary hover:border-transparent ring-2');
 
 export const emptySeatClass = cn('text-primary bg-transparent text-sm border-primary border');
 

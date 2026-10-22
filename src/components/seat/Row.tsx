@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button.tsx';
-import type { Rows } from '@/types';
+import type { RowLayout, Rows } from '@/types';
+import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
 import { clsx } from 'clsx';
 import { cn } from '@/lib/utils.ts';
 import { emptySeatClass } from '@/constant/styles.ts';
@@ -16,6 +17,10 @@ interface RowProps {
   isEditMode?: boolean;
   /** 선택된 좌석 기준 번호 미리보기 (있으면 서버 번호 대신 표시, null은 숨겨질 좌석) */
   seatNumberPreview?: Map<number, number | null>;
+  /** 화면 배치(이동/회전). 편집 중에는 초안 값이 전달된다 */
+  layout?: RowLayout;
+  /** 배치 편집 모드: 열 단위 이동/회전만 가능하고 좌석 선택은 비활성 */
+  layoutEditing?: boolean;
 }
 
 export default function Row({
@@ -27,16 +32,32 @@ export default function Row({
   onSelectSection,
   isEditMode,
   seatNumberPreview,
+  layout,
+  layoutEditing = false,
 }: RowProps) {
   return (
     <div
       key={row.id}
-      className="flex items-center gap-x-2"
+      data-row-id={row.id}
+      style={getRowTransformStyle(layout, SEAT_SIZE_PX.setup)}
+      className={cn(
+        // w-fit: 열 너비를 좌석 내용에 맞춤 (구역 카드가 가장 긴 열에 맞고, 변환 후 경계 측정이 정확해짐)
+        'relative flex w-fit items-center gap-x-2',
+        layoutEditing && 'cursor-move touch-none select-none',
+      )}
       onClick={(e) => {
         e.stopPropagation();
         onClick(row.id);
       }}
     >
+      {layoutEditing && isSelected && (
+        // 회전 핸들: 열 위쪽 가운데. 드래그하면 열 중심 기준으로 회전
+        <div
+          data-rotate-handle
+          className="bg-primary border-background absolute -top-4 left-1/2 size-3 -translate-x-1/2 cursor-grab rounded-full border-2 shadow"
+          onClick={(e) => e.stopPropagation()}
+        />
+      )}
       <div className={cn('w-1 self-stretch rounded-full', isSelected && 'bg-primary')} />
       <div className="flex">
         <span className={clsx('flex w-6 items-center justify-center text-sm', {})}>
@@ -54,7 +75,8 @@ export default function Row({
                 onClick={(e) => {
                   // 좌석 영역 클릭은 열 선택으로 전파하지 않음 (열 선택은 열 이름/빈 영역 클릭)
                   e.stopPropagation();
-                  if (!isEditMode) onSelectSection?.();
+                  if (layoutEditing) onClick(row.id); // 배치 편집 중에는 좌석 클릭으로 열 선택
+                  else if (!isEditMode) onSelectSection?.();
                 }}
               >
                 <Button

@@ -10,11 +10,12 @@ export default function AisleDivider({ onClick, isSelected }: AisleDividerProps)
     <div
       onClick={onClick}
       className={cn(
-        'border-muted-foreground flex cursor-pointer items-center justify-center self-stretch rounded-md border px-3',
-        isSelected && 'ring-primary bg-secondary/10 border-0 ring-2',
+        'flex items-center justify-center self-stretch rounded-md px-4',
+        onClick && 'cursor-pointer',
+        isSelected && 'ring-primary ring-2',
       )}
     >
-      <div className="bg-primary h-2/4 w-px" />
+      <div className="border-muted-foreground/40 h-1/2 border-l border-dashed" />
     </div>
   );
 }

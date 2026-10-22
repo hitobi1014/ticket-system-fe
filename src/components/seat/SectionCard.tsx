@@ -2,7 +2,12 @@ import type { FloorItem, Section } from '@/types';
 import Row from '@/components/seat/Row.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
 import useFloorStore from '@/store/floorStore.ts';
+import FittedRows from '@/components/seat/FittedRows.tsx';
+import RowLayoutToolbar from '@/components/seat/RowLayoutToolbar.tsx';
+import useRowLayoutEditor from '@/hooks/use-row-layout-editor.ts';
+import useRowLayoutDrag from '@/hooks/use-row-layout-drag.ts';
 import {
+  IconArrowsMove,
   IconEye,
   IconEyeOff,
   IconLineDashed,
@@ -13,7 +18,10 @@ import useDragSelect from '@/hooks/use-drag-select.ts';
 import DragSelectBox from '@/components/seat/DragSelectBox.tsx';
 import { toast } from 'sonner';
 import { RemoveSeatDialog } from '@/components/dialog/RemoveSeatDialog.tsx';
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import useSectionToolbarSlot from '@/hooks/use-section-toolbar-slot.ts';
+import type { PointerEventHandler } from 'react';
 import { buildSeatNumberPreview } from '@/lib/sectionUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
@@ -26,6 +34,33 @@ import AddRowDialog from '@/components/dialog/row/AddRowDialog.tsx';
 import ChangeSeatNumberingDialog from '@/components/dialog/section/ChangeSeatNumberingDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
 import { findSectionRowInfoByRowId } from '@/lib/seatUtils.ts';
+
+type PointerHandlers = {
+  onPointerDown: PointerEventHandler<HTMLElement>;
+  onPointerMove: PointerEventHandler<HTMLElement>;
+  onPointerUp: PointerEventHandler<HTMLElement>;
+  onPointerCancel: PointerEventHandler<HTMLElement>;
+};
+
+/** 좌석 드래그 선택과 열 배치 드래그 핸들러를 한 컨테이너에 함께 연결 (둘 중 활성화된 쪽만 동작) */
+const mergePointerHandlers = (a: PointerHandlers, b: PointerHandlers): PointerHandlers => ({
+  onPointerDown: (e) => {
+    a.onPointerDown(e);
+    b.onPointerDown(e);
+  },
+  onPointerMove: (e) => {
+    a.onPointerMove(e);
+    b.onPointerMove(e);
+  },
+  onPointerUp: (e) => {
+    a.onPointerUp(e);
+    b.onPointerUp(e);
+  },
+  onPointerCancel: (e) => {
+    a.onPointerCancel(e);
+    b.onPointerCancel(e);
+  },
+});
 
 interface SectionCardProps {
   item: FloorItem;
@@ -50,6 +85,7 @@ export default function SectionCard({
   onSelectedRowId,
   isSpacePressed = false,
 }: SectionCardProps) {
+  const toolbarSlot = useSectionToolbarSlot();
   const [selectedSeatIds, setSelectedSeatIds] = useState<Set<number>>(new Set());
   const isSectionSelected = item.kind === 'section' && selectedSectionId === item.id;
 
@@ -67,11 +103,50 @@ export default function SectionCard({
     [item, isSectionSelected, selectedSeatIds],
   );
 
+  // 열 화면 배치(이동/회전) 편집: 로컬 초안으로 편집하고 저장 시 한 번에 서버 반영
+  const layoutEditor = useRowLayoutEditor(item.kind === 'section' ? item : null, selectedRowId);
+  const updateRowLayouts = useFloorStore((state) => state.updateRowLayouts);
+  const [isSavingLayout, setIsSavingLayout] = useState(false);
+  const rowsContainerRef = useRef<HTMLDivElement>(null);
+  const isLayoutEditing = isSectionSelected && layoutEditor.isEditing;
+
+  // 구역 선택이 해제되면 배치 편집 초안은 버림 (렌더 중 상태 조정)
+  if (!isSectionSelected && layoutEditor.isEditing) {
+    layoutEditor.cancel();
+  }
+
   const { box, consumeClick, handlers } = useDragSelect({
-    enabled: isSectionSelected && !isSpacePressed,
+    enabled: isSectionSelected && !isSpacePressed && !isLayoutEditing,
     selectedIds: selectedSeatIds,
     onChange: setSelectedSeatIds,
   });
+
+  const layoutDrag = useRowLayoutDrag({
+    enabled: isLayoutEditing && !isSpacePressed,
+    containerRef: rowsContainerRef,
+    getLayoutById: layoutEditor.getLayoutById,
+    onBegin: layoutEditor.pushHistory,
+    onChange: layoutEditor.update,
+  });
+
+  const handleSaveLayout = async () => {
+    if (item.kind !== 'section') return;
+    const payload = layoutEditor.buildPayload();
+    if (payload.length === 0) {
+      layoutEditor.cancel();
+      return;
+    }
+    setIsSavingLayout(true);
+    try {
+      await updateRowLayouts(item.id, payload);
+      layoutEditor.cancel(); // 저장 성공 시 편집 종료 (서버 응답이 Floor로 반영됨)
+      toast.success('열 배치를 저장했습니다.');
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : '열 배치 저장에 실패했습니다.');
+    } finally {
+      setIsSavingLayout(false);
+    }
+  };
 
   const handleSelectSection = (sectionId: number) => {
     if (selectedSectionId === sectionId) return;
@@ -131,21 +206,60 @@ export default function SectionCard({
         <Badge>{item.name}</Badge>
         <p>{item.rows.flatMap((r) => r.seats).length}석</p>
       </div>
-      {selectedSectionId === item.id && (
-        <SectionButtons
-          item={item}
-          selectedRowId={selectedRowId}
-          selectedSeatIds={selectedSeatIds}
-          setSelectedSeatIds={setSelectedSeatIds}
-          onSelectedRowId={onSelectedRowId}
-        />
-      )}
-      <div
-        className={cn('flex flex-col gap-y-2', isSectionSelected && !isSpacePressed && 'select-none')}
-        {...handlers}
+      {selectedSectionId === item.id &&
+        toolbarSlot &&
+        createPortal(
+          <div className="flex items-start justify-end gap-x-2">
+            <Badge className="shrink-0">{item.name}</Badge>
+            {isLayoutEditing ? (
+          <RowLayoutToolbar
+            selectedRow={(() => {
+              const row = item.rows.find((r) => r.id === selectedRowId);
+              return row
+                ? {
+                    name: row.kind === 'row' ? row.rowName : '빈 줄',
+                    layout: layoutEditor.getLayout(row),
+                  }
+                : null;
+            })()}
+            onChange={(layout) => selectedRowId != null && layoutEditor.update(selectedRowId, layout)}
+            onBeforeChange={layoutEditor.pushHistory}
+            onResetRow={() => selectedRowId != null && layoutEditor.resetRow(selectedRowId)}
+            onDistribute={layoutEditor.distributeRows}
+            onApplyFirstRowRotation={layoutEditor.applyFirstRowRotation}
+            firstRowRotation={layoutEditor.firstRowRotation}
+            canDistribute={item.rows.filter((r) => r.kind === 'row').length >= 2}
+            onUndo={layoutEditor.undo}
+            onCancel={layoutEditor.cancel}
+            onSave={handleSaveLayout}
+            canUndo={layoutEditor.canUndo}
+            isDirty={layoutEditor.isDirty}
+            isSaving={isSavingLayout}
+          />
+        ) : (
+          <SectionButtons
+            item={item}
+            selectedRowId={selectedRowId}
+            selectedSeatIds={selectedSeatIds}
+            setSelectedSeatIds={setSelectedSeatIds}
+            onSelectedRowId={onSelectedRowId}
+            onStartLayoutEdit={layoutEditor.start}
+          />
+            )}
+          </div>,
+          toolbarSlot,
+        )}
+      <FittedRows
+        rows={item.rows}
+        containerRef={rowsContainerRef}
+        fitEnabled={!isLayoutEditing}
+        className={cn(isSectionSelected && !isSpacePressed && 'select-none')}
+        {...mergePointerHandlers(handlers, layoutDrag.handlers)}
         onClickCapture={(e) => {
           // 드래그 직후 발생하는 click(열 선택 등)은 무시
-          if (consumeClick()) {
+          const wasDragSelect = consumeClick();
+          const wasLayoutDrag = layoutDrag.consumeClick();
+          if (wasDragSelect || wasLayoutDrag) {
             e.stopPropagation();
             e.preventDefault();
           }
@@ -157,6 +271,7 @@ export default function SectionCard({
             <RowGap
               key={row.id}
               className="h-8"
+              showLine={!isLayoutEditing}
               isSelected={selectedRowId === row.id}
               onClick={() => {
                 handleSelectSection(item.id);
@@ -175,12 +290,14 @@ export default function SectionCard({
               selectedSeatIds={selectedSeatIds}
               onSeatClick={handleSeatClick}
               onSelectSection={() => handleSelectSection(item.id)}
-              isEditMode={isSectionSelected}
+              isEditMode={isSectionSelected && !isLayoutEditing}
               seatNumberPreview={seatNumberPreview}
+              layout={layoutEditor.getLayout(row)}
+              layoutEditing={isLayoutEditing}
             />
           ),
         )}
-      </div>
+      </FittedRows>
     </div>
   );
 }
@@ -191,6 +308,7 @@ interface SectionButtonsProps {
   selectedSeatIds: Set<number>;
   setSelectedSeatIds: (selectedSeatIds: Set<number>) => void;
   onSelectedRowId: (id: number | undefined) => void;
+  onStartLayoutEdit: () => void;
 }
 
 function SectionButtons({
@@ -199,6 +317,7 @@ function SectionButtons({
   selectedSeatIds,
   setSelectedSeatIds,
   onSelectedRowId,
+  onStartLayoutEdit,
 }: SectionButtonsProps) {
   const toggleSeatVisible = useFloorStore((state) => state.toggleSeatVisible);
   const removeRow = useFloorStore((state) => state.removeRow);
@@ -280,7 +399,7 @@ function SectionButtons({
     <ButtonGroup className="self-end">
       {/*열 버튼 그룹*/}
       <ButtonGroup>
-        <AddRowDialog item={item} />
+        <AddRowDialog item={item} selectedRowId={selectedRowId} />
         <AlertDialogCustom
           title={isGapSelected ? '빈 줄 삭제' : '행 삭제'}
           triggerText={isGapSelected ? '빈 줄 삭제' : '열 삭제'}
@@ -301,9 +420,13 @@ function SectionButtons({
           ]}
         />
       </ButtonGroup>
-      {/*좌석 번호 방식 변경*/}
+      {/*좌석 번호 방식 변경 / 열 배치 편집*/}
       <ButtonGroup>
         <ChangeSeatNumberingDialog section={item} />
+        <Button size="xs" onClick={onStartLayoutEdit}>
+          <IconArrowsMove stroke={2} />
+          배치 편집
+        </Button>
       </ButtonGroup>
       {/*빈 줄 버튼 그룹*/}
       <ButtonGroup>

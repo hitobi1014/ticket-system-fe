@@ -7,6 +7,7 @@ import { pageContentClass } from '@/constant/styles.ts';
 import FloorButtons from '@/components/floor/FloorButtons.tsx';
 import SectionButtons from '@/components/floor/SectionButtons.tsx';
 import FloorCanvas from '@/components/floor/FloorCanvas.tsx';
+import SectionToolbarSlot from '@/components/floor/SectionToolbarSlot.tsx';
 import ZoomControl from '@/components/common/ZoomControl.tsx';
 import useZoomControls from '@/hooks/use-zoom-controls.ts';
 import useSpaceKey from '@/hooks/use-space-key.ts';
@@ -83,20 +84,22 @@ export default function FloorSetupPage() {
               selectedAisleId={selectedAisleId}
             />
 
-            {/* 구역 컨텐츠 시작: 구역/통로 */}
-            <FloorCanvas
-              floor={floor}
-              stagePosition={stagePosition}
-              selectedSectionId={selectedSectionId}
-              selectedAisleId={selectedAisleId}
-              selectedRowId={selectedRowId}
-              onSelectedSectionId={setSelectedSectionId}
-              onSelectedAisleId={setSelectedAisleId}
-              onSelectedRowId={setSelectedRowId}
-              transformRef={setTransformRef(floor.id)}
-              onScaleChange={handleScaleChange}
-              isSpacePressed={isSpacePressed}
-            />
+            {/* 선택한 구역의 편집 도구 고정 영역 + 구역 컨텐츠: 구역/통로 */}
+            <SectionToolbarSlot hasSelection={selectedSectionId !== undefined}>
+              <FloorCanvas
+                floor={floor}
+                stagePosition={stagePosition}
+                selectedSectionId={selectedSectionId}
+                selectedAisleId={selectedAisleId}
+                selectedRowId={selectedRowId}
+                onSelectedSectionId={setSelectedSectionId}
+                onSelectedAisleId={setSelectedAisleId}
+                onSelectedRowId={setSelectedRowId}
+                transformRef={setTransformRef(floor.id)}
+                onScaleChange={handleScaleChange}
+                isSpacePressed={isSpacePressed}
+              />
+            </SectionToolbarSlot>
           </TabsContent>
         ))}
       </Tabs>

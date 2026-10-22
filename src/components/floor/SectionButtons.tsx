@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { IconLayoutColumns, IconMinus, IconTrash } from '@tabler/icons-react';
 import AddSectionDialog from '@/components/dialog/section/AddSectionDialog.tsx';
 import AlertDialogCustom from '@/components/dialog/AlertDialogCustom.tsx';
+import MoveSectionDialog from '@/components/dialog/floor/MoveSectionDialog.tsx';
 import SeatLegend from '@/components/floor/SeatLegend.tsx';
 import { AlertDialogDescription } from '@/components/ui/alert-dialog';
 import { findAisleInFloor, findFloorRowBySectionId, findSectionInFloor } from '@/lib/floorUtils.ts';
@@ -92,6 +93,13 @@ export default function SectionButtons({
               setSelectedSectionId(undefined);
               setSelectedRowId(undefined);
               setAddSectionDialogKey((prev) => prev + 1);
+            }}
+          />
+          <MoveSectionDialog
+            floor={floor}
+            onSaved={() => {
+              setSelectedSectionId(undefined);
+              setSelectedRowId(undefined);
             }}
           />
           <AlertDialogCustom

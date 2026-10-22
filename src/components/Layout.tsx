@@ -37,7 +37,7 @@ export default function Layout() {
     | undefined;
 
   return (
-    <SidebarProvider className="bg-background h-screen overflow-hidden">
+    <SidebarProvider className="bg-background h-dvh overflow-hidden">
       <AppSidebar />
       <main className="flex flex-1 overflow-hidden">
         {/* max-w-350 => 1400px */}

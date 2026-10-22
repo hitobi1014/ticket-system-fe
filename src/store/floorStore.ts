@@ -7,6 +7,8 @@ import type {
   Floor,
   Section,
   UnAssignSeatRequest,
+  RowLayoutUpdate,
+  UpdateFloorLayoutRequest,
   SeatNumbering,
   SectionRowConfig,
   UpdateSeatGuestNamesRequest,
@@ -49,11 +51,13 @@ interface FloorStore {
 
   addAisle: (floorId: number, req: CreateAisleRequest) => Promise<void>;
   removeAisle: (aisleId: number) => Promise<void>;
+  updateFloorLayout: (floorId: number, req: UpdateFloorLayoutRequest) => Promise<void>;
 
   // ====== Section - Row ======
   addRow: (sectionId: number, req: CreateRowsRequest) => Promise<void>;
   removeRow: (rowId: number) => Promise<void>;
   addGapRow: (sectionId: number, afterRowId: number) => Promise<void>;
+  updateRowLayouts: (sectionId: number, rows: RowLayoutUpdate[]) => Promise<void>;
   convertRowToGap: (rowId: number) => Promise<void>;
 
   // ====== Section - Row - Seat ======
@@ -203,6 +207,15 @@ const useFloorStore = create<FloorStore>()(
       get().syncSection(result);
     },
 
+    // 구역/통로의 구역 열 소속과 순서를 일괄 변경. 응답은 갱신된 Floor 전체
+    updateFloorLayout: async (floorId: number, req: UpdateFloorLayoutRequest) => {
+      const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/layout`, {
+        method: 'PUT',
+        body: JSON.stringify(req),
+      });
+      get().syncSection(floor);
+    },
+
     removeAisle: async (aisleId: number) => {
       await fetchApi(`${AISLE_API_PREFIX}/${aisleId}`, {
         method: 'DELETE',
@@ -244,6 +257,15 @@ const useFloorStore = create<FloorStore>()(
       const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows/gap`, {
         method: 'POST',
         body: JSON.stringify({ afterRowId }),
+      });
+      get().syncSection(floor);
+    },
+
+    // 열 화면 배치(이동/회전) 일괄 저장. 응답은 갱신된 Floor 전체
+    updateRowLayouts: async (sectionId: number, rows: RowLayoutUpdate[]) => {
+      const floor = await fetchApi<Floor>(`${SECTION_API_PREFIX}/${sectionId}/rows/layout`, {
+        method: 'PUT',
+        body: JSON.stringify({ rows }),
       });
       get().syncSection(floor);
     },
