@@ -1,4 +1,12 @@
-import type { Aisle, Floor, FloorRow, Section } from '@/types';
+import type {
+  Aisle,
+  Floor,
+  FloorItem,
+  FloorLayoutItemRef,
+  FloorRow,
+  Section,
+  UpdateFloorLayoutRequest,
+} from '@/types';
 
 /** 층 내 모든 구역/통로 항목 */
 function getFloorItems(floor: Floor | undefined) {
@@ -32,3 +40,66 @@ export function findFloorRowBySectionId(
     ) ?? null
   );
 }
+
+/** 구역/통로를 놓을 위치: 기존 구역 열의 index 번째 칸 사이, 또는 rowIndex 번째 줄 사이의 새 구역 열 */
+export type FloorItemDropTarget =
+  | { type: 'row'; floorRowId: number; index: number }
+  | { type: 'newRow'; rowIndex: number };
+
+const isSameItem = (item: FloorItem, ref: FloorLayoutItemRef) =>
+  item.kind === ref.kind && item.id === ref.id;
+
+/** 임시로 만든 구역 열 id (서버에는 'new'로 전달) */
+export const isTempFloorRowId = (id: number) => id < 0;
+
+/**
+ * 구역/통로를 이동한 새 구역 열 목록을 반환 (원본은 변경하지 않음)
+ * - index/rowIndex는 이동 전 목록 기준이며, 구역이 모두 빠져 빈 구역 열은 제거된다.
+ */
+export function moveFloorItem(
+  rows: FloorRow[],
+  ref: FloorLayoutItemRef,
+  target: FloorItemDropTarget,
+  tempRowId: number,
+): FloorRow[] {
+  const sourceRow = rows.find((r) => r.items.some((item) => isSameItem(item, ref)));
+  const moving = sourceRow?.items.find((item) => isSameItem(item, ref));
+  if (!sourceRow || !moving) return rows;
+  const sourceIndex = sourceRow.items.indexOf(moving);
+
+  let next = rows.map((r) =>
+    r.id === sourceRow.id ? { ...r, items: r.items.filter((item) => item !== moving) } : r,
+  );
+
+  if (target.type === 'row') {
+    // 같은 줄에서 앞쪽 항목을 뒤로 옮기면 빠진 만큼 위치가 당겨진다
+    const index =
+      target.floorRowId === sourceRow.id && sourceIndex < target.index
+        ? target.index - 1
+        : target.index;
+    next = next.map((r) =>
+      r.id === target.floorRowId
+        ? { ...r, items: [...r.items.slice(0, index), moving, ...r.items.slice(index)] }
+        : r,
+    );
+  } else {
+    next = [
+      ...next.slice(0, target.rowIndex),
+      { id: tempRowId, order: 0, items: [moving] },
+      ...next.slice(target.rowIndex),
+    ];
+  }
+
+  return next.filter((r) => r.items.length > 0).map((r, i) => ({ ...r, order: i + 1 }));
+}
+
+/** 구역 열 구성이 같은지 비교하기 위한 값 (구역 열 id + 항목 순서) */
+export const getFloorLayoutSignature = (rows: FloorRow[]) =>
+  rows.map((r) => `${r.id}:${r.items.map((item) => `${item.kind}${item.id}`).join(',')}`).join('|');
+
+export const toFloorLayoutRequest = (rows: FloorRow[]): UpdateFloorLayoutRequest => ({
+  rows: rows.map((r) => ({
+    floorRowId: isTempFloorRowId(r.id) ? 'new' : r.id,
+    items: r.items.map(({ kind, id }) => ({ kind, id })),
+  })),
+});

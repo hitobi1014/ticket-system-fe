@@ -8,6 +8,7 @@ import type {
   Section,
   UnAssignSeatRequest,
   RowLayoutUpdate,
+  UpdateFloorLayoutRequest,
   SeatNumbering,
   SectionRowConfig,
   UpdateSeatGuestNamesRequest,
@@ -50,6 +51,7 @@ interface FloorStore {
 
   addAisle: (floorId: number, req: CreateAisleRequest) => Promise<void>;
   removeAisle: (aisleId: number) => Promise<void>;
+  updateFloorLayout: (floorId: number, req: UpdateFloorLayoutRequest) => Promise<void>;
 
   // ====== Section - Row ======
   addRow: (sectionId: number, req: CreateRowsRequest) => Promise<void>;
@@ -203,6 +205,15 @@ const useFloorStore = create<FloorStore>()(
         body: JSON.stringify(req),
       });
       get().syncSection(result);
+    },
+
+    // 구역/통로의 구역 열 소속과 순서를 일괄 변경. 응답은 갱신된 Floor 전체
+    updateFloorLayout: async (floorId: number, req: UpdateFloorLayoutRequest) => {
+      const floor = await fetchApi<Floor>(`${FLOOR_API_PREFIX}/${floorId}/layout`, {
+        method: 'PUT',
+        body: JSON.stringify(req),
+      });
+      get().syncSection(floor);
     },
 
     removeAisle: async (aisleId: number) => {

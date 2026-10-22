@@ -105,6 +105,19 @@ export interface CreateAisleRequest {
 
 export type FloorItem = Section | Aisle;
 
+/** 구역 열 재배치 요청 항목 (배열 순서가 곧 화면 순서) */
+export interface FloorLayoutItemRef {
+  kind: FloorItem['kind'];
+  id: number;
+}
+export interface FloorLayoutRowRequest {
+  floorRowId: number | 'new'; // 새로 만든 구역 열은 'new'
+  items: FloorLayoutItemRef[]; // 좌 → 우
+}
+export interface UpdateFloorLayoutRequest {
+  rows: FloorLayoutRowRequest[]; // 위 → 아래
+}
+
 export interface FloorRow {
   id: number;
   /*
