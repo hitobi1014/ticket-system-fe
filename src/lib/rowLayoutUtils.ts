@@ -1,5 +1,5 @@
 import type { CSSProperties } from 'react';
-import type { RowLayout, SectionRow } from '@/types';
+import type { RowLayout, SectionLayout, SectionRow } from '@/types';
 
 export const DEFAULT_ROW_LAYOUT: RowLayout = { offsetX: 0, offsetY: 0, rotation: 0 };
 
@@ -8,6 +8,8 @@ export const SEAT_SIZE_PX = {
   setup: 32, // 구역 설정 (Row)
   assign: 40, // 좌석 배정 / 좌석 안내 (AssignRow, SeatGrid)
 } as const;
+
+export const DEFAULT_SECTION_LAYOUT: SectionLayout = { ...DEFAULT_ROW_LAYOUT, seamless: false };
 
 export const OFFSET_LIMIT = 50;
 export const ROTATION_LIMIT = 180;
@@ -61,3 +63,12 @@ export const getRowTransformStyle = (
     transformOrigin: 'center',
   };
 };
+
+/** 구역 배치도 서버 허용 범위로 보정 (seamless는 그대로) */
+export const normalizeSectionLayout = (layout: SectionLayout): SectionLayout => ({
+  ...normalizeRowLayout(layout),
+  seamless: layout.seamless,
+});
+
+export const isSameSectionLayout = (a: SectionLayout, b: SectionLayout) =>
+  isSameRowLayout(a, b) && a.seamless === b.seamless;

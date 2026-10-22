@@ -9,7 +9,12 @@ import { Badge } from '@/components/ui/badge';
 import RowGap from '@/components/seat/RowGap.tsx';
 import FittedRows from '@/components/seat/FittedRows.tsx';
 import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
-import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
+import {
+  emptySeatClass,
+  hideSeatClass,
+  seamlessSectionClass,
+  seatSectionClass,
+} from '@/constant/styles.ts';
 
 interface AssignRowProps {
   section: Section;
@@ -38,7 +43,10 @@ export default function AssignRow({
     members.find((v) => v.id === id)?.name ?? '';
 
   return (
-    <div className={seatSectionClass}>
+    <div
+      style={getRowTransformStyle(section.layout, SEAT_SIZE_PX.assign)}
+      className={cn(seatSectionClass, section.layout?.seamless && seamlessSectionClass)}
+    >
       <div className="flex items-center justify-between text-sm">
         <Badge>{section.name}</Badge>
         <span>{section.rows.flatMap((r) => r.seats).length}석</span>

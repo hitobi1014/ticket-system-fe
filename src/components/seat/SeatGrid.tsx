@@ -18,7 +18,12 @@ import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
 import FittedRows from '@/components/seat/FittedRows.tsx';
 import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
-import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
+import {
+  emptySeatClass,
+  hideSeatClass,
+  seamlessSectionClass,
+  seatSectionClass,
+} from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
 import { getDisplayMemberName } from '@/lib/formatUtils.ts';
 
@@ -66,8 +71,10 @@ export default function SeatGrid({
         ) : (
           <div
             key={item.id}
+            style={getRowTransformStyle(item.layout, SEAT_SIZE_PX.assign)}
             className={cn(
               seatSectionClass,
+              item.layout?.seamless && seamlessSectionClass,
               (highlightColorMap?.size ?? 0) > 0 &&
                 item.rows.some((row) =>
                   row.seats.some(
