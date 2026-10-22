@@ -224,20 +224,19 @@ export default function SeatViewPage() {
             </div>
 
             {floors.map((floor) => (
-              <div key={floor.id} data-tour="seat-grid">
-                <SeatGrid
-                  floor={floor}
-                  stagePosition={venue?.stagePosition ?? 'front'}
-                  highlightColorMap={highlightColorMap}
-                  pulsingMemberIds={pulsingMemberIds}
-                  enableZoom
-                  isActive={floor.id === selectedFloorId}
-                  transformRef={setTransformRef(floor.id)}
-                  onScaleChange={handleScaleChange}
-                  displayMode={displayMode}
-                  currentMemberId={currentMember?.id}
-                />
-              </div>
+              <SeatGrid
+                key={floor.id}
+                floor={floor}
+                stagePosition={venue?.stagePosition ?? 'front'}
+                highlightColorMap={highlightColorMap}
+                pulsingMemberIds={pulsingMemberIds}
+                enableZoom
+                isActive={floor.id === selectedFloorId}
+                transformRef={setTransformRef(floor.id)}
+                onScaleChange={handleScaleChange}
+                displayMode={displayMode}
+                currentMemberId={currentMember?.id}
+              />
             ))}
           </Tabs>
         </div>

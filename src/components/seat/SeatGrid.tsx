@@ -85,7 +85,7 @@ export default function SeatGrid({
             <FittedRows rows={item.rows}>
             {item.rows.map((row) =>
               row.kind === 'gap' ? (
-                <RowGap key={row.id} className="h-10" />
+                <RowGap key={row.id} className="h-10" showLine={false} />
               ) : (
               <div
                 key={row.id}
@@ -170,6 +170,7 @@ export default function SeatGrid({
   return (
     <TabsContent
       value={String(floor.id)}
+      data-tour="seat-grid"
       className="flex min-h-0 flex-1 cursor-grab flex-col gap-y-4 active:cursor-grabbing"
     >
       <div
