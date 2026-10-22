@@ -14,7 +14,9 @@ import { pageContentClass } from '@/constant/styles.ts';
 import MemberSearchComboBox from '@/components/input/MemberSearchComboBox.tsx';
 import TicketDownloadDialog from '@/components/dialog/TicketDownloadDialog.tsx';
 import GuestNameInputModal from '@/components/dialog/GuestNameInputModal.tsx';
+import SelectedMemberList from '@/components/seat/SelectedMemberList.tsx';
 import { findSeatsByMemberId, toAssignedSeatInfo } from '@/lib/seatUtils.ts';
+import { getMemberSeatSummary } from '@/lib/memberSeatSummary.ts';
 import type { MemberWithSeats } from '@/types';
 import { formatPerformanceAt } from '@/lib/formatUtils.ts';
 import useSeatViewTour from '@/hooks/use-seat-view-tour.ts';
@@ -29,6 +31,7 @@ export default function SeatViewPage() {
   const [selectedFloorId, setSelectedFloorId] = useState<number | undefined>(undefined);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMemberIds, setSelectedMemberIds] = useState<number[]>([]);
+  const [hoveredMemberId, setHoveredMemberId] = useState<number | null>(null);
   const [pulsingMemberIds, setPulsingMemberIds] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -80,10 +83,18 @@ export default function SeatViewPage() {
     };
   }, [members, floors, currentMember]);
 
-  const highlightColorMap = useMemo(
-    () => new Map(selectedMembers.map((m) => [m.id, m.color ?? '#4f46e5'])),
-    [selectedMembers],
+  // 선택 회원별 층/구역 배정 좌석 요약 (선택 회원 수만큼만 계산)
+  const memberSeatSummaries = useMemo(
+    () => new Map(selectedMemberIds.map((id) => [id, getMemberSeatSummary(floors, id)])),
+    [floors, selectedMemberIds],
   );
+
+  // 목록 항목에 마우스를 올리면 해당 회원 좌석만 강조
+  const highlightColorMap = useMemo(() => {
+    const hovered = selectedMembers.find((m) => m.id === hoveredMemberId);
+    const targets = hovered ? [hovered] : selectedMembers;
+    return new Map(targets.map((m) => [m.id, m.color ?? '#4f46e5']));
+  }, [selectedMembers, hoveredMemberId]);
 
   const highlightedFloorIds = useMemo(() => {
     if (!highlightColorMap.size) return new Set<number>();
@@ -138,11 +149,9 @@ export default function SeatViewPage() {
         <div className="flex items-start justify-between gap-x-4">
           <MemberSearchComboBox
             selectedMemberIds={selectedMemberIds}
-            setSelectedMemberIds={setSelectedMemberIds}
             onSelectMember={handleSelectMember}
             searchQuery={searchQuery}
             setSearchQuery={setSearchQuery}
-            selectedMembers={selectedMembers}
           />
           <div className="flex shrink-0 items-center gap-x-2">
             <div data-tour="guest-name">
@@ -164,6 +173,16 @@ export default function SeatViewPage() {
             )}
           </div>
         </div>
+        {/* 선택한 회원 목록 (선택이 없으면 렌더링하지 않음) */}
+        <SelectedMemberList
+          members={selectedMembers}
+          summaries={memberSeatSummaries}
+          onRemove={(memberId) =>
+            setSelectedMemberIds((prev) => prev.filter((id) => id !== memberId))
+          }
+          onClear={() => setSelectedMemberIds([])}
+          onHoverMember={setHoveredMemberId}
+        />
         {/* 층 탭 + 좌석 그리드 + 우측 패널 */}
         <div className="flex flex-1 gap-x-4 overflow-hidden">
           {/* 좌석 그리드 */}
