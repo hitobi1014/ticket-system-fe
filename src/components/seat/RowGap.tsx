@@ -6,10 +6,17 @@ export interface RowGapProps {
   /** 구역 설정 화면에서 빈 줄을 선택(삭제 대상 지정)할 수 있을 때만 전달 */
   onClick?: () => void;
   isSelected?: boolean;
+  /** false이면 점선을 숨기고 빈 공간만 유지 (열 이동/회전 시 점선이 좌석과 겹치는 것을 방지) */
+  showLine?: boolean;
 }
 
 /** 구역 내 빈 줄(gap): 좌석 없이 1줄 높이의 빈 공간을 점선으로 표시 */
-export default function RowGap({ className, onClick, isSelected = false }: RowGapProps) {
+export default function RowGap({
+  className,
+  onClick,
+  isSelected = false,
+  showLine = true,
+}: RowGapProps) {
   return (
     <div
       aria-hidden={onClick ? undefined : true}
@@ -28,7 +35,7 @@ export default function RowGap({ className, onClick, isSelected = false }: RowGa
           : undefined
       }
     >
-      <div className="border-primary/40 w-full border-t-2 border-dashed" />
+      {showLine && <div className="border-primary/40 w-full border-t-2 border-dashed" />}
     </div>
   );
 }

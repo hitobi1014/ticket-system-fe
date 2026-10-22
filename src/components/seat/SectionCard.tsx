@@ -271,6 +271,7 @@ export default function SectionCard({
             <RowGap
               key={row.id}
               className="h-8"
+              showLine={!isLayoutEditing}
               isSelected={selectedRowId === row.id}
               onClick={() => {
                 handleSelectSection(item.id);

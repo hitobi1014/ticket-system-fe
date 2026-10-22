@@ -39,7 +39,7 @@ export default function AssignRow({
       <FittedRows rows={section.rows}>
       {section.rows.map((row) =>
         row.kind === 'gap' ? (
-          <RowGap key={row.id} className="h-10" />
+          <RowGap key={row.id} className="h-10" showLine={false} />
         ) : (
         <div
           key={row.id}
