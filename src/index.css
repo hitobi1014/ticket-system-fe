@@ -94,6 +94,13 @@
         @apply bg-background text-foreground;
     }
 
+    /* Tailwind v4는 버튼 기본 커서가 default라서 클릭 가능한 요소의 포인터 커서를 복원 (비활성 요소 제외) */
+    button:not(:disabled),
+    [role='button']:not(:disabled),
+    [role='tab']:not(:disabled) {
+        cursor: pointer;
+    }
+
     html {
         @apply font-sans;
     }
