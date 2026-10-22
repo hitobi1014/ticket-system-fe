@@ -11,8 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select.tsx';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover.tsx';
-import { HexColorPicker } from 'react-colorful';
+import { IconDice } from '@tabler/icons-react';
+import { PASTEL_COLORS, RAINBOW_COLORS } from '@/constant/memberColors.ts';
+import { getRandomHexColor, isValidHexColor } from '@/lib/uiUtils.ts';
 import { useEffect, useState } from 'react';
 import useMemberStore from '@/store/memberStore.ts';
 import { toast } from 'sonner';
@@ -39,6 +40,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
     allocatedTickets: member?.allocatedTickets ?? 0,
     color: member?.color ?? '#000000',
   });
+  const [colorInput, setColorInput] = useState(form.color ?? '#000000');
   const [assignedSeatCount, setAssignedSeatsCount] = useState<number | null>(null);
   const isEditMode = member !== undefined;
 
@@ -70,6 +72,12 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
       }
     }
     setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // 팔레트/랜덤으로 색상이 바뀌면 입력창도 함께 갱신
+  const handleColorChange = (color: string) => {
+    setColorInput(color);
+    handleChange('color', color);
   };
 
   const handleSave = async () => {
@@ -147,26 +155,55 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
               </SelectContent>
             </Select>
           </Field>
-
-          {/* 회원 색상 */}
-          <div className="flex w-16 shrink-0 flex-col items-center gap-y-2">
-            <p>색상</p>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button
-                  className="border-accent h-8 w-8 shrink-0 cursor-pointer rounded-full border"
-                  style={{ backgroundColor: form?.color }}
-                />
-              </PopoverTrigger>
-              <PopoverContent>
-                <HexColorPicker
-                  color={form?.color}
-                  onChange={(color) => handleChange('color', color)}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
         </div>
+
+        {/* 회원 색상 */}
+        <Field>
+          <FieldLabel>색상</FieldLabel>
+          <div className="grid grid-cols-8 gap-1.5">
+            {[...RAINBOW_COLORS, ...PASTEL_COLORS].map(({ name, hex }) => (
+              <button
+                key={hex}
+                type="button"
+                title={name}
+                aria-label={name}
+                className={cn(
+                  'border-accent h-7 w-full cursor-pointer rounded-full border',
+                  form.color?.toLowerCase() === hex && 'ring-primary ring-2 ring-offset-1',
+                )}
+                style={{ backgroundColor: hex }}
+                onClick={() => handleColorChange(hex)}
+              />
+            ))}
+          </div>
+          <div className="flex items-center gap-x-2">
+            <span
+              className="border-accent h-8 w-8 shrink-0 rounded-full border"
+              style={{ backgroundColor: form.color }}
+            />
+            <Input
+              aria-label="color-input"
+              value={colorInput}
+              maxLength={7}
+              placeholder="#RRGGBB"
+              aria-invalid={!isValidHexColor(colorInput)}
+              className={cn(!isValidHexColor(colorInput) && 'border-danger')}
+              onChange={(e) => {
+                const value = e.target.value.trim();
+                setColorInput(value);
+                if (isValidHexColor(value)) handleChange('color', value.toLowerCase());
+              }}
+            />
+            <Button
+              type="button"
+              variant="dialog"
+              onClick={() => handleColorChange(getRandomHexColor())}
+            >
+              <IconDice stroke={2} />
+              랜덤
+            </Button>
+          </div>
+        </Field>
 
         <div className="flex gap-x-4">
           {/*  배정 티켓수 */}
