@@ -1,6 +1,6 @@
 import type { Floor, StagePosition } from '@/types';
 import { TabsContent } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import SectionBadge from '@/components/seat/SectionBadge.tsx';
 import useMemberStore from '@/store/memberStore.ts';
 import useAuthStore from '@/store/authStore.ts';
 import { cn } from '@/lib/utils.ts';
@@ -86,11 +86,11 @@ export default function SeatGrid({
                 'ring-primary ring-2',
             )}
           >
-            <div className="flex items-center justify-between gap-x-2 text-sm">
-              <Badge className="h-7 max-w-full truncate px-3 text-base font-semibold">
-                {item.name}
-              </Badge>
-              <span className="shrink-0">{item.rows.flatMap((r) => r.seats).length}석</span>
+            <div className="flex items-center text-sm">
+              <SectionBadge
+                section={item}
+                className="h-7 max-w-full truncate px-3 text-base font-semibold"
+              />
             </div>
             <FittedRows rows={item.rows}>
               {item.rows.map((row) =>

@@ -28,6 +28,7 @@ import type { PointerEventHandler } from 'react';
 import { buildSeatNumberPreview } from '@/lib/sectionUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { Badge } from '@/components/ui/badge';
+import SectionBadge from '@/components/seat/SectionBadge.tsx';
 import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import { seamlessSectionClass, seatSectionClass, selectedSectionClass } from '@/constant/styles.ts';
 import { ButtonGroup } from '@/components/ui/button-group';
@@ -252,8 +253,7 @@ export default function SectionCard({
             onSelectedRowId(undefined); // row 선택 해제
           }}
         >
-          <Badge>{item.name}</Badge>
-          <p>{item.rows.flatMap((r) => r.seats).length}석</p>
+          <SectionBadge section={item} />
         </div>
         {selectedSectionId === item.id &&
           toolbarSlot &&

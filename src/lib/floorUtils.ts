@@ -104,14 +104,14 @@ export const toFloorLayoutRequest = (rows: FloorRow[]): UpdateFloorLayoutRequest
   })),
 });
 
+/** 구역의 보이는 좌석 수 (숨김 처리한 좌석 제외) */
+export const getSectionVisibleSeatCount = (section: Section) =>
+  section.rows.reduce((sum, row) => sum + row.seats.filter((seat) => seat.visible).length, 0);
+
 /** 층의 보이는 좌석 수 (숨김 처리한 좌석 제외) */
 export function getFloorVisibleSeatCount(floor: Floor) {
   return getFloorItems(floor).reduce(
-    (total, item) =>
-      item.kind === 'section'
-        ? total +
-          item.rows.reduce((sum, row) => sum + row.seats.filter((seat) => seat.visible).length, 0)
-        : total,
+    (total, item) => (item.kind === 'section' ? total + getSectionVisibleSeatCount(item) : total),
     0,
   );
 }
