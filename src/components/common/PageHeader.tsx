@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { IconLogout } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom';
+import { IconLogout, IconMenu2 } from '@tabler/icons-react';
 import useAuthStore from '@/store/authStore.ts';
-import { Badge } from '@/components/ui/badge.tsx';
+import useLogout from '@/hooks/use-logout.ts';
+import UserBadge from '@/components/common/UserBadge.tsx';
+import { Button } from '@/components/ui/button.tsx';
+import { useSidebar } from '@/components/ui/sidebar';
 
 interface PageHeaderProps {
   title: string;
@@ -10,35 +12,35 @@ interface PageHeaderProps {
 }
 
 export default function PageHeader({ title, icon }: PageHeaderProps) {
-  const { logout, isAuthenticated, currentMember } = useAuthStore();
-  const navigate = useNavigate();
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login', { replace: true });
-  };
+  const { isAuthenticated, currentMember } = useAuthStore();
+  const { toggleSidebar } = useSidebar();
+  const handleLogout = useLogout();
 
   return (
     <div className="bg-card border-accent flex justify-between border-b px-4 py-2.5">
       <div className="flex items-center gap-x-2">
+        {/* 모바일: 사이드바(드로어) 열기. 사용자 정보/로그아웃은 드로어 하단에 있다 */}
+        {isAuthenticated && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="text-primary -ml-2 md:hidden"
+            aria-label="메뉴 열기"
+            onClick={toggleSidebar}
+          >
+            <IconMenu2 stroke={1.5} className="size-5" />
+          </Button>
+        )}
         <div className="text-primary">{icon}</div>
         <h2 className="text-primary text-lg font-medium">{title}</h2>
       </div>
       {isAuthenticated && (
-        <div className="flex items-center gap-x-3">
-          {currentMember && (
-            <div className="flex items-center gap-x-2">
-              <div
-                className="h-4 w-4 rounded-full border border-mist-300"
-                style={{ backgroundColor: currentMember.color || '#999' }}
-                title={`${currentMember.name}님의 색상`}
-              />
-              <Badge className="bg-accent-foreground text-text-foreground">
-                {currentMember.name} / {currentMember.instrumentAbbr}
-              </Badge>
-            </div>
-          )}
-          <div className="text-primary flex cursor-pointer items-center gap-x-2" onClick={handleLogout}>
+        <div className="hidden items-center gap-x-3 md:flex">
+          {currentMember && <UserBadge member={currentMember} />}
+          <div
+            className="text-primary flex cursor-pointer items-center gap-x-2"
+            onClick={handleLogout}
+          >
             <IconLogout stroke={2} />
             로그아웃
           </div>
