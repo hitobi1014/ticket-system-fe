@@ -1,6 +1,6 @@
 import type { Floor, StagePosition } from '@/types';
 import { TabsContent } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import SectionBadge from '@/components/seat/SectionBadge.tsx';
 import useMemberStore from '@/store/memberStore.ts';
 import useAuthStore from '@/store/authStore.ts';
 import { cn } from '@/lib/utils.ts';
@@ -18,7 +18,12 @@ import AisleDivider from '@/components/seat/AisleDivider.tsx';
 import RowGap from '@/components/seat/RowGap.tsx';
 import FittedRows from '@/components/seat/FittedRows.tsx';
 import { getRowTransformStyle, SEAT_SIZE_PX } from '@/lib/rowLayoutUtils.ts';
-import { emptySeatClass, hideSeatClass, seatSectionClass } from '@/constant/styles.ts';
+import {
+  emptySeatClass,
+  hideSeatClass,
+  seamlessSectionClass,
+  seatSectionClass,
+} from '@/constant/styles.ts';
 import { getSeatDisplayInfo } from '@/lib/seatUtils.ts';
 import { getDisplayMemberName } from '@/lib/formatUtils.ts';
 
@@ -66,8 +71,10 @@ export default function SeatGrid({
         ) : (
           <div
             key={item.id}
+            style={getRowTransformStyle(item.layout, SEAT_SIZE_PX.assign)}
             className={cn(
               seatSectionClass,
+              item.layout?.seamless && seamlessSectionClass,
               (highlightColorMap?.size ?? 0) > 0 &&
                 item.rows.some((row) =>
                   row.seats.some(
@@ -79,11 +86,11 @@ export default function SeatGrid({
                 'ring-primary ring-2',
             )}
           >
-            <div className="flex items-center justify-between gap-x-2 text-sm">
-              <Badge className="h-7 max-w-full truncate px-3 text-base font-semibold">
-                {item.name}
-              </Badge>
-              <span className="shrink-0">{item.rows.flatMap((r) => r.seats).length}석</span>
+            <div className="flex items-center text-sm">
+              <SectionBadge
+                section={item}
+                className="h-7 max-w-full truncate px-3 text-base font-semibold"
+              />
             </div>
             <FittedRows rows={item.rows}>
               {item.rows.map((row) =>

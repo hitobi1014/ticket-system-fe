@@ -81,7 +81,10 @@ export default function SeatAssignSidebar({
   const scrollIconClass = 'bg-primary text-text-foreground rounded-full p-0.5 shadow';
 
   return (
-    <div className="bg-card border-accent flex h-full flex-none flex-col border-l px-6 py-3">
+    <div
+      data-tour="assign-sidebar"
+      className="bg-card border-accent flex h-full flex-none flex-col border-l px-6 py-3"
+    >
       <header className="shrink-0 rounded-lg py-2">
         <p className="text-secondary">잔여 좌석</p>
         <p className="text-primary font-bold">{getRemainSeatCount()}</p>
@@ -92,7 +95,7 @@ export default function SeatAssignSidebar({
         <div className="relative min-h-0 flex-1">
           <div
             ref={scrollContainerRef}
-            className="no-scrollbar flex h-full flex-col gap-y-1.5 overflow-y-auto"
+            className="no-scrollbar -mx-1 flex h-full flex-col gap-y-1.5 overflow-y-auto px-1 py-1"
           >
             {activeMembers.map((member) => (
               <MemberTicketRow

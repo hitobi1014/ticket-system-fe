@@ -36,6 +36,14 @@ export interface GapRows {
   seats: Seat[]; // 항상 빈 배열
   layout?: RowLayout;
 }
+/**
+ * 구역 화면 배치 (표시 전용, 기본값 0/false)
+ * - offsetX/offsetY/rotation: 열 배치(RowLayout)와 같은 규약, 구역 카드 전체에 적용
+ * - seamless: true면 구역 카드의 테두리/여백을 없애 인접 구역과 이어 붙여 보이게 함
+ */
+export interface SectionLayout extends RowLayout {
+  seamless: boolean;
+}
 /** 열 배치 일괄 저장 요청 항목 */
 export interface RowLayoutUpdate extends RowLayout {
   rowId: number;
@@ -73,9 +81,10 @@ export interface Section {
   id: number;
   name: string; // 구역명 (가구역, 나구역 등)
   seatNumbering?: SeatNumbering; // 서버가 내려주는 현재 번호 방식 (없으면 PER_ROW)
+  layout?: SectionLayout; // 서버가 내려주는 구역 화면 배치 (없으면 기본값)
   rows: SectionRow[];
 }
-export type CreateSectionRequest = Omit<Section, 'kind' | 'rows' | 'seatNumbering'>;
+export type CreateSectionRequest = Omit<Section, 'kind' | 'rows' | 'seatNumbering' | 'layout'>;
 
 export interface AssignSeatRequest {
   seatIds: number[];

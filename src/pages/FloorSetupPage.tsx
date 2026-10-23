@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import useFloorStore from '@/store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent } from '@/components/ui/tabs';
+import FloorTabsList from '@/components/common/FloorTabsList.tsx';
 import { cn } from '@/lib/utils.ts';
 import { pageContentClass } from '@/constant/styles.ts';
 import FloorButtons from '@/components/floor/FloorButtons.tsx';
@@ -56,13 +57,7 @@ export default function FloorSetupPage() {
       >
         <div className="flex items-center justify-between">
           {/* 1층 탭바 */}
-          <TabsList variant="default">
-            {floors.map((floor) => (
-              <TabsTrigger variant="default" key={floor.id} value={String(floor.id)}>
-                {floor.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <FloorTabsList floors={floors} />
 
           <ZoomControl scale={currentScale} onZoomIn={zoomIn} onZoomOut={zoomOut} />
         </div>

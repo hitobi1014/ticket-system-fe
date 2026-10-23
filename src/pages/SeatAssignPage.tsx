@@ -1,7 +1,11 @@
 import useFloorStore from '@/store/floorStore.ts';
 import useVenueStore from '@/store/venueStore.ts';
 import useMemberStore from '@/store/memberStore.ts';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs.tsx';
+import { IconHelp } from '@tabler/icons-react';
+import { Button } from '@/components/ui/button.tsx';
+import useSeatAssignTour from '@/hooks/use-seat-assign-tour.ts';
+import { Tabs } from '@/components/ui/tabs.tsx';
+import FloorTabsList from '@/components/common/FloorTabsList.tsx';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { Dialog } from '@/components/ui/dialog.tsx';
@@ -16,7 +20,12 @@ import useZoomControls from '@/hooks/use-zoom-controls.ts';
 import useSpaceKey from '@/hooks/use-space-key.ts';
 import useBulkSeatSelect from '@/hooks/use-bulk-seat-select.ts';
 import { getAssignedSeatIds, groupSelectedSeats } from '@/lib/bulkAssignUtils.ts';
-import { findSeatContext, getRemainTickets, isSeatSelectable } from '@/lib/seatUtils.ts';
+import {
+  findSeatContext,
+  getAssignableMember,
+  getRemainTickets,
+  isSeatSelectable,
+} from '@/lib/seatUtils.ts';
 import { cn } from '@/lib/utils.ts';
 import { pageContentClass } from '@/constant/styles.ts';
 import type { Seat } from '@/types';
@@ -89,6 +98,29 @@ export default function SeatAssignPage() {
     setSelectedSeatIds(nextSeatIds);
   };
 
+  // 온보딩 투어: 일괄 편집 단계 시연을 위해 첫 잔여 티켓 보유 회원을 선택 (투어가 켠 경우에만 종료 시 해제)
+  const tourEnteredBulkRef = useRef(false);
+  const handleTourEnterBulk = () => {
+    if (isBulkEditMode) return true;
+    const target = getAssignableMember(members, assignedCountMap).find(
+      (m) => getRemainTickets(m, assignedCountMap) > 0,
+    );
+    if (!target) return false;
+    tourEnteredBulkRef.current = true;
+    handleSelectMember(target.id);
+    return true;
+  };
+  const handleTourExitBulk = () => {
+    if (!tourEnteredBulkRef.current) return;
+    tourEnteredBulkRef.current = false;
+    exitBulkEditMode();
+  };
+  const { startTour } = useSeatAssignTour({
+    ready: floors.length > 0 && members.length > 0 && selectedFloorId !== undefined,
+    onEnterBulk: handleTourEnterBulk,
+    onExitBulk: handleTourExitBulk,
+  });
+
   const handleSingleSeatClick = (seatId: number) => {
     setSelectedSeatIds(new Set([seatId]));
     setIsModalOpen(true);
@@ -158,16 +190,26 @@ export default function SeatAssignPage() {
         onValueChange={(v) => setSelectedFloorId(Number(v))}
       >
         <div className="flex items-center justify-between">
-          <TabsList variant="default">
-            {floors.map((floor) => (
-              <TabsTrigger variant="default" key={floor.id} value={String(floor.id)}>
-                {floor.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
+          <FloorTabsList floors={floors} />
 
           {/* Zoom controls */}
-          <ZoomControl scale={currentScale} onZoomIn={zoomIn} onZoomOut={zoomOut} />
+          <div className="flex items-center gap-x-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary"
+              aria-label="사용 방법 보기"
+              onClick={startTour}
+            >
+              <IconHelp stroke={1.5} className="size-5" />
+            </Button>
+            <ZoomControl
+              data-tour="zoom"
+              scale={currentScale}
+              onZoomIn={zoomIn}
+              onZoomOut={zoomOut}
+            />
+          </div>
         </div>
 
         {/* 좌측 메인 */}

@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import Ticket from '@/components/Ticket.tsx';
 import { cn } from '@/lib/utils.ts';
+import { MOBILE_MEDIA_QUERY } from '@/lib/zoomUtils.ts';
 import { formatPlayerName, getDisplayMemberName } from '@/lib/formatUtils.ts';
 import { headerTitleClass } from '@/constant/styles.ts';
 import useVenueStore from '@/store/venueStore.ts';
@@ -59,21 +60,38 @@ export default function TicketDownloadDialog({ memberWithSeats }: TicketDownload
     try {
       await document.fonts.ready;
 
-      if (seats.length === 1) {
-        const el = ticketRefs.current[seats[0].seatId];
-        if (!el) throw new Error('티켓을 찾을 수 없습니다.');
+      // 티켓별 PNG 생성
+      const files: File[] = [];
+      for (const [index, seat] of seats.entries()) {
+        const el = ticketRefs.current[seat.seatId];
+        if (!el) continue;
         const dataUrl = await toPng(el, { pixelRatio: 2 });
         const blob = await (await fetch(dataUrl)).blob();
-        saveAs(blob, `${member.name}_ticket.png`);
+        const fileName =
+          seats.length === 1
+            ? `${member.name}_ticket.png`
+            : `${member.name}_ticket_${index + 1}.png`;
+        files.push(new File([blob], fileName, { type: 'image/png' }));
+      }
+      if (files.length === 0) throw new Error('티켓을 찾을 수 없습니다.');
+
+      if (files.length === 1) {
+        saveAs(files[0], files[0].name);
+      } else if (window.matchMedia(MOBILE_MEDIA_QUERY).matches) {
+        // 모바일: zip 대신 이미지로 저장. 공유 시트(이미지 저장)를 우선 쓰고, 미지원이면 개별 다운로드
+        if (navigator.canShare?.({ files })) {
+          try {
+            await navigator.share({ files });
+          } catch (e) {
+            if (e instanceof DOMException && e.name === 'AbortError') return; // 사용자가 공유 취소
+            throw e;
+          }
+        } else {
+          for (const file of files) saveAs(file, file.name);
+        }
       } else {
         const zip = new JSZip();
-        for (const [index, seat] of seats.entries()) {
-          const el = ticketRefs.current[seat.seatId];
-          if (!el) continue;
-          const dataUrl = await toPng(el, { pixelRatio: 2 });
-          const blob = await (await fetch(dataUrl)).blob();
-          zip.file(`${member.name}_ticket_${index + 1}.png`, blob);
-        }
+        for (const file of files) zip.file(file.name, file);
         const content = await zip.generateAsync({ type: 'blob' });
         saveAs(content, `${member.name}_tickets.zip`);
       }
