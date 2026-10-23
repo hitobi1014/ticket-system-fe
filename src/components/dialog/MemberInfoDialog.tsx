@@ -246,7 +246,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
 
       <DialogFooter
         className={cn(
-          'flex pb-2.5',
+          'flex-row pb-2.5',
           isEditMode && 'justify-between!',
           !isEditMode && 'justify-end!',
         )}
@@ -254,7 +254,7 @@ export default function MemberInfoDialog({ member, onClose }: MemberInfoModalPro
         {isEditMode && (
           <AlertDialogCustom
             variant="dialog"
-            size="sm"
+            size="base"
             triggerText={'회원삭제'}
             title={'확인'}
             description={
