@@ -82,7 +82,7 @@ export default function MySeatPreview({
                 </div>
                 <p className="text-muted-foreground text-sm">이 층에 배정된 좌석이 없습니다</p>
                 <p className="text-muted-foreground text-xs">
-                  우측에 동그라미 표시된 탭(층)을 선택해주세요
+                  동그라미 표시된 탭(층)을 선택해주세요
                 </p>
               </div>
             )}
@@ -128,7 +128,7 @@ function MySeatGrid({
   }, [floorSeats]);
 
   return (
-    <div className="max-h-64 overflow-hidden rounded-lg border">
+    <div className="max-h-48 overflow-hidden rounded-lg border sm:max-h-64">
       <TransformWrapper
         initialScale={1}
         minScale={1}
@@ -140,73 +140,73 @@ function MySeatGrid({
         <TransformComponent wrapperStyle={{ width: '100%', height: '100%' }}>
           <div className="bg-card w-max space-y-4 p-4">
             {sections.map((section) => {
-        const seatContexts = sectionMap.get(section.id) ?? [];
-        const rowMap = new Map<number, NonNullable<ReturnType<typeof findSeatContext>>[]>();
+              const seatContexts = sectionMap.get(section.id) ?? [];
+              const rowMap = new Map<number, NonNullable<ReturnType<typeof findSeatContext>>[]>();
 
-        for (const ctx of seatContexts) {
-          if (!rowMap.has(ctx.row.id)) {
-            rowMap.set(ctx.row.id, []);
-          }
-          rowMap.get(ctx.row.id)!.push(ctx);
-        }
+              for (const ctx of seatContexts) {
+                if (!rowMap.has(ctx.row.id)) {
+                  rowMap.set(ctx.row.id, []);
+                }
+                rowMap.get(ctx.row.id)!.push(ctx);
+              }
 
-        const uniqueRows = Array.from(
-          new Map(seatContexts.map((ctx) => [ctx.row.id, ctx.row])).values(),
-        );
-
-        return (
-          <div key={section.id} className="space-y-2">
-            <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">{section.name}</span>
-            </div>
-
-            {uniqueRows.map((row) => {
-              const allSeats = row.seats;
+              const uniqueRows = Array.from(
+                new Map(seatContexts.map((ctx) => [ctx.row.id, ctx.row])).values(),
+              );
 
               return (
-                <div key={row.id} className="flex items-start gap-x-1.5">
-                  <span className="text-muted-foreground w-6 shrink-0 pt-1.5 text-center text-xs leading-none">
-                    {row.rowName}
-                  </span>
-                  <div className="flex gap-x-0.5">
-                    {allSeats.map((seat) => {
-                      const isMySeat = seat.assignedMemberId === currentMemberId;
-                      const isFocused = seat.id === focusedSeatId;
-
-                      return (
-                        <div
-                          key={seat.id}
-                          className={cn(
-                            emptySeatClass,
-                            'flex h-7 w-7 cursor-pointer items-center justify-center rounded text-xs font-medium transition-all',
-                            isMySeat && 'border-0',
-                            isFocused && 'ring-primary ring-2',
-                          )}
-                          style={
-                            isMySeat
-                              ? {
-                                  backgroundColor: myColor,
-                                  color: getContrastTextColor(myColor),
-                                }
-                              : {}
-                          }
-                          onClick={() => {
-                            if (isMySeat && onSeatClick) {
-                              onSeatClick(seat.id);
-                            }
-                          }}
-                        >
-                          {seat.seatNumber}
-                        </div>
-                      );
-                    })}
+                <div key={section.id} className="space-y-2">
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-medium">{section.name}</span>
                   </div>
+
+                  {uniqueRows.map((row) => {
+                    const allSeats = row.seats;
+
+                    return (
+                      <div key={row.id} className="flex items-start gap-x-1.5">
+                        <span className="text-muted-foreground w-6 shrink-0 pt-1.5 text-center text-xs leading-none">
+                          {row.rowName}
+                        </span>
+                        <div className="flex gap-x-0.5">
+                          {allSeats.map((seat) => {
+                            const isMySeat = seat.assignedMemberId === currentMemberId;
+                            const isFocused = seat.id === focusedSeatId;
+
+                            return (
+                              <div
+                                key={seat.id}
+                                className={cn(
+                                  emptySeatClass,
+                                  'flex h-7 w-7 cursor-pointer items-center justify-center rounded text-xs font-medium transition-all',
+                                  isMySeat && 'border-0',
+                                  isFocused && 'ring-primary ring-2',
+                                )}
+                                style={
+                                  isMySeat
+                                    ? {
+                                        backgroundColor: myColor,
+                                        color: getContrastTextColor(myColor),
+                                      }
+                                    : {}
+                                }
+                                onClick={() => {
+                                  if (isMySeat && onSeatClick) {
+                                    onSeatClick(seat.id);
+                                  }
+                                }}
+                              >
+                                {seat.seatNumber}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               );
             })}
-          </div>
-        );
-      })}
           </div>
         </TransformComponent>
       </TransformWrapper>

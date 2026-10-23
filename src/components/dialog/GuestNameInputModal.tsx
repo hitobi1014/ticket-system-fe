@@ -94,15 +94,15 @@ export default function GuestNameInputModal() {
           게스트명 입력
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-4xl">
+      <DialogContent className="flex max-h-[90dvh] flex-col sm:max-w-4xl">
         <DialogHeader className="gap-1">
           <DialogTitle className={cn(headerTitleClass)}>게스트명 입력</DialogTitle>
           <DialogDescription>배정된 좌석별로 초대할 게스트명을 입력하세요</DialogDescription>
         </DialogHeader>
 
-        <div className="grid grid-cols-2 gap-x-6">
-          {/* 좌측: 미리보기 */}
-          <div className="flex flex-col">
+        <div className="flex min-h-0 flex-1 flex-col gap-y-4 sm:grid sm:grid-cols-2 sm:gap-x-6">
+          {/* 좌측(모바일: 상단): 미리보기 */}
+          <div className="flex shrink-0 flex-col">
             {mySeats.length > 0 && (
               <MySeatPreview
                 mySeats={mySeats}
@@ -121,8 +121,8 @@ export default function GuestNameInputModal() {
             )}
           </div>
 
-          {/* 우측: 입력 리스트 */}
-          <div className="flex flex-col gap-y-3">
+          {/* 우측(모바일: 하단): 입력 리스트 */}
+          <div className="flex min-h-0 flex-1 flex-col gap-y-3 sm:flex-none">
             <div className="bg-accent flex items-center justify-between rounded-md px-3 py-2 text-xs">
               <span className="text-muted-foreground">
                 비워둔 좌석은 티켓에 <span className="text-primary font-semibold">"-"</span>으로
@@ -137,7 +137,7 @@ export default function GuestNameInputModal() {
               </button>
             </div>
 
-            <div className="no-scrollbar flex max-h-[50vh] flex-col gap-2 overflow-y-auto">
+            <div className="no-scrollbar flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto sm:max-h-[50vh] sm:flex-none">
               {mySeats.map((ctx) => {
                 const value = guestNames[ctx.seat.id] ?? '';
                 const isFilled = value.trim() !== '';
@@ -146,23 +146,25 @@ export default function GuestNameInputModal() {
                   <div
                     key={ctx.seat.id}
                     className={cn(
-                      'flex items-center gap-3 rounded-lg border px-3 py-2',
+                      'flex shrink-0 flex-col gap-2 rounded-lg border px-3 py-2 sm:flex-row sm:items-center sm:gap-3',
                       isFilled ? 'bg-accent border-transparent' : 'border-input',
                     )}
                   >
-                    <span
-                      className={cn(
-                        'h-2 w-2 shrink-0 rounded-full',
-                        isFilled ? 'bg-primary' : 'border-input border',
-                      )}
-                    />
-                    <div className="flex shrink-0 items-center gap-1 text-xs whitespace-nowrap">
-                      <span className="text-muted-foreground">{ctx.floor.name}</span>
-                      <span className="text-muted-foreground">{ctx.section.name}</span>
-                      <span className="text-muted-foreground">{ctx.row.rowName}열</span>
-                      <span className="bg-primary text-text-foreground rounded-md px-1.5 py-0.5 font-semibold">
-                        {ctx.seat.seatNumber}
-                      </span>
+                    <div className="flex shrink-0 items-center gap-3">
+                      <span
+                        className={cn(
+                          'h-2 w-2 shrink-0 rounded-full',
+                          isFilled ? 'bg-primary' : 'border-input border',
+                        )}
+                      />
+                      <div className="flex shrink-0 items-center gap-1 text-xs whitespace-nowrap">
+                        <span className="text-muted-foreground">{ctx.floor.name}</span>
+                        <span className="text-muted-foreground">{ctx.section.name}</span>
+                        <span className="text-muted-foreground">{ctx.row.rowName}열</span>
+                        <span className="bg-primary text-text-foreground rounded-md px-1.5 py-0.5 font-semibold">
+                          {ctx.seat.seatNumber}
+                        </span>
+                      </div>
                     </div>
                     <Input
                       ref={(el) => {
@@ -178,7 +180,7 @@ export default function GuestNameInputModal() {
                   </div>
                 );
               })}
-        </div>
+            </div>
 
             <div className="flex flex-col gap-1.5">
               <p className="text-primary text-sm font-medium">
