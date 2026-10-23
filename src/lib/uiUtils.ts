@@ -39,3 +39,12 @@ export function getRandomHexColor(): string {
   const lightness = 40 + Math.floor(Math.random() * 41); // 40~80
   return hslToHex(hue, saturation, lightness);
 }
+
+/** iPhone/iPad 여부 (iPadOS는 데스크톱 Safari로 위장하므로 터치 지원 Mac도 포함) */
+export function isIOSDevice(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
+  );
+}

@@ -33,7 +33,7 @@ const stagePositionStyle: Record<StagePosition, string> = {
 
 function StagePreview({ position }: { position: StagePosition }) {
   return (
-    <div className="border-border relative h-32 overflow-hidden rounded-lg border">
+    <div className="border-border relative h-24 overflow-hidden rounded-lg border sm:h-32">
       <span
         className={cn(
           'bg-secondary text-text-foreground absolute rounded px-3 py-1 text-xs font-semibold transition-all duration-300',
@@ -126,7 +126,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
       <DialogTrigger asChild>
         <Button>공연장 정보</Button>
       </DialogTrigger>
-      <DialogContent className="bg-card text-primary min-w-140">
+      <DialogContent className="bg-card text-primary max-h-[90dvh] overflow-y-auto sm:min-w-140">
         <DialogHeader>
           <DialogTitle className="text-primary flex items-center gap-x-2 text-lg font-semibold">
             {isUpdate ? '공연 정보 수정' : '공연 정보 등록'}
@@ -138,7 +138,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
 
         <div className="text-primary flex flex-col gap-y-2">
           {/*1. 공연장명*/}
-          <Field className="max-w-xs">
+          <Field className="sm:max-w-xs">
             <FieldLabel htmlFor="name-input">공연장 이름</FieldLabel>
             <Input
               id="name-input"
@@ -150,7 +150,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
             />
           </Field>
           {/*2. 주소*/}
-          <Field className="max-w-xs">
+          <Field className="sm:max-w-xs">
             <FieldLabel htmlFor="address-input">공연장 주소</FieldLabel>
             <Input
               id="address-input"
@@ -162,7 +162,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
             />
           </Field>
 
-          <div className="flex gap-x-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             {/*3-1. 공연일시*/}
             <Field>
               <FieldLabel htmlFor="performance-date">공연일시</FieldLabel>
@@ -201,7 +201,7 @@ export function VenueInfoDialog({ venueId, venue, isUpdate }: VenueInfoDialogPro
           <Field>
             <FieldLabel htmlFor="stage-position-input">무대 위치</FieldLabel>
             {/*5. 무대 선택 버튼*/}
-            <div className="flex flex-wrap justify-around gap-2">
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-around">
               {stagePositionOptions.map((v) => (
                 <Button
                   key={v.value}
