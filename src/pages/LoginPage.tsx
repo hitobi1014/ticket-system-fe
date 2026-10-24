@@ -4,6 +4,7 @@ import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import useAuthStore from '@/store/authStore';
+import useServerStatusStore from '@/store/serverStatusStore';
 import { Field, FieldLabel } from '@/components/ui/field';
 import {
   Select,
@@ -28,6 +29,8 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const { getMembers, nonValidateMembers, isAuthenticated, login, testLogin, isLoading } =
     useAuthStore();
+
+  const isServerWaking = useServerStatusStore((state) => state.status === 'waking');
 
   const [part, setPart] = useState<Instrument>();
   const [filteredMembers, setFilteredMembers] = useState<NonValidateMember[]>([]);
@@ -139,8 +142,12 @@ export default function LoginPage() {
             onChange={(e) => setMemberCode(e.target.value)}
             required
           />
-          <Button type="submit" className="mt-1 w-full" disabled={isLoading.login}>
-            {isLoading.login ? '로그인 중...' : '로그인'}
+          <Button
+            type="submit"
+            className="mt-1 w-full"
+            disabled={isLoading.login || isServerWaking}
+          >
+            {isServerWaking ? '서버 연결 중...' : isLoading.login ? '로그인 중...' : '로그인'}
           </Button>
         </form>
 
@@ -159,7 +166,7 @@ export default function LoginPage() {
                   variant="outline"
                   className="flex-1"
                   onClick={() => handleTestLogin('BASE')}
-                  disabled={isLoading.testLogin}
+                  disabled={isLoading.testLogin || isServerWaking}
                 >
                   일반회원 랜덤 로그인
                 </Button>
@@ -167,7 +174,7 @@ export default function LoginPage() {
                   variant="outline"
                   className="flex-1"
                   onClick={() => handleTestLogin('ADMIN')}
-                  disabled={isLoading.testLogin}
+                  disabled={isLoading.testLogin || isServerWaking}
                 >
                   관리자 랜덤 로그인
                 </Button>
